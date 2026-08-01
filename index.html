@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafePay Guard OS — India's Financial Immune System</title>
+<meta name="description" content="India's Financial Immune System. One report. Millions protected."/>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+<canvas id="stars"></canvas>
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="spot"></div>
+
+<div id="intro">
+  <canvas id="introCv"></canvas>
+  <div id="introText">
+    <div class="it-logo">SafePay Guard <span class="grad">OS</span></div>
+    <div class="it-tag">India's Financial Immune System</div>
+  </div>
+  <button id="introSkip" onclick="endIntro()">Skip intro →</button>
+</div>
+
+<nav id="nav">
+  <div class="brand">
+    <span class="m"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dcf8ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></span>
+    <span>SafePay Guard <b style="font-weight:700">OS</b><small>India's Financial Immune System</small></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:24px">
+    <div class="nlinks">
+      <a href="#radar">Radar</a><a href="#dna">Scam DNA</a><a href="#simulator">Simulator</a><a href="#briefing">Briefing</a><a href="#impact">Impact</a>
+    </div>
+    <div id="authArea"><button class="signin magnetic" onclick="openAuth()">Sign in</button></div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="wrap hero" id="top">
+  <div>
+    <span class="eyebrow kick" id="k1">Live · Financial Immune System</span>
+    <h1 class="kick" id="k2">Stop the scam<br><span class="grad">before it spreads.</span></h1>
+    <p class="sub kick" id="k3">India loses ₹22,495 crore a year to UPI fraud. We treat every scam like a virus — one report becomes an antibody that immunizes thousands nearby, in under a second.</p>
+    <p class="motto kick" id="k4">One report. Millions protected.</p>
+    <div class="cta-row kick" id="k5">
+      <button class="btn primary magnetic" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> Run live demo</button>
+      <a class="btn ghost magnetic" href="#radar">Watch live radar</a>
+    </div>
+    <div class="stat-strip kick" id="k6">
+      <div class="s"><b>46 cr</b><span>UPI users covered</span></div>
+      <div class="s"><b>2.81 M</b><span>scam cases / year</span></div>
+      <div class="s"><b>&lt;1 s</b><span>alert propagation</span></div>
+    </div>
+  </div>
+  <div class="globe-stage" data-speed="-0.12">
+    <div class="gring gr1"></div><div class="gring gr2"></div>
+    <canvas id="globe"></canvas>
+  </div>
+  <div class="scrollcue"><span>SCROLL</span><span class="line"></span></div>
+</header>
+
+<!-- ============ LIVE SCAM PULSE ============ -->
+<section class="wrap reveal" id="pulse">
+  <span class="eyebrow">Live · right now</span>
+  <div class="pulse-band stagger">
+    <div class="glass pcell red"><div class="n"><span class="dot" style="background:var(--danger)"></span><span id="p-active">187</span></div><div class="l">Active scams right now</div></div>
+    <div class="glass pcell cy"><div class="n"><span id="p-waves">23</span></div><div class="l">New waves today</div></div>
+    <div class="glass pcell gr"><div class="n"><span id="p-prot">41221</span></div><div class="l">People protected today</div></div>
+  </div>
+</section>
+
+<!-- ============ STATEMENT / WAVE ============ -->
+<section class="wrap statement reveal" id="wave">
+  <span class="scene-label">01 — THE THREAT</span>
+  <div class="huge" style="margin-top:16px">A scam never hits <span class="grad">just one person.</span> It moves in <span style="color:var(--danger)">waves.</span></div>
+  <p class="lead" style="margin:22px auto 0">One script is blasted to thousands over days. Because half of victims never report, the wave rolls on — unseen, unstopped.</p>
+  <div class="wave-stage">
+    <svg viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet" id="wavesvg">
+      <g id="wlines"></g><g id="wnodes"></g>
+      <circle class="wpulse" cx="150" cy="150" r="8"/><circle class="wpulse" cx="150" cy="150" r="8" style="animation-delay:1.2s"/>
+      <circle class="wcore" cx="150" cy="150" r="10"/>
+      <text x="150" y="185" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="#93A4C6">patient zero</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ LIVE RADAR ============ -->
+<section class="wrap reveal" id="radar">
+  <span class="eyebrow">Live scam radar</span>
+  <h2 class="big">A command center<br>for fraud in <span class="grad">real time.</span></h2>
+  <p class="lead">Every report is a signal. Hotspots pulse where scams spread right now — a public-health dashboard for money.</p>
+  <div class="radar">
+    <div class="map-stage" data-speed="0.06">
+      <div class="ring mr1"></div><div class="ring mr2"></div><div class="ring mr3"></div>
+      <div class="sweep"></div>
+      <svg class="india" viewBox="0 0 440 448" id="map">
+        <g class="grid-l">
+          <line x1="0" y1="112" x2="440" y2="112"/><line x1="0" y1="224" x2="440" y2="224"/><line x1="0" y1="336" x2="440" y2="336"/>
+          <line x1="150" y1="0" x2="150" y2="448"/><line x1="300" y1="0" x2="300" y2="448"/>
+        </g>
+        <path class="land" d="M24.0 193.9 L31.5 192.3 L32.3 187.2 L42.7 187.8 L46.0 189.4 L55.2 185.8 L58.3 188.4 L62.7 186.0 L61.7 183.5 L62.7 181.8 L57.4 171.1 L57.4 167.5 L52.2 166.9 L50.0 163.9 L50.6 155.2 L42.0 151.8 L42.4 146.2 L50.6 135.6 L54.1 133.1 L57.1 134.3 L59.4 137.7 L73.8 134.0 L80.1 122.5 L87.7 118.4 L94.1 105.2 L99.8 102.9 L101.5 101.0 L101.1 97.9 L107.0 91.2 L110.9 89.1 L109.4 86.9 L109.9 77.7 L120.2 71.9 L119.0 69.6 L111.6 67.8 L111.3 64.0 L107.2 63.8 L106.5 60.6 L102.5 57.7 L104.4 53.0 L102.1 49.9 L105.8 46.6 L101.1 44.7 L102.0 42.4 L99.7 40.3 L101.9 36.3 L106.4 34.7 L125.4 38.5 L129.8 36.1 L137.3 35.1 L142.7 31.4 L143.4 29.6 L153.5 24.0 L156.7 24.2 L156.3 27.6 L160.6 37.0 L165.2 38.3 L169.2 41.4 L165.9 45.6 L166.9 53.1 L171.4 57.9 L172.6 67.7 L168.5 69.8 L165.6 66.3 L161.4 67.4 L162.8 71.9 L166.0 75.7 L165.5 78.8 L167.0 80.6 L166.2 84.9 L171.0 83.8 L176.2 89.7 L180.3 90.1 L185.1 92.7 L185.6 95.9 L192.2 98.2 L196.6 101.8 L194.4 102.2 L188.4 108.2 L184.0 121.3 L188.7 124.5 L190.9 123.9 L207.9 135.4 L209.8 134.7 L216.0 138.2 L219.0 138.2 L219.8 140.5 L227.3 142.6 L229.4 141.2 L234.5 142.5 L238.0 140.9 L245.0 143.7 L246.0 147.4 L253.5 151.7 L257.9 150.4 L260.9 153.8 L263.8 153.2 L273.1 156.3 L277.3 154.5 L281.0 157.4 L290.5 157.0 L292.7 152.0 L290.3 146.1 L292.4 134.2 L298.3 132.1 L301.4 133.3 L302.0 135.3 L300.6 140.4 L302.5 143.4 L300.5 145.5 L302.1 148.6 L306.0 150.7 L308.5 150.2 L314.3 152.4 L319.1 151.6 L322.1 149.6 L327.4 151.4 L344.3 150.1 L345.3 149.3 L344.2 146.6 L345.4 143.8 L344.2 141.5 L340.9 141.6 L338.9 139.9 L339.4 136.9 L344.0 137.4 L351.7 135.2 L353.5 133.6 L353.7 131.3 L358.2 128.6 L361.1 124.2 L368.0 122.8 L379.6 114.3 L381.5 116.3 L389.9 118.3 L391.6 115.8 L398.5 112.3 L401.2 115.2 L402.8 115.2 L399.7 117.6 L399.9 120.0 L403.9 118.1 L405.9 122.3 L401.8 127.4 L406.2 126.7 L412.5 128.0 L415.8 130.3 L416.0 134.3 L409.8 139.5 L412.9 146.3 L407.9 143.2 L400.6 144.2 L386.3 153.9 L385.3 157.6 L386.4 162.0 L379.0 172.6 L378.6 174.1 L380.7 176.5 L372.9 193.6 L362.1 190.9 L363.3 196.5 L362.7 204.5 L361.9 206.0 L359.9 206.0 L358.8 210.5 L359.8 217.7 L356.5 221.2 L354.0 219.1 L352.0 221.3 L347.6 196.4 L343.4 196.4 L343.5 199.1 L341.0 202.2 L341.0 205.6 L339.2 206.7 L336.7 203.5 L335.1 204.9 L333.1 197.9 L334.0 193.0 L335.8 190.5 L342.7 189.0 L343.7 186.6 L345.7 185.9 L347.4 179.0 L350.3 179.4 L350.6 178.0 L345.0 174.8 L323.3 174.9 L315.2 173.0 L315.0 163.5 L313.0 159.5 L311.4 162.6 L309.0 162.5 L306.5 161.1 L304.2 156.6 L303.0 157.2 L303.6 159.0 L301.7 158.9 L295.5 154.4 L296.5 157.2 L292.6 161.4 L291.7 164.3 L297.3 169.4 L300.9 170.1 L303.3 173.4 L301.5 174.7 L296.7 174.5 L294.8 179.0 L292.6 178.5 L290.9 182.7 L292.5 184.7 L300.3 187.8 L298.2 196.6 L300.5 200.1 L300.3 202.7 L303.0 203.7 L302.0 205.8 L304.7 217.0 L304.4 221.9 L303.3 221.9 L304.7 226.1 L302.7 226.1 L302.1 224.8 L300.6 227.1 L300.5 220.9 L299.2 219.2 L298.4 226.0 L296.5 226.7 L294.4 224.6 L294.0 226.5 L292.2 226.3 L291.3 225.5 L293.2 219.0 L289.8 215.6 L290.0 217.3 L292.7 219.2 L289.9 223.6 L286.2 226.1 L278.5 228.3 L275.2 232.2 L276.8 240.0 L273.8 245.7 L268.7 250.1 L267.0 249.4 L267.9 250.4 L266.6 251.7 L258.0 254.7 L256.9 254.6 L257.8 253.8 L257.0 251.9 L253.6 253.8 L252.7 256.1 L255.2 254.9 L256.2 255.7 L247.2 263.0 L238.2 275.1 L232.2 278.4 L226.0 285.1 L214.8 292.6 L213.4 300.4 L206.7 303.8 L200.3 303.7 L196.2 312.1 L191.7 310.2 L187.0 312.8 L183.8 322.1 L185.4 330.8 L184.5 334.7 L187.2 345.3 L185.1 342.0 L183.9 343.6 L187.6 347.1 L186.1 356.9 L181.1 367.2 L180.3 375.1 L178.9 377.1 L180.3 376.7 L181.0 378.7 L180.9 391.5 L173.8 392.5 L168.8 402.6 L169.9 405.9 L175.1 408.0 L169.3 406.9 L161.8 409.3 L158.8 412.4 L157.0 419.8 L149.7 424.3 L143.6 420.8 L136.7 412.2 L133.7 404.2 L132.5 397.3 L133.9 398.7 L134.3 402.9 L135.5 403.0 L133.9 397.4 L131.9 395.0 L125.6 376.3 L118.5 366.2 L115.1 358.8 L107.5 330.6 L101.7 322.1 L99.7 317.4 L101.5 317.4 L99.3 314.9 L100.2 313.6 L98.1 312.9 L93.5 301.9 L91.1 284.9 L87.3 270.0 L89.0 264.5 L88.6 262.6 L86.8 265.2 L86.3 263.7 L86.4 260.5 L88.8 260.8 L86.1 259.5 L84.5 252.7 L87.5 240.4 L86.5 233.9 L84.8 233.0 L83.9 230.2 L85.4 228.8 L83.8 228.9 L90.5 224.7 L82.8 225.5 L84.9 221.4 L82.6 221.4 L83.0 218.7 L86.4 217.6 L78.0 217.1 L79.7 218.3 L79.2 219.7 L76.0 223.6 L78.4 225.0 L78.9 227.9 L75.7 233.4 L62.4 239.4 L55.2 238.0 L49.1 233.0 L34.8 216.8 L35.9 214.6 L38.9 216.9 L51.0 212.7 L55.6 206.4 L55.2 205.1 L53.2 207.3 L50.2 207.2 L44.2 209.9 L38.4 208.6 L30.4 203.7 L27.4 198.1 L32.2 194.0 L24.9 197.7 L24.0 193.9 Z"/>
+        <g class="city" data-city="delhi" transform="translate(145.5,124.5)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Delhi</text></g>
+        <g class="city" data-city="mumbai" transform="translate(87.2,263.8)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-52" y="3">Mumbai</text></g>
+        <g class="city" data-city="kolkata" transform="translate(295.4,212.7)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-46" y="3">Kolkata</text></g>
+        <g class="city" data-city="hyderabad" transform="translate(162.6,288.5)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Hyderabad</text></g>
+        <g class="city" data-city="bengaluru" transform="translate(150.7,352.9)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-56" y="3">Bengaluru</text></g>
+        <g class="city" data-city="chennai" transform="translate(186.7,351.2)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Chennai</text></g>
+      </svg>
+    </div>
+    <div>
+      <ul class="outbreak stagger" id="outbreak">
+        <li class="glass"><span class="live"></span><div><div class="loc">Delhi</div><div class="typ">KYC / digital-arrest scam</div></div><span class="cnt" data-c="delhi">201</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Mumbai</div><div class="typ">Refund / cashback scam</div></div><span class="cnt" data-c="mumbai">142</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Bengaluru</div><div class="typ">Fake QR collect-request</div></div><span class="cnt" data-c="bengaluru">89</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Chennai</div><div class="typ">Lottery / prize scam</div></div><span class="cnt" data-c="chennai">67</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIME MACHINE ============ -->
+<section class="wrap reveal" id="timemachine">
+  <span class="eyebrow">Digital Scam Time Machine</span>
+  <h2 class="big">Watch a scam <span class="grad">travel</span> —<br>and where it strikes <span style="color:var(--gold)">next.</span></h2>
+  <p class="lead">Scams move city to city like an outbreak. We replay the spread and forecast tomorrow's target before it happens.</p>
+  <div class="tm">
+    <div class="tm-track" id="tmTrack">
+      <div class="glass tm-step" data-i="0"><div class="day">DAY 1</div><div class="city">Chennai</div><div class="rep">128 reports</div></div>
+      <div class="glass tm-step" data-i="1"><div class="day">DAY 2</div><div class="city">Coimbatore</div><div class="rep">96 reports</div></div>
+      <div class="glass tm-step" data-i="2"><div class="day">DAY 3</div><div class="city">Bengaluru</div><div class="rep">173 reports</div></div>
+      <div class="glass tm-step" data-i="3"><div class="day">DAY 4</div><div class="city">Hyderabad</div><div class="rep">201 reports</div></div>
+      <div class="glass tm-step tm-pred" data-i="4"><div class="day">TOMORROW</div><div class="city">Mumbai</div><div class="rep">forecast</div><div class="tm-forecast">AI confidence 87%</div></div>
+    </div>
+    <div style="margin-top:20px"><button class="mini go magnetic" onclick="playTimeMachine()">Replay outbreak</button></div>
+  </div>
+</section>
+
+<!-- ============ SCAM DNA ============ -->
+<section class="wrap reveal" id="dna">
+  <span class="eyebrow">Scam DNA engine</span>
+  <h2 class="big">Every scam has a <span class="gradb">fingerprint.</span></h2>
+  <p class="lead">Paste any message — the engine sequences it into fraud traits and returns a verdict in under a second. Real logic, not a mock-up.</p>
+  <div class="lab">
+    <div class="glass phone tilt">
+      <div class="bar"><div class="notch"></div></div>
+      <div class="sms"><div class="who"><span id="smswho">+91 98••• ••210 · "SBI Bank"</span><span>now</span></div><span id="smsbody">URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz  Enter your UPI PIN to confirm.</span></div>
+      <div class="samples">
+        <span class="chip" onclick="loadSample(0)">KYC expiry</span>
+        <span class="chip" onclick="loadSample(1)">Lottery prize</span>
+        <span class="chip" onclick="loadSample(2)">Fake refund QR</span>
+        <span class="chip" onclick="loadSample(3)">Safe message</span>
+      </div>
+      <textarea id="input" placeholder="…or paste any message to sequence">URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz  Enter your UPI PIN to confirm.</textarea>
+      <div class="actions"><button class="mini go magnetic" onclick="analyze()">Sequence it</button><button class="mini" onclick="clearAll()">Clear</button></div>
+    </div>
+    <div class="glass analyzer tilt" id="analyzer">
+      <div class="verdict">
+        <div class="gauge" id="gauge" style="--v:0"><b id="riskval">0</b><small>RISK</small></div>
+        <div class="vtext"><h3 id="vhead">Awaiting message</h3><p id="vsub">Tap “Sequence it” to run the DNA analysis.</p><span class="badge safe" id="badge" style="display:none">Antibody generated</span><span class="simple-toggle" id="grandma" onclick="toggleGrandma()" style="margin-left:8px">Explain simply</span></div>
+      </div>
+      <div class="dna" id="dnabars">
+        <div class="row"><span class="lbl">Emotional trigger</span><div class="track"><div class="fill" data-k="emotion"></div></div><span class="val" data-v="emotion">0</span></div>
+        <div class="row"><span class="lbl">Urgency pressure</span><div class="track"><div class="fill" data-k="urgency"></div></div><span class="val" data-v="urgency">0</span></div>
+        <div class="row"><span class="lbl">Fake identity</span><div class="track"><div class="fill" data-k="fakeid"></div></div><span class="val" data-v="fakeid">0</span></div>
+        <div class="row"><span class="lbl">Unknown link</span><div class="track"><div class="fill" data-k="link"></div></div><span class="val" data-v="link">0</span></div>
+        <div class="row"><span class="lbl">Payment / PIN request</span><div class="track"><div class="fill" data-k="payment"></div></div><span class="val" data-v="payment">0</span></div>
+      </div>
+      <div class="report-row" id="reportRow" style="display:none">
+        <button class="mini go" onclick="openGov()"><span class="ic-sm" data-icon="alert"></span> Auto-report to Cyber Crime</button>
+        <button class="mini" onclick="openShare()"><span class="ic-sm" data-icon="users"></span> Alert family &amp; friends</button>
+        <a class="mini" href="tel:1930">Call 1930</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENTER THE SCAM ============ -->
+<section class="wrap reveal" id="journey">
+  <span class="eyebrow">Enter the scam</span>
+  <h2 class="big">Travel <span class="gradb">inside</span> a scam.</h2>
+  <p class="lead">Follow a real scam from the first message to the stolen money — we freeze it at every step and expose the red flag you can now spot.</p>
+  <div class="journey">
+    <div class="jtrack" id="jtrack">
+      <div class="jstage" data-i="0" onclick="jGo(0)"><div class="jic" data-icon="smartphone"></div><div class="jname">Message</div></div>
+      <div class="jstage" data-i="1" onclick="jGo(1)"><div class="jic" data-icon="link"></div><div class="jname">Link</div></div>
+      <div class="jstage" data-i="2" onclick="jGo(2)"><div class="jic" data-icon="globe"></div><div class="jname">Fake site</div></div>
+      <div class="jstage" data-i="3" onclick="jGo(3)"><div class="jic" data-icon="grid"></div><div class="jname">QR code</div></div>
+      <div class="jstage" data-i="4" onclick="jGo(4)"><div class="jic" data-icon="wallet"></div><div class="jname">UPI</div></div>
+      <div class="jstage" data-i="5" onclick="jGo(5)"><div class="jic" data-icon="building"></div><div class="jname">Bank</div></div>
+      <div class="jstage" data-i="6" onclick="jGo(6)"><div class="jic" data-icon="alert"></div><div class="jname">Scammer</div></div>
+      <div class="jstage" data-i="7" onclick="jGo(7)"><div class="jic" data-icon="route"></div><div class="jname">Money trail</div></div>
+    </div>
+    <div class="glass jdetail" id="jdetail">
+      <div class="jlabel" id="jlabel">STEP 1 · MESSAGE</div>
+      <h4 id="jhead">It starts with a single message</h4>
+      <p id="jbody">Tap “Enter the scam” to travel through it, step by step — or click any stage.</p>
+      <span class="jflag" id="jflag" style="display:none"></span>
+    </div>
+    <div style="margin-top:18px"><button class="btn primary" onclick="jPlay()"><span class="ic-sm" data-icon="play"></span> Enter the scam</button></div>
+  </div>
+</section>
+
+<!-- ============ AI SCAM SIMULATOR ============ -->
+<section class="wrap reveal" id="simulator">
+  <span class="eyebrow">AI Scam Simulator</span>
+  <h2 class="big">See a scam <span class="gradb">from the inside.</span></h2>
+  <p class="lead">Pick a scam and watch it unfold in real time — then we freeze it and expose every trick, so you'll never fall for it. Nothing here is real; it's a safe training drill.</p>
+  <div class="sim">
+    <div class="glass sim-chat" id="simChat">
+      <div class="sim-hint" id="simHint">Choose a scam below to run the simulation.</div>
+      <div class="sim-controls" id="simControls">
+        <button class="mini magnetic" onclick="runSim(0)">KYC bank scam</button>
+        <button class="mini magnetic" onclick="runSim(1)">Lottery prize</button>
+        <button class="mini magnetic" onclick="runSim(2)">Digital arrest</button>
+      </div>
+    </div>
+    <div class="glass sim-analysis" id="simAnalysis" style="opacity:.4">
+      <h3 style="font-family:var(--disp);margin:0 0 4px;font-size:21px">Manipulation breakdown</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 14px" id="simVerdict">Run a simulation to reveal the tactics used against you.</p>
+      <div class="emeter" id="emeter">
+        <div class="row"><span class="lbl">Fear</span><div class="track"><div class="fill" data-e="fear" style="background:var(--danger)"></div></div><span class="val" data-ev="fear">0</span></div>
+        <div class="row"><span class="lbl">Greed</span><div class="track"><div class="fill" data-e="greed" style="background:var(--gold)"></div></div><span class="val" data-ev="greed">0</span></div>
+        <div class="row"><span class="lbl">Urgency</span><div class="track"><div class="fill" data-e="urgency" style="background:var(--cyan)"></div></div><span class="val" data-ev="urgency">0</span></div>
+        <div class="row"><span class="lbl">Authority</span><div class="track"><div class="fill" data-e="authority" style="background:var(--blue)"></div></div><span class="val" data-ev="authority">0</span></div>
+        <div class="row"><span class="lbl">Curiosity</span><div class="track"><div class="fill" data-e="curiosity" style="background:var(--purple)"></div></div><span class="val" data-ev="curiosity">0</span></div>
+      </div>
+      <ul class="trick-list" id="trickList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMMUNE SYSTEM ============ -->
+<section class="wrap reveal" id="immune">
+  <span class="eyebrow">Community immune system</span>
+  <h2 class="big">One antibody.<br><span class="grad">A whole city immunized.</span></h2>
+  <p class="lead">Watch protection spread through the network — the moment one person reports, everyone with the same exposure profile is warned.</p>
+  <div class="immune-stage"><svg viewBox="0 0 900 400" id="immunesvg"><g id="ilinks"></g><g id="inodes"></g></svg></div>
+</section>
+
+<!-- ============ GOLDEN HOUR ============ -->
+<section class="wrap reveal" id="golden">
+  <span class="eyebrow">Golden Hour recovery</span>
+  <h2 class="big">The first hour<br>decides <span style="color:var(--gold)">everything.</span></h2>
+  <p class="lead">On UPI, theft is instant — but banks can still freeze funds if you move fast. Golden Hour turns panic into a guided rescue.</p>
+  <div class="timeline stagger">
+    <div class="tl"><div class="t">00:00</div><h4>Scam detected</h4><p>Report logged, transaction details captured automatically.</p></div>
+    <div class="tl"><div class="t">00:05</div><h4>Freeze the payment</h4><p>Guided steps to block the account and stop further debits.</p></div>
+    <div class="tl"><div class="t">00:15</div><h4>Call 1930</h4><p>One tap to the national cyber-crime helpline.</p></div>
+    <div class="tl"><div class="t">00:20</div><h4>Complaint auto-filed</h4><p>A pre-filled cybercrime.gov.in report — recovery begins.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-weight:700;font-size:clamp(20px,2.6vw,28px);margin:52px 0 4px">Fraud &amp; emergency helplines</h3>
+  <p class="lead" style="font-size:15px">Save these. For any financial fraud, call <b style="color:var(--gold)">1930</b> first — the sooner you report, the more likely the money can be frozen.</p>
+  <div class="helplines">
+    <a class="glass hl" href="tel:1930"><div class="num">1930</div><div class="nm">Cyber-crime &amp; financial fraud · 24×7</div></a>
+    <a class="glass hl" href="tel:112"><div class="num">112</div><div class="nm">National emergency (police / all-in-one)</div></a>
+    <a class="glass hl" href="https://cybercrime.gov.in" target="_blank" rel="noopener"><div class="num">Report online</div><div class="nm">cybercrime.gov.in · National portal</div></a>
+    <a class="glass hl" href="tel:14448"><div class="num">14448</div><div class="nm">RBI complaints (banking) · office hours</div></a>
+    <a class="glass hl" href="tel:1909"><div class="num">1909</div><div class="nm">Report spam calls &amp; SMS · TRAI</div></a>
+    <a class="glass hl" href="https://www.npci.org.in/what-we-do/upi/dispute-redressal-mechanism" target="_blank" rel="noopener"><div class="num">UPI disputes</div><div class="nm">Raise in your bank/UPI app · NPCI portal</div></a>
+    <a class="glass hl" href="tel:1098"><div class="num">1098</div><div class="nm">Childline (child in distress)</div></a>
+    <a class="glass hl" href="tel:181"><div class="num">181</div><div class="nm">Women helpline</div></a>
+    <a class="glass hl" href="tel:14567"><div class="num">14567</div><div class="nm">Senior citizens · Elderline</div></a>
+  </div>
+</section>
+
+<!-- ============ SENTINEL AI ============ -->
+<section class="wrap reveal" id="ai">
+  <span class="eyebrow">Sentinel AI</span>
+  <div class="ai">
+    <div class="orb-stage" data-speed="-0.08"><div class="orb"></div></div>
+    <div>
+      <h2 class="big" style="margin-top:0">Intelligence that<br>watches <span class="gradb">for you.</span></h2>
+      <p class="lead">Not a chatbot in a box — an ambient guardian. Ask in your language, get a plain answer, stay protected.</p>
+      <div class="ai-prompts stagger">
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Is this message fake?')"><span>ASK</span>Is this message fake?</div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Can I trust this UPI ID?')"><span>ASK</span>Can I trust this UPI ID?</div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Show scams near me right now')"><span>ASK</span>Show scams near me right now</div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('I was scammed, what do I do?')"><span>ASK</span>I was scammed — what do I do?</div>
+      </div>
+      <div style="margin-top:20px"><button class="btn primary magnetic" onclick="openChat()"><span class="orbmini"></span> Chat with Sentinel AI</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FRAUD BRIEFING ============ -->
+<section class="wrap reveal" id="briefing">
+  <span class="eyebrow">Daily fraud briefing</span>
+  <h2 class="big">Know today's scams<br><span class="grad">before they know you.</span></h2>
+  <p class="lead">A fresh brief every day — the latest fraud tactics, data, and advisories, curated so you stay one step ahead.</p>
+  <div class="brief-date" id="briefDate"></div>
+  <a class="glass brief-feature" id="briefFeature" target="_blank" rel="noopener"></a>
+  <div class="brief-row" id="briefRow"></div>
+</section>
+
+<!-- ============ IMPACT ============ -->
+<section class="wrap reveal" id="impact">
+  <span class="eyebrow">Impact dashboard</span>
+  <h2 class="big">Every report makes<br>the network <span class="grad">stronger.</span></h2>
+  <div class="bento">
+    <div class="glass cell big"><div class="num" data-count="8421" id="c-people">0</div><div class="lbl">People protected today</div></div>
+    <div class="glass cell"><div class="num" data-count="32000000" data-money="1" id="c-money">0</div><div class="lbl">Money saved today</div></div>
+    <div class="glass cell"><div class="num" data-count="1240" id="c-reports">0</div><div class="lbl">Antibodies generated</div></div>
+    <div class="glass cell"><div class="num" data-count="112">0</div><div class="lbl">Cities covered</div></div>
+    <div class="glass cell"><div class="num" data-count="94" data-suffix="%">0</div><div class="lbl">Waves stopped early</div></div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section class="wrap reveal" id="arch">
+  <span class="eyebrow">Under the hood</span>
+  <h2 class="big">A buildable stack.<br>Data flows in <span class="gradb">seconds.</span></h2>
+  <p class="lead">No black-box ML. A report enters the DNA engine, gets scored, matched to a location, and pushed back to nearby users — a lightweight, hackathon-ready pipeline.</p>
+  <div class="arch" id="archflow">
+    <div class="node glass"><div class="ic-md" data-icon="smartphone"></div><h4>Client</h4><p>React PWA</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="dna"></div><h4>DNA Engine</h4><p>fingerprint</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="activity"></div><h4>Risk Engine</h4><p>rule scoring</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="pin"></div><h4>Geo Matcher</h4><p>Firestore geo</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="radio"></div><h4>Alert Engine</h4><p>FCM push</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="users"></div><h4>Nearby users</h4><p>immunized</p></div>
+  </div>
+</section>
+
+<!-- ============ VISION ============ -->
+<section class="wrap vision reveal" id="vision">
+  <span class="scene-label">10 — THE FUTURE</span>
+  <div style="margin-top:24px">
+    <div class="line">One campus.</div>
+    <div class="line">Then cities.</div>
+    <div class="line"><span class="grad">Then all of India.</span></div>
+  </div>
+  <svg class="vision-india" id="visionMap" viewBox="0 0 440 448">
+    <path class="vland" d="M24.0 193.9 L31.5 192.3 L32.3 187.2 L42.7 187.8 L46.0 189.4 L55.2 185.8 L58.3 188.4 L62.7 186.0 L61.7 183.5 L62.7 181.8 L57.4 171.1 L57.4 167.5 L52.2 166.9 L50.0 163.9 L50.6 155.2 L42.0 151.8 L42.4 146.2 L50.6 135.6 L54.1 133.1 L57.1 134.3 L59.4 137.7 L73.8 134.0 L80.1 122.5 L87.7 118.4 L94.1 105.2 L99.8 102.9 L101.5 101.0 L101.1 97.9 L107.0 91.2 L110.9 89.1 L109.4 86.9 L109.9 77.7 L120.2 71.9 L119.0 69.6 L111.6 67.8 L111.3 64.0 L107.2 63.8 L106.5 60.6 L102.5 57.7 L104.4 53.0 L102.1 49.9 L105.8 46.6 L101.1 44.7 L102.0 42.4 L99.7 40.3 L101.9 36.3 L106.4 34.7 L125.4 38.5 L129.8 36.1 L137.3 35.1 L142.7 31.4 L143.4 29.6 L153.5 24.0 L156.7 24.2 L156.3 27.6 L160.6 37.0 L165.2 38.3 L169.2 41.4 L165.9 45.6 L166.9 53.1 L171.4 57.9 L172.6 67.7 L168.5 69.8 L165.6 66.3 L161.4 67.4 L162.8 71.9 L166.0 75.7 L165.5 78.8 L167.0 80.6 L166.2 84.9 L171.0 83.8 L176.2 89.7 L180.3 90.1 L185.1 92.7 L185.6 95.9 L192.2 98.2 L196.6 101.8 L194.4 102.2 L188.4 108.2 L184.0 121.3 L188.7 124.5 L190.9 123.9 L207.9 135.4 L209.8 134.7 L216.0 138.2 L219.0 138.2 L219.8 140.5 L227.3 142.6 L229.4 141.2 L234.5 142.5 L238.0 140.9 L245.0 143.7 L246.0 147.4 L253.5 151.7 L257.9 150.4 L260.9 153.8 L263.8 153.2 L273.1 156.3 L277.3 154.5 L281.0 157.4 L290.5 157.0 L292.7 152.0 L290.3 146.1 L292.4 134.2 L298.3 132.1 L301.4 133.3 L302.0 135.3 L300.6 140.4 L302.5 143.4 L300.5 145.5 L302.1 148.6 L306.0 150.7 L308.5 150.2 L314.3 152.4 L319.1 151.6 L322.1 149.6 L327.4 151.4 L344.3 150.1 L345.3 149.3 L344.2 146.6 L345.4 143.8 L344.2 141.5 L340.9 141.6 L338.9 139.9 L339.4 136.9 L344.0 137.4 L351.7 135.2 L353.5 133.6 L353.7 131.3 L358.2 128.6 L361.1 124.2 L368.0 122.8 L379.6 114.3 L381.5 116.3 L389.9 118.3 L391.6 115.8 L398.5 112.3 L401.2 115.2 L402.8 115.2 L399.7 117.6 L399.9 120.0 L403.9 118.1 L405.9 122.3 L401.8 127.4 L406.2 126.7 L412.5 128.0 L415.8 130.3 L416.0 134.3 L409.8 139.5 L412.9 146.3 L407.9 143.2 L400.6 144.2 L386.3 153.9 L385.3 157.6 L386.4 162.0 L379.0 172.6 L378.6 174.1 L380.7 176.5 L372.9 193.6 L362.1 190.9 L363.3 196.5 L362.7 204.5 L361.9 206.0 L359.9 206.0 L358.8 210.5 L359.8 217.7 L356.5 221.2 L354.0 219.1 L352.0 221.3 L347.6 196.4 L343.4 196.4 L343.5 199.1 L341.0 202.2 L341.0 205.6 L339.2 206.7 L336.7 203.5 L335.1 204.9 L333.1 197.9 L334.0 193.0 L335.8 190.5 L342.7 189.0 L343.7 186.6 L345.7 185.9 L347.4 179.0 L350.3 179.4 L350.6 178.0 L345.0 174.8 L323.3 174.9 L315.2 173.0 L315.0 163.5 L313.0 159.5 L311.4 162.6 L309.0 162.5 L306.5 161.1 L304.2 156.6 L303.0 157.2 L303.6 159.0 L301.7 158.9 L295.5 154.4 L296.5 157.2 L292.6 161.4 L291.7 164.3 L297.3 169.4 L300.9 170.1 L303.3 173.4 L301.5 174.7 L296.7 174.5 L294.8 179.0 L292.6 178.5 L290.9 182.7 L292.5 184.7 L300.3 187.8 L298.2 196.6 L300.5 200.1 L300.3 202.7 L303.0 203.7 L302.0 205.8 L304.7 217.0 L304.4 221.9 L303.3 221.9 L304.7 226.1 L302.7 226.1 L302.1 224.8 L300.6 227.1 L300.5 220.9 L299.2 219.2 L298.4 226.0 L296.5 226.7 L294.4 224.6 L294.0 226.5 L292.2 226.3 L291.3 225.5 L293.2 219.0 L289.8 215.6 L290.0 217.3 L292.7 219.2 L289.9 223.6 L286.2 226.1 L278.5 228.3 L275.2 232.2 L276.8 240.0 L273.8 245.7 L268.7 250.1 L267.0 249.4 L267.9 250.4 L266.6 251.7 L258.0 254.7 L256.9 254.6 L257.8 253.8 L257.0 251.9 L253.6 253.8 L252.7 256.1 L255.2 254.9 L256.2 255.7 L247.2 263.0 L238.2 275.1 L232.2 278.4 L226.0 285.1 L214.8 292.6 L213.4 300.4 L206.7 303.8 L200.3 303.7 L196.2 312.1 L191.7 310.2 L187.0 312.8 L183.8 322.1 L185.4 330.8 L184.5 334.7 L187.2 345.3 L185.1 342.0 L183.9 343.6 L187.6 347.1 L186.1 356.9 L181.1 367.2 L180.3 375.1 L178.9 377.1 L180.3 376.7 L181.0 378.7 L180.9 391.5 L173.8 392.5 L168.8 402.6 L169.9 405.9 L175.1 408.0 L169.3 406.9 L161.8 409.3 L158.8 412.4 L157.0 419.8 L149.7 424.3 L143.6 420.8 L136.7 412.2 L133.7 404.2 L132.5 397.3 L133.9 398.7 L134.3 402.9 L135.5 403.0 L133.9 397.4 L131.9 395.0 L125.6 376.3 L118.5 366.2 L115.1 358.8 L107.5 330.6 L101.7 322.1 L99.7 317.4 L101.5 317.4 L99.3 314.9 L100.2 313.6 L98.1 312.9 L93.5 301.9 L91.1 284.9 L87.3 270.0 L89.0 264.5 L88.6 262.6 L86.8 265.2 L86.3 263.7 L86.4 260.5 L88.8 260.8 L86.1 259.5 L84.5 252.7 L87.5 240.4 L86.5 233.9 L84.8 233.0 L83.9 230.2 L85.4 228.8 L83.8 228.9 L90.5 224.7 L82.8 225.5 L84.9 221.4 L82.6 221.4 L83.0 218.7 L86.4 217.6 L78.0 217.1 L79.7 218.3 L79.2 219.7 L76.0 223.6 L78.4 225.0 L78.9 227.9 L75.7 233.4 L62.4 239.4 L55.2 238.0 L49.1 233.0 L34.8 216.8 L35.9 214.6 L38.9 216.9 L51.0 212.7 L55.6 206.4 L55.2 205.1 L53.2 207.3 L50.2 207.2 L44.2 209.9 L38.4 208.6 L30.4 203.7 L27.4 198.1 L32.2 194.0 L24.9 197.7 L24.0 193.9 Z"/>
+    <circle class="vc" cx="145.5" cy="124.5" r="5"/><circle class="vc" cx="87.2" cy="263.8" r="5"/><circle class="vc" cx="295.4" cy="212.7" r="5"/><circle class="vc" cx="162.6" cy="288.5" r="5"/><circle class="vc" cx="150.7" cy="352.9" r="5"/><circle class="vc" cx="186.7" cy="351.2" r="5"/>
+  </svg>
+  <div class="mantra" id="mantra">One report.<br>One antibody.<br><span class="grad">Millions protected.</span></div>
+  <p class="lead" style="margin:28px auto 0">Plugged into NPCI, every reported scam could immunize 46 crore users in seconds — herd immunity for India's payments.</p>
+  <div style="margin-top:28px"><button class="btn primary magnetic" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> Run the full demo</button></div>
+</section>
+
+<footer class="wrap">
+  <div class="fm">SafePay Guard <span class="grad">OS</span></div>
+  <div>One report. Millions protected. · Crack the Complexity Designathon · FinTech track</div>
+</footer>
+
+<!-- Sentinel AI chat -->
+<button id="aifab" class="magnetic" onclick="openChat()"><span class="orbmini"></span> Ask Sentinel AI</button>
+<div id="aichat" class="glass">
+  <div class="ac-head"><span class="orbmini"></span><div><b>Sentinel AI</b><small>on-device fraud guardian</small></div><span class="x" onclick="closeChat()">×</span></div>
+  <div class="ac-body" id="acBody"></div>
+  <div class="ac-quick">
+    <span class="q" onclick="acSend('Is this a scam? URGENT KYC verify, share OTP now')">Check a message</span>
+    <span class="q" onclick="acSend('I was scammed')">I was scammed</span>
+    <span class="q" onclick="acSend('What is a digital arrest scam?')">Digital arrest?</span>
+    <span class="q" onclick="acSend('Is this UPI ID safe?')">UPI ID safe?</span>
+  </div>
+  <div class="ac-input"><input id="acInput" placeholder="Ask anything about a scam…" onkeydown="if(event.key==='Enter')acSend()"><button onclick="acSend()">Send</button></div>
+</div>
+
+<!-- Auth modal -->
+<div id="authwrap"><div class="auth glass" style="position:relative">
+  <span class="x" onclick="closeAuth()">×</span>
+  <h3 id="authTitle">Welcome back</h3>
+  <p class="sub" id="authSub">Sign in to protect your account and get real-time alerts.</p>
+  <label>Email address</label>
+  <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+  <label>Password</label>
+  <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password">
+  <div id="signupFields" style="display:none">
+    <div class="pfp-row">
+      <div class="pfp-prev" id="pfpPrev">A</div>
+      <div>
+        <label style="margin:0 0 6px">Profile picture</label>
+        <label for="pfpInput" class="pfp-btn">Upload photo</label>
+        <input type="file" id="pfpInput" accept="image/*" style="display:none" onchange="loadPfp(event)">
+      </div>
+    </div>
+    <label>Username</label>
+    <input type="text" id="authName" placeholder="e.g. rahul_k" autocomplete="username" oninput="if(!pfpData)document.getElementById('pfpPrev').textContent=(this.value[0]||'A').toUpperCase()">
+    <label>Mobile number</label>
+    <input type="tel" id="authPhone" placeholder="+91 98765 43210" autocomplete="tel">
+  </div>
+  <div class="captcha">
+    <div class="box" id="robotBox" onclick="toggleRobot()"><svg viewBox="0 0 24 24" fill="none" stroke="#04121a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="t">I'm not a robot</div>
+    <div class="rc">SafePay<br>Guard · demo</div>
+  </div>
+  <div class="err" id="authErr"></div>
+  <button class="btn primary go" onclick="submitAuth()" id="authGo">Sign in</button>
+  <div class="switch" id="authSwitch">New here? <a onclick="setAuthMode('signup')">Create an account</a></div>
+  <div class="demo">Demo authentication · no data leaves your browser</div>
+</div></div>
+
+<!-- Permission prompt -->
+<div id="permwrap"><div class="perm glass">
+  <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+  <h3>Turn on Protection?</h3>
+  <p>Allow SafePay Guard to <b>screen your incoming calls &amp; SMS</b> and automatically block known scam numbers and fake messages, using the community immune network.</p>
+  <div class="prow">
+    <button class="btn ghost" onclick="declineProtect()">Not now</button>
+    <button class="btn primary" onclick="enableProtect()">Allow protection</button>
+  </div>
+  <div class="demo">Prototype - real-time call/SMS blocking runs in the SafePay Guard mobile app with your device permission.</div>
+</div></div>
+
+<!-- Protection shield -->
+<button id="shieldFab" onclick="toggleShield()"><span class="pdot"></span> Protection ON</button>
+<div id="shieldPanel" class="glass">
+  <div class="sp-head"><span class="orbmini" style="background:radial-gradient(circle at 35% 30%,#fff,#22C55E 40%,#0e7c86)"></span><div><b>Protection Shield</b><small>Screening calls &amp; SMS</small></div><span class="x" onclick="toggleShield()">×</span></div>
+  <div class="sp-stat"><div class="n" id="sp-count">0</div><div class="l">threats blocked today</div></div>
+  <div class="sp-feed" id="sp-feed"></div>
+  <div class="sp-tools">
+    <div class="sp-row"><input id="sp-check" placeholder="Check a number or sender ID"><button class="mini go" onclick="checkNumber()">Check</button></div>
+    <div class="sp-verdict" id="sp-verdict"></div>
+    <div class="sp-row"><input id="sp-report" placeholder="Report a scam number to block"><button class="mini" onclick="reportNumber()">Report</button></div>
+  </div>
+  <div class="sp-demo">Demo blocklist - grows as the community reports. Real blocking needs the mobile app + OS permission.</div>
+</div>
+
+<!-- Auto-report to Government -->
+<div id="govwrap"><div class="gov glass">
+  <span class="x" onclick="closeGov()">×</span>
+  <h3><span class="ic-sm" data-icon="shield"></span> File with Cyber Crime</h3>
+  <p class="sub">We've assembled your complaint automatically. Confirm and submit on the official portal, or call 1930 now.</p>
+  <div class="field"><div class="k">DETECTED</div><div class="v" id="gov-type">—</div></div>
+  <div class="field"><div class="k">EVIDENCE</div><div class="v" id="gov-ev">—</div></div>
+  <div class="klabel">COMPLAINT · AUTO-GENERATED (editable)</div>
+  <textarea id="gov-text"></textarea>
+  <div class="grow">
+    <a class="btn primary" id="gov-portal" href="https://cybercrime.gov.in" target="_blank" rel="noopener">Open cybercrime.gov.in</a>
+    <a class="btn ghost" href="tel:1930">Call 1930</a>
+    <button class="btn ghost" onclick="copyGov()">Copy complaint</button>
+  </div>
+  <div class="note">SafePay Guard prepares the report and warns nearby users; final submission happens on the Government of India portal (login via mobile OTP). Nothing is sent without you.</div>
+</div></div>
+
+<!-- Alert family & friends -->
+<div id="sharewrap"><div class="share glass">
+  <span class="x" onclick="closeShare()">×</span>
+  <h3><span class="ic-sm" data-icon="users"></span> Alert family &amp; friends</h3>
+  <p class="sub">Warn the people you care about - one share can stop the next victim.</p>
+  <textarea id="share-text"></textarea>
+  <div class="share-grid">
+    <button class="sbtn wa" onclick="shareTo('whatsapp')">WhatsApp</button>
+    <button class="sbtn ig" onclick="shareInsta()">Instagram</button>
+    <button class="sbtn tg" onclick="shareTo('telegram')">Telegram</button>
+    <button class="sbtn xx" onclick="shareTo('x')">X</button>
+    <button class="sbtn fb" onclick="shareTo('facebook')">Facebook</button>
+    <button class="sbtn em" onclick="shareTo('email')">Email</button>
+    <button class="sbtn cp" onclick="copyShare()">Copy</button>
+    <button class="sbtn more" onclick="nativeShare()">Share…</button>
+  </div>
+  <div class="note">On phones, “Share…” opens your device share sheet - Instagram, SMS, and every app you have.</div>
+</div></div>
+
+<div id="toasts"></div>
+<div id="cinema"><div class="c glass"><div class="huge" id="cinema-h"></div><p id="cinema-p"></p><button class="btn primary" onclick="closeCinema()">Close</button></div></div>
+
+<!-- progressive-enhancement libs (guarded; site works fully without them) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
