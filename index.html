@@ -49,8 +49,8 @@
     <p class="sub kick" id="k3">India loses ₹22,495 crore a year to UPI fraud. We treat every scam like a virus — one report becomes an antibody that immunizes thousands nearby, in under a second.</p>
     <p class="motto kick" id="k4">One report. Millions protected.</p>
     <div class="cta-row kick" id="k5">
-      <button class="btn primary magnetic" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> Run live demo</button>
-      <a class="btn ghost magnetic" href="#radar">Watch live radar</a>
+      <button class="btn primary magnetic" id="ctaDemo" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> <span id="ctaDemoTxt">Run live demo</span></button>
+      <a class="btn ghost magnetic" href="#radar"><span id="ctaRadarTxt">Watch live radar</span></a>
     </div>
     <div class="stat-strip kick" id="k6">
       <div class="s"><b>46 cr</b><span>UPI users covered</span></div>
@@ -373,7 +373,7 @@
 </footer>
 
 <!-- Sentinel AI chat -->
-<button id="aifab" class="magnetic" onclick="openChat()"><span class="orbmini"></span> Ask Sentinel AI</button>
+<button id="aifab" class="magnetic" onclick="openChat()"><span class="orbmini"></span> <span id="fabTxt">Ask Sentinel AI</span></button>
 <div id="aichat" class="glass">
   <div class="ac-head"><span class="orbmini"></span><div><b>Sentinel AI</b><small>on-device fraud guardian</small></div><span class="x" onclick="closeChat()">×</span></div>
   <div class="ac-body" id="acBody"></div>
@@ -412,12 +412,13 @@
   <div class="captcha">
     <div class="box" id="robotBox" onclick="toggleRobot()"><svg viewBox="0 0 24 24" fill="none" stroke="#04121a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     <div class="t">I'm not a robot</div>
-    <div class="rc">SafePay<br>Guard · demo</div>
+    <div class="rc">SafePay<br>Guard</div>
   </div>
   <div class="err" id="authErr"></div>
+  <div style="text-align:right;margin-top:2px"><a onclick="forgotPassword()" style="color:var(--cyan);font-size:12px;cursor:pointer">Forgot password?</a></div>
   <button class="btn primary go" onclick="submitAuth()" id="authGo">Sign in</button>
   <div class="switch" id="authSwitch">New here? <a onclick="setAuthMode('signup')">Create an account</a></div>
-  <div class="demo">Demo authentication · no data leaves your browser</div>
+  <div class="demo">Secured by Firebase · your password is encrypted</div>
 </div></div>
 
 <!-- Permission prompt -->
