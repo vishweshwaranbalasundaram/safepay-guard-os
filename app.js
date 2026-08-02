@@ -19,6 +19,7 @@ const ICONS={
   building:S+'<path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg>',
   wallet:S+'<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h16v-6"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>',
   route:S+'<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/></svg>',
+  volume:S+'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
   play:SF+'<polygon points="6 4 20 12 6 20 6 4"/></svg>'
 };
 function fillIcons(){document.querySelectorAll('[data-icon]').forEach(el=>{if(!el.dataset.f){el.innerHTML=ICONS[el.dataset.icon]||'';el.dataset.f=1;}});}
@@ -286,10 +287,10 @@ function analyze(cb){
     const g=document.getElementById('gauge');g.style.setProperty('--v',risk);animNum(document.getElementById('riskval'),risk,800);
     const scam=risk>=55;
     if(scam){g.style.background='conic-gradient(var(--danger) calc(var(--v)*1%),rgba(255,255,255,.07) 0)';
-      vhead.innerHTML='<span class="ic-sm">'+ICONS.alert+'</span>Scam detected';vsub.textContent='Do not pay, click, or share your PIN. This matches a known fraud pattern.';
+      vhead.innerHTML='<span class="ic-sm">'+ICONS.alert+'</span>'+tt('scamHead');vsub.textContent='Do not pay, click, or share your PIN. This matches a known fraud pattern.';
       badge.className='badge scam';badge.innerHTML='<span class="ic-sm">'+ICONS.dna+'</span> Antibody generated · nearby users being warned';badge.style.display='inline-flex';
     }else{g.style.background='conic-gradient(var(--green) calc(var(--v)*1%),rgba(255,255,255,.07) 0)';
-      vhead.innerHTML='<span class="ic-sm">'+ICONS.check+'</span>Looks safe';vsub.textContent='No strong fraud signals found. Stay alert if it asks for money or a PIN.';
+      vhead.innerHTML='<span class="ic-sm">'+ICONS.check+'</span>'+tt('safeHead');vsub.textContent='No strong fraud signals found. Stay alert if it asks for money or a PIN.';
       badge.className='badge safe';badge.innerHTML='<span class="ic-sm">'+ICONS.check+'</span> No antibody needed';badge.style.display='inline-flex';
     }
     lastScores=scores;lastScam=scam;lastRisk=risk;lastMsg=txt;lastType=scamType(scores);
@@ -426,11 +427,11 @@ function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>
 let chatGreeted=false;
 function openChat(preset){
   document.getElementById('aichat').classList.add('open');
-  if(!chatGreeted){chatGreeted=true;acAdd("Hi, I'm <b>Sentinel</b> — your fraud guardian. Paste a suspicious message and I'll check it, or ask me anything about scams and recovery.",'bot');}
+  if(!chatGreeted){chatGreeted=true;acAdd(tt('greeting'),'bot');}
   if(preset)setTimeout(()=>acSend(preset),200);
 }
 function closeChat(){document.getElementById('aichat').classList.remove('open');}
-function acAdd(html,who){const b=document.getElementById('acBody');const el=document.createElement('div');el.className='ac-msg '+who;el.innerHTML=html;b.appendChild(el);b.scrollTop=b.scrollHeight;}
+function acAdd(html,who){const b=document.getElementById('acBody');const el=document.createElement('div');el.className='ac-msg '+who;el.innerHTML=html;if(who==='bot'){const sp=document.createElement('span');sp.className='msg-speak';sp.innerHTML=ICONS.volume;sp.title='Listen';sp.onclick=function(){speakText(el.textContent);};el.appendChild(sp);}b.appendChild(el);b.scrollTop=b.scrollHeight;}
 function acSend(preset){
   const inp=document.getElementById('acInput');const t=(preset!==undefined?preset:inp.value||'').trim();if(!t)return;
   acAdd(escapeHtml(t),'user');if(preset===undefined)inp.value='';
@@ -735,3 +736,88 @@ setTimeout(()=>document.querySelectorAll('.kick').forEach(el=>{el.style.opacity=
 
 /* ================= LIVE COMMUNITY COUNTER (Firebase) ================= */
 try{if(window.SafePayBackend&&SafePayBackend.ready()){SafePayBackend.listenReportCount(function(n){var el=document.getElementById('c-reports');if(el){el.dataset.done=1;el.textContent=(n).toLocaleString('en-IN');}});}}catch(e){}
+
+
+/* ================= LANGUAGE / VOICE / FAMILY ================= */
+let LANG='en';
+const I18N={
+ en:{
+  k1:"Live \u00b7 Financial Immune System",
+  k2:'Stop the scam<br><span class="grad">before it spreads.</span>',
+  k3:"India loses \u20b922,495 crore a year to UPI fraud. We treat every scam like a virus - one report becomes an antibody that protects thousands nearby, in under a second.",
+  k4:"One report. Millions protected.",
+  famEyebrow:"Family Guardian",
+  famH2:'Protect the people <span class="grad">you love.</span>',
+  famLead:"Add your parents or family. If you spot a scam, alert them in one tap.",
+  scamHead:"Scam detected", safeHead:"Looks safe",
+  greeting:"Hi, I'm <b>Sentinel</b>, your fraud guardian. Paste a suspicious message and I'll check it, or ask me anything about UPI, payments, or scams."
+ },
+ hi:{
+  k1:"\u0932\u093e\u0907\u0935 \u00b7 \u0935\u093f\u0924\u094d\u0924\u0940\u092f \u092a\u094d\u0930\u0924\u093f\u0930\u0915\u094d\u0937\u093e \u0924\u0902\u0924\u094d\u0930",
+  k2:'\u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u0915\u094b \u0930\u094b\u0915\u0947\u0902<br><span class="grad">\u092b\u0948\u0932\u0928\u0947 \u0938\u0947 \u092a\u0939\u0932\u0947\u0964</span>',
+  k3:"\u092d\u093e\u0930\u0924 \u0939\u0930 \u0938\u093e\u0932 UPI \u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u092e\u0947\u0902 \u20b922,495 \u0915\u0930\u094b\u0921\u093c \u0917\u0902\u0935\u093e\u0924\u093e \u0939\u0948\u0964 \u0939\u092e \u0939\u0930 \u0927\u094b\u0916\u0947 \u0915\u094b \u090f\u0915 \u0935\u093e\u092f\u0930\u0938 \u092e\u093e\u0928\u0924\u0947 \u0939\u0948\u0902 - \u090f\u0915 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u090f\u0902\u091f\u0940\u092c\u0949\u0921\u0940 \u092c\u0928 \u091c\u093e\u0924\u0940 \u0939\u0948 \u091c\u094b \u092a\u093e\u0938 \u0915\u0947 \u0939\u091c\u093c\u093e\u0930\u094b\u0902 \u0932\u094b\u0917\u094b\u0902 \u0915\u094b \u090f\u0915 \u0938\u0947\u0915\u0902\u0921 \u092e\u0947\u0902 \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0915\u0930 \u0926\u0947\u0924\u0940 \u0939\u0948\u0964",
+  k4:"\u090f\u0915 \u0930\u093f\u092a\u094b\u0930\u094d\u091f\u0964 \u0932\u093e\u0916\u094b\u0902 \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924\u0964",
+  famEyebrow:"\u092a\u0930\u093f\u0935\u093e\u0930 \u0930\u0915\u094d\u0937\u0915",
+  famH2:'\u0909\u0928\u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0930\u0947\u0902 <span class="grad">\u091c\u093f\u0928\u094d\u0939\u0947\u0902 \u0906\u092a \u092a\u094d\u092f\u093e\u0930 \u0915\u0930\u0924\u0947 \u0939\u0948\u0902\u0964</span>',
+  famLead:"\u0905\u092a\u0928\u0947 \u092e\u093e\u0924\u093e-\u092a\u093f\u0924\u093e \u092f\u093e \u092a\u0930\u093f\u0935\u093e\u0930 \u0915\u094b \u091c\u094b\u0921\u093c\u0947\u0902\u0964 \u0927\u094b\u0916\u093e \u0926\u093f\u0916\u0947 \u0924\u094b \u090f\u0915 \u091f\u0948\u092a \u092e\u0947\u0902 \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u091a\u0947\u0924 \u0915\u0930\u0947\u0902\u0964",
+  scamHead:"\u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u092e\u093f\u0932\u0940", safeHead:"\u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0932\u0917\u0924\u093e \u0939\u0948",
+  greeting:"\u0928\u092e\u0938\u094d\u0924\u0947! \u092e\u0948\u0902 <b>Sentinel</b> \u0939\u0942\u0901\u0964 \u0915\u094b\u0908 \u0938\u0902\u0926\u093f\u0917\u094d\u0927 \u0938\u0902\u0926\u0947\u0936 \u092a\u0947\u0938\u094d\u091f \u0915\u0930\u0947\u0902, \u092f\u093e UPI \u0914\u0930 \u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u092a\u0942\u091b\u0947\u0902\u0964"
+ },
+ ta:{
+  k1:"\u0ba8\u0bc7\u0bb0\u0bb2\u0bc8 \u00b7 \u0ba8\u0bbf\u0ba4\u0bbf \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bc1 \u0b85\u0bae\u0bc8\u0baa\u0bcd\u0baa\u0bc1",
+  k2:'\u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bc8 \u0ba4\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd<br><span class="grad">\u0baa\u0bb0\u0bb5\u0bc1\u0bb5\u0ba4\u0bb1\u0bcd\u0b95\u0bc1 \u0bae\u0bc1\u0ba9\u0bcd.</span>',
+  k3:"\u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe \u0b86\u0ba3\u0bcd\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u20b922,495 \u0b95\u0bcb\u0b9f\u0bbf\u0baf\u0bc8 UPI \u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bbf\u0bb2\u0bcd \u0b87\u0bb4\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b92\u0bb5\u0bcd\u0bb5\u0bca\u0bb0\u0bc1 \u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bc8\u0baf\u0bc1\u0bae\u0bcd \u0bb5\u0bc8\u0bb0\u0bb8\u0bbe\u0b95 \u0b95\u0bb0\u0bc1\u0ba4\u0bc1\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd - \u0b92\u0bb0\u0bc1 \u0baa\u0bc1\u0b95\u0bbe\u0bb0\u0bcd \u0b85\u0bb0\u0bc1\u0b95\u0bbf\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3 \u0b86\u0baf\u0bbf\u0bb0\u0b95\u0bcd\u0b95\u0ba3\u0b95\u0bcd\u0b95\u0bbe\u0ba9\u0bcb\u0bb0\u0bc8 \u0b92\u0bb0\u0bc1 \u0ba8\u0bca\u0b9f\u0bbf\u0baf\u0bbf\u0bb2\u0bcd \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0b95\u0bcd\u0b95\u0bc1\u0bae\u0bcd.",
+  k4:"\u0b92\u0bb0\u0bc1 \u0baa\u0bc1\u0b95\u0bbe\u0bb0\u0bcd. \u0bb2\u0b9f\u0bcd\u0b9a\u0b95\u0bcd\u0b95\u0ba3\u0b95\u0bcd\u0b95\u0bbe\u0ba9\u0bcb\u0bb0\u0bcd \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bc1.",
+  famEyebrow:"\u0b95\u0bc1\u0b9f\u0bc1\u0bae\u0bcd\u0baa \u0b95\u0bbe\u0bb5\u0bb2\u0bb0\u0bcd",
+  famH2:'\u0ba8\u0bc0\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0ba8\u0bc7\u0b9a\u0bbf\u0baa\u0bcd\u0baa\u0bb5\u0bb0\u0bcd\u0b95\u0bb3\u0bc8 <span class="grad">\u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0b95\u0bcd\u0b95\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd.</span>',
+  famLead:"\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0baa\u0bc6\u0bb1\u0bcd\u0bb1\u0bcb\u0bb0\u0bcd \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 \u0b95\u0bc1\u0b9f\u0bc1\u0bae\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bc8 \u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd. \u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0ba4\u0bc6\u0bb0\u0bbf\u0ba8\u0bcd\u0ba4\u0bbe\u0bb2\u0bcd \u0b92\u0bb0\u0bc7 \u0ba4\u0b9f\u0bcd\u0b9f\u0bbf\u0bb2\u0bcd \u0b8e\u0b9a\u0bcd\u0b9a\u0bb0\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
+  scamHead:"\u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0b95\u0b23\u0bcd\u0b9f\u0bb1\u0bbf\u0baf\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1", safeHead:"\u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0ba4\u0bc6\u0bb0\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1",
+  greeting:"\u0bb5\u0ba3\u0b95\u0bcd\u0b95\u0bae\u0bcd! \u0ba8\u0bbe\u0ba9\u0bcd <b>Sentinel</b>. \u0b9a\u0ba8\u0bcd\u0ba4\u0bc7\u0b95\u0bae\u0bbe\u0ba9 \u0b9a\u0bc6\u0baf\u0dca\u0ba4\u0bbf\u0baf\u0bc8 \u0b92\u0b9f\u0bcd\u0b9f\u0bb5\u0bc1\u0bae\u0bcd, \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 UPI \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0baa\u0bb1\u0bcd\u0bb1\u0bbf \u0b95\u0bc7\u0b9f\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd."
+ }
+};
+function tt(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.en[key]||'';}
+function setLang(l){
+  LANG=l;
+  document.querySelectorAll('#langsw button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
+  const T=I18N[l];if(!T)return;
+  const H=function(id,v){var e=document.getElementById(id);if(e&&v!=null)e.innerHTML=v;};
+  const X=function(id,v){var e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
+  X('k1',T.k1);H('k2',T.k2);X('k3',T.k3);X('k4',T.k4);
+  X('famEyebrow',T.famEyebrow);H('famH2',T.famH2);X('famLead',T.famLead);
+  if(lastScores){var vh=document.getElementById('vhead');if(vh){vh.innerHTML='<span class="ic-sm">'+(lastScam?ICONS.alert:ICONS.check)+'</span>'+(lastScam?tt('scamHead'):tt('safeHead'));}}
+}
+
+/* ---- voice / read aloud ---- */
+function speakText(t){try{if(!('speechSynthesis' in window)){toast('Voice not supported','Try Chrome or Edge.');return;}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=(LANG==='hi'?'hi-IN':LANG==='ta'?'ta-IN':'en-IN');u.rate=0.95;speechSynthesis.speak(u);}catch(e){}}
+function speakVerdict(){var v=document.getElementById('vsub');if(v)speakText(v.textContent);}
+
+/* ---- family guardian ---- */
+let familyList=[];
+function renderFamily(){
+  var box=document.getElementById('fam-list'),empty=document.getElementById('fam-empty');if(!box)return;
+  box.querySelectorAll('.fam-item').forEach(function(n){n.remove();});
+  if(familyList.length===0){if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  familyList.forEach(function(f,i){
+    var el=document.createElement('div');el.className='fam-item';
+    var wa='https://wa.me/'+f.phone.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('SCAM ALERT from SafePay Guard: please be careful, a scam is going around. Never share your OTP or UPI PIN. Stay safe!');
+    el.innerHTML='<div class="av">'+(f.name[0]||'?').toUpperCase()+'</div><div><div class="nm">'+escapeHtml(f.name)+'</div><div class="ph">'+escapeHtml(f.phone)+'</div></div><div class="act"><a class="wa" href="'+wa+'" target="_blank" rel="noopener">Alert</a><button class="rm" onclick="removeFamily('+i+')">\u00d7</button></div>';
+    box.appendChild(el);
+  });
+}
+function addFamily(){
+  var n=document.getElementById('fam-name').value.trim(),p=document.getElementById('fam-phone').value.replace(/[\s-]/g,'');
+  if(n.length<1){toast('Add a name','Enter your family member\u2019s name.');return;}
+  if(!/^(\+?91)?[6-9]\d{9}$/.test(p)){toast('Check the number','Enter a valid 10-digit mobile.');return;}
+  familyList.push({name:n,phone:p});
+  document.getElementById('fam-name').value='';document.getElementById('fam-phone').value='';
+  renderFamily();
+  toast('<span class="ic-sm">'+ICONS.check+'</span> Added to family circle',escapeHtml(n)+' will be protected.');
+}
+function removeFamily(i){familyList.splice(i,1);renderFamily();}
+function alertAllFamily(){
+  if(familyList.length===0){toast('No family yet','Add someone first.');return;}
+  familyList.forEach(function(f){var wa='https://wa.me/'+f.phone.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('SCAM ALERT from SafePay Guard: please be careful today. Never share your OTP or UPI PIN.');window.open(wa,'_blank','noopener');});
+  toast('<span class="ic-sm">'+ICONS.users+'</span> Alerting your family','Opening WhatsApp for each contact.');
+}
+
