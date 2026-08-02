@@ -563,25 +563,30 @@ function submitAuth(){
   const email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPass').value,err=document.getElementById('authErr');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Please enter a valid email address.';return;}
   if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
-  let displayName=email;
+  let displayName=email,uname='',phone='';
   if(authMode==='signup'){
-    const name=document.getElementById('authName').value.trim();
-    if(name.length<3){err.textContent='Please choose a username (3+ characters).';return;}
-    const phone=document.getElementById('authPhone').value.replace(/[\s-]/g,'');
+    uname=document.getElementById('authName').value.trim();
+    if(uname.length<3){err.textContent='Please choose a username (3+ characters).';return;}
+    phone=document.getElementById('authPhone').value.replace(/[\s-]/g,'');
     if(!/^(\+?91)?[6-9]\d{9}$/.test(phone)){err.textContent='Please enter a valid 10-digit mobile number.';return;}
-    displayName=name;userPfp=pfpData;
+    displayName=uname;userPfp=pfpData;
   }else{userPfp=null;}
   if(!robot){err.textContent='Please confirm you are not a robot.';return;}
-  currentUser=displayName;closeAuth();renderUser();
-  toast('<span class="ic-sm">'+ICONS.shield+'</span> '+(authMode==='signup'?'Welcome, '+escapeHtml(displayName):'Signed in'),'You\u2019re now protected.');
-  askProtection();
+  function done(name){currentUser=name;closeAuth();renderUser();toast('<span class="ic-sm">'+ICONS.shield+'</span> '+(authMode==='signup'?'Welcome, '+escapeHtml(name):'Signed in'),'You\u2019re now protected.');askProtection();}
+  if(window.SafePayBackend && SafePayBackend.ready()){
+    err.textContent='Please wait\u2026';
+    const op=authMode==='signup'?SafePayBackend.signUp(email,pass,{username:uname,phone:phone}):SafePayBackend.signIn(email,pass);
+    op.then(function(){err.textContent='';done(displayName);}).catch(function(e){err.textContent=(e&&e.message)?e.message.replace('Firebase: ',''):'Sign-in failed.';});
+    return;
+  }
+  done(displayName);
 }
 function renderUser(){
   const initial=(currentUser[0]||'U').toUpperCase();
   const av=userPfp?'<div class="av" style="background-image:url('+userPfp+');background-size:cover;background-position:center"></div>':'<div class="av">'+initial+'</div>';
   document.getElementById('authArea').innerHTML='<div class="user-chip">'+av+'<span class="em">'+escapeHtml(currentUser)+'</span><span class="so" onclick="signOut()">Sign out</span></div>';
 }
-function signOut(){currentUser=null;userPfp=null;pfpData=null;robot=false;const pb=document.getElementById('robotBox');if(pb)pb.classList.remove('checked');document.getElementById('authArea').innerHTML='<button class="signin magnetic" onclick="openAuth()">Sign in</button>';}
+function signOut(){try{if(window.SafePayBackend&&SafePayBackend.ready())SafePayBackend.logout();}catch(e){}currentUser=null;userPfp=null;pfpData=null;robot=false;const pb=document.getElementById('robotBox');if(pb)pb.classList.remove('checked');document.getElementById('authArea').innerHTML='<button class="signin magnetic" onclick="openAuth()">Sign in</button>';}
 
 /* ================= SHARE / ALERT FAMILY & FRIENDS ================= */
 function openShare(){
@@ -635,6 +640,7 @@ function openGov(){
   const txt='To the Indian Cyber Crime Coordination Centre (I4C),\n\nI wish to report a suspected financial cyber fraud. On '+date+' I received the following message:\n\n"'+(lastMsg||'')+'"\n\nThis appears to be a '+lastType.toLowerCase()+' attempt (automated risk score '+lastRisk+'/100). I request that it be investigated and the sender blocked. I have not shared any OTP or PIN.'+who+'\n\nPrepared via SafePay Guard.';
   document.getElementById('gov-text').value=txt;
   document.getElementById('govwrap').classList.add('open');
+  try{if(window.SafePayBackend&&SafePayBackend.ready())SafePayBackend.reportScam({type:lastType,risk:lastRisk,message:lastMsg,city:'Chennai'});}catch(e){}
   try{toast('<span class="ic-sm">'+ICONS.radio+'</span> Routed to the network','Nearby users warned + complaint ready for cybercrime.gov.in / 1930.');}catch(e){}
 }
 function closeGov(){document.getElementById('govwrap').classList.remove('open');}
@@ -726,3 +732,6 @@ window.addEventListener('load',()=>setTimeout(()=>{try{analyze();}catch(e){}},60
 
 /* safety: never leave hero text hidden even if load is delayed */
 setTimeout(()=>document.querySelectorAll('.kick').forEach(el=>{el.style.opacity='1';el.style.transform='none';}),2900);
+
+/* ================= LIVE COMMUNITY COUNTER (Firebase) ================= */
+try{if(window.SafePayBackend&&SafePayBackend.ready()){SafePayBackend.listenReportCount(function(n){var el=document.getElementById('c-reports');if(el){el.dataset.done=1;el.textContent=(n).toLocaleString('en-IN');}});}}catch(e){}
