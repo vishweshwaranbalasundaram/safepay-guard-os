@@ -38,7 +38,7 @@ setTimeout(endIntro,9000); // hard safety
   const india=new Path2D('M24.0 193.9 L31.5 192.3 L32.3 187.2 L42.7 187.8 L46.0 189.4 L55.2 185.8 L58.3 188.4 L62.7 186.0 L61.7 183.5 L62.7 181.8 L57.4 171.1 L57.4 167.5 L52.2 166.9 L50.0 163.9 L50.6 155.2 L42.0 151.8 L42.4 146.2 L50.6 135.6 L54.1 133.1 L57.1 134.3 L59.4 137.7 L73.8 134.0 L80.1 122.5 L87.7 118.4 L94.1 105.2 L99.8 102.9 L101.5 101.0 L101.1 97.9 L107.0 91.2 L110.9 89.1 L109.4 86.9 L109.9 77.7 L120.2 71.9 L119.0 69.6 L111.6 67.8 L111.3 64.0 L107.2 63.8 L106.5 60.6 L102.5 57.7 L104.4 53.0 L102.1 49.9 L105.8 46.6 L101.1 44.7 L102.0 42.4 L99.7 40.3 L101.9 36.3 L106.4 34.7 L125.4 38.5 L129.8 36.1 L137.3 35.1 L142.7 31.4 L143.4 29.6 L153.5 24.0 L156.7 24.2 L156.3 27.6 L160.6 37.0 L165.2 38.3 L169.2 41.4 L165.9 45.6 L166.9 53.1 L171.4 57.9 L172.6 67.7 L168.5 69.8 L165.6 66.3 L161.4 67.4 L162.8 71.9 L166.0 75.7 L165.5 78.8 L167.0 80.6 L166.2 84.9 L171.0 83.8 L176.2 89.7 L180.3 90.1 L185.1 92.7 L185.6 95.9 L192.2 98.2 L196.6 101.8 L194.4 102.2 L188.4 108.2 L184.0 121.3 L188.7 124.5 L190.9 123.9 L207.9 135.4 L209.8 134.7 L216.0 138.2 L219.0 138.2 L219.8 140.5 L227.3 142.6 L229.4 141.2 L234.5 142.5 L238.0 140.9 L245.0 143.7 L246.0 147.4 L253.5 151.7 L257.9 150.4 L260.9 153.8 L263.8 153.2 L273.1 156.3 L277.3 154.5 L281.0 157.4 L290.5 157.0 L292.7 152.0 L290.3 146.1 L292.4 134.2 L298.3 132.1 L301.4 133.3 L302.0 135.3 L300.6 140.4 L302.5 143.4 L300.5 145.5 L302.1 148.6 L306.0 150.7 L308.5 150.2 L314.3 152.4 L319.1 151.6 L322.1 149.6 L327.4 151.4 L344.3 150.1 L345.3 149.3 L344.2 146.6 L345.4 143.8 L344.2 141.5 L340.9 141.6 L338.9 139.9 L339.4 136.9 L344.0 137.4 L351.7 135.2 L353.5 133.6 L353.7 131.3 L358.2 128.6 L361.1 124.2 L368.0 122.8 L379.6 114.3 L381.5 116.3 L389.9 118.3 L391.6 115.8 L398.5 112.3 L401.2 115.2 L402.8 115.2 L399.7 117.6 L399.9 120.0 L403.9 118.1 L405.9 122.3 L401.8 127.4 L406.2 126.7 L412.5 128.0 L415.8 130.3 L416.0 134.3 L409.8 139.5 L412.9 146.3 L407.9 143.2 L400.6 144.2 L386.3 153.9 L385.3 157.6 L386.4 162.0 L379.0 172.6 L378.6 174.1 L380.7 176.5 L372.9 193.6 L362.1 190.9 L363.3 196.5 L362.7 204.5 L361.9 206.0 L359.9 206.0 L358.8 210.5 L359.8 217.7 L356.5 221.2 L354.0 219.1 L352.0 221.3 L347.6 196.4 L343.4 196.4 L343.5 199.1 L341.0 202.2 L341.0 205.6 L339.2 206.7 L336.7 203.5 L335.1 204.9 L333.1 197.9 L334.0 193.0 L335.8 190.5 L342.7 189.0 L343.7 186.6 L345.7 185.9 L347.4 179.0 L350.3 179.4 L350.6 178.0 L345.0 174.8 L323.3 174.9 L315.2 173.0 L315.0 163.5 L313.0 159.5 L311.4 162.6 L309.0 162.5 L306.5 161.1 L304.2 156.6 L303.0 157.2 L303.6 159.0 L301.7 158.9 L295.5 154.4 L296.5 157.2 L292.6 161.4 L291.7 164.3 L297.3 169.4 L300.9 170.1 L303.3 173.4 L301.5 174.7 L296.7 174.5 L294.8 179.0 L292.6 178.5 L290.9 182.7 L292.5 184.7 L300.3 187.8 L298.2 196.6 L300.5 200.1 L300.3 202.7 L303.0 203.7 L302.0 205.8 L304.7 217.0 L304.4 221.9 L303.3 221.9 L304.7 226.1 L302.7 226.1 L302.1 224.8 L300.6 227.1 L300.5 220.9 L299.2 219.2 L298.4 226.0 L296.5 226.7 L294.4 224.6 L294.0 226.5 L292.2 226.3 L291.3 225.5 L293.2 219.0 L289.8 215.6 L290.0 217.3 L292.7 219.2 L289.9 223.6 L286.2 226.1 L278.5 228.3 L275.2 232.2 L276.8 240.0 L273.8 245.7 L268.7 250.1 L267.0 249.4 L267.9 250.4 L266.6 251.7 L258.0 254.7 L256.9 254.6 L257.8 253.8 L257.0 251.9 L253.6 253.8 L252.7 256.1 L255.2 254.9 L256.2 255.7 L247.2 263.0 L238.2 275.1 L232.2 278.4 L226.0 285.1 L214.8 292.6 L213.4 300.4 L206.7 303.8 L200.3 303.7 L196.2 312.1 L191.7 310.2 L187.0 312.8 L183.8 322.1 L185.4 330.8 L184.5 334.7 L187.2 345.3 L185.1 342.0 L183.9 343.6 L187.6 347.1 L186.1 356.9 L181.1 367.2 L180.3 375.1 L178.9 377.1 L180.3 376.7 L181.0 378.7 L180.9 391.5 L173.8 392.5 L168.8 402.6 L169.9 405.9 L175.1 408.0 L169.3 406.9 L161.8 409.3 L158.8 412.4 L157.0 419.8 L149.7 424.3 L143.6 420.8 L136.7 412.2 L133.7 404.2 L132.5 397.3 L133.9 398.7 L134.3 402.9 L135.5 403.0 L133.9 397.4 L131.9 395.0 L125.6 376.3 L118.5 366.2 L115.1 358.8 L107.5 330.6 L101.7 322.1 L99.7 317.4 L101.5 317.4 L99.3 314.9 L100.2 313.6 L98.1 312.9 L93.5 301.9 L91.1 284.9 L87.3 270.0 L89.0 264.5 L88.6 262.6 L86.8 265.2 L86.3 263.7 L86.4 260.5 L88.8 260.8 L86.1 259.5 L84.5 252.7 L87.5 240.4 L86.5 233.9 L84.8 233.0 L83.9 230.2 L85.4 228.8 L83.8 228.9 L90.5 224.7 L82.8 225.5 L84.9 221.4 L82.6 221.4 L83.0 218.7 L86.4 217.6 L78.0 217.1 L79.7 218.3 L79.2 219.7 L76.0 223.6 L78.4 225.0 L78.9 227.9 L75.7 233.4 L62.4 239.4 L55.2 238.0 L49.1 233.0 L34.8 216.8 L35.9 214.6 L38.9 216.9 L51.0 212.7 L55.6 206.4 L55.2 205.1 L53.2 207.3 L50.2 207.2 L44.2 209.9 L38.4 208.6 L30.4 203.7 L27.4 198.1 L32.2 194.0 L24.9 197.7 L24.0 193.9 Z');
   let W,H,DPR=Math.min(2,devicePixelRatio||1),cx,cy,R;
   function size(){W=cv.width=innerWidth*DPR;H=cv.height=innerHeight*DPR;cx=W/2;cy=H/2;R=Math.min(W,H)*0.3;}
-  size();addEventListener('resize',size);
+  size();var _lw=innerWidth;addEventListener('resize',function(){if(innerWidth!==_lw){_lw=innerWidth;size();}});
   const ease=p=>1-Math.pow(1-p,3);
   function glow(x,y,r,c){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
   function ring(x,y,r,c,w){ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.strokeStyle=c;ctx.lineWidth=w;ctx.stroke();}
@@ -83,7 +83,7 @@ setTimeout(endIntro,9000); // hard safety
 
 /* ---------- Lenis smooth scroll (guarded) ---------- */
 let lenis=null;
-try{ if(window.Lenis && !RM){ lenis=new Lenis({lerp:.09,smoothWheel:true,wheelMultiplier:1}); function raf(t){lenis.raf(t);requestAnimationFrame(raf);} requestAnimationFrame(raf);} }catch(e){}
+try{ if(window.Lenis && !RM && !('ontouchstart' in window) && innerWidth>820){ lenis=new Lenis({lerp:.09,smoothWheel:true,wheelMultiplier:1}); function raf(t){lenis.raf(t);requestAnimationFrame(raf);} requestAnimationFrame(raf);} }catch(e){}
 function goTo(el){ if(typeof el==='string')el=document.querySelector(el); if(!el)return; if(lenis)lenis.scrollTo(el,{offset:-40}); else el.scrollIntoView({behavior:'smooth',block:'start'}); }
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=a.getAttribute('href');if(t.length>1){e.preventDefault();goTo(t);}}));
 
@@ -124,7 +124,7 @@ const io=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){
 document.querySelectorAll('.reveal').forEach(s=>io.observe(s));
 
 /* ---------- GSAP parallax (guarded enhancement) ---------- */
-try{ if(window.gsap && window.ScrollTrigger && !RM){
+try{ if(window.gsap && window.ScrollTrigger && !RM && innerWidth>820){
   gsap.registerPlugin(ScrollTrigger);
   document.querySelectorAll('[data-speed]').forEach(el=>{
     const sp=parseFloat(el.dataset.speed);
@@ -820,4 +820,23 @@ function alertAllFamily(){
   familyList.forEach(function(f){var wa='https://wa.me/'+f.phone.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('SCAM ALERT from SafePay Guard: please be careful today. Never share your OTP or UPI PIN.');window.open(wa,'_blank','noopener');});
   toast('<span class="ic-sm">'+ICONS.users+'</span> Alerting your family','Opening WhatsApp for each contact.');
 }
+
+function forgotPassword(){
+  var email=document.getElementById('authEmail').value.trim(),err=document.getElementById('authErr');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Enter your email above first, then tap Forgot password.';return;}
+  if(window.SafePayBackend && SafePayBackend.ready() && SafePayBackend.reset){
+    err.textContent='Sending reset link\u2026';
+    SafePayBackend.reset(email).then(function(){err.textContent='';toast('<span class="ic-sm">'+ICONS.check+'</span> Reset link sent','Check '+escapeHtml(email)+' to set a new password.');}).catch(function(e){err.textContent=(e&&e.message)?e.message.replace('Firebase: ',''):'Could not send reset email.';});
+  } else { toast('Live site only','Password reset works on the deployed site.'); }
+}
+
+
+/* ---- extra translations (buttons) applied on top of setLang ---- */
+const I18N_EXTRA={
+ en:{ctaDemo:"Run live demo",ctaRadar:"Watch live radar",fab:"Ask Sentinel AI"},
+ hi:{ctaDemo:"लाइव डेमो चलाएँ",ctaRadar:"लाइव रडार देखें",fab:"Sentinel AI से पूछें"},
+ ta:{ctaDemo:"நேரலை டெமோவை இயக்கவும்",ctaRadar:"நேரலை ரேடாரைப் பார்க்கவும்",fab:"Sentinel AI-யிடம் கேளுங்கள்"}
+};
+const _setLangOrig=setLang;
+setLang=function(l){ _setLangOrig(l); var E=I18N_EXTRA[l]||I18N_EXTRA.en; var mp={ctaDemoTxt:E.ctaDemo,ctaRadarTxt:E.ctaRadar,fabTxt:E.fab}; for(var k in mp){var e=document.getElementById(k); if(e&&mp[k]!=null)e.textContent=mp[k];} };
 
