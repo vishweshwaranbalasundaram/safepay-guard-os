@@ -36,6 +36,7 @@
     <div class="nlinks">
       <a href="#radar">Radar</a><a href="#dna">Scam DNA</a><a href="#simulator">Simulator</a><a href="#briefing">Briefing</a><a href="#impact">Impact</a>
     </div>
+    <div class="langsw" id="langsw"><button data-lang="en" class="on" onclick="setLang('en')">EN</button><button data-lang="hi" onclick="setLang('hi')">हिं</button><button data-lang="ta" onclick="setLang('ta')">தமிழ்</button></div>
     <div id="authArea"><button class="signin magnetic" onclick="openAuth()">Sign in</button></div>
   </div>
 </nav>
@@ -161,7 +162,7 @@
     <div class="glass analyzer tilt" id="analyzer">
       <div class="verdict">
         <div class="gauge" id="gauge" style="--v:0"><b id="riskval">0</b><small>RISK</small></div>
-        <div class="vtext"><h3 id="vhead">Awaiting message</h3><p id="vsub">Tap “Sequence it” to run the DNA analysis.</p><span class="badge safe" id="badge" style="display:none">Antibody generated</span><span class="simple-toggle" id="grandma" onclick="toggleGrandma()" style="margin-left:8px">Explain simply</span></div>
+        <div class="vtext"><h3 id="vhead">Awaiting message</h3><p id="vsub">Tap “Sequence it” to run the DNA analysis.</p><span class="badge safe" id="badge" style="display:none">Antibody generated</span><span class="simple-toggle" id="grandma" onclick="toggleGrandma()" style="margin-left:8px">Explain simply</span><span class="voicebtn" id="voicebtn" onclick="speakVerdict()"><span class="ic-sm" data-icon="volume"></span> Listen</span></div>
       </div>
       <div class="dna" id="dnabars">
         <div class="row"><span class="lbl">Emotional trigger</span><div class="track"><div class="fill" data-k="emotion"></div></div><span class="val" data-v="emotion">0</span></div>
@@ -267,6 +268,24 @@
     <a class="glass hl" href="tel:181"><div class="num">181</div><div class="nm">Women helpline</div></a>
     <a class="glass hl" href="tel:14567"><div class="num">14567</div><div class="nm">Senior citizens · Elderline</div></a>
   </div>
+</section>
+
+<!-- ============ FAMILY GUARDIAN ============ -->
+<section class="wrap reveal" id="family">
+  <span class="eyebrow" id="famEyebrow">Family Guardian</span>
+  <h2 class="big" id="famH2">Protect the people <span class="grad">you love.</span></h2>
+  <p class="lead" id="famLead">Add your parents or family. If you spot a scam, alert them in one tap - the people most targeted often need us watching out for them.</p>
+  <div class="fam-wrap">
+    <div class="glass fam-form">
+      <label>Family member's name</label>
+      <input id="fam-name" placeholder="e.g. Amma"/>
+      <label>Their mobile number</label>
+      <input id="fam-phone" type="tel" placeholder="+91 98765 43210"/>
+      <button class="btn primary" style="width:100%;justify-content:center;margin-top:18px" onclick="addFamily()">Add to my family circle</button>
+    </div>
+    <div class="glass fam-list" id="fam-list"><div class="fam-empty" id="fam-empty">No family added yet. Add someone above to protect them.</div></div>
+  </div>
+  <div style="margin-top:16px"><button class="btn ghost" onclick="alertAllFamily()"><span class="ic-sm" data-icon="users"></span> Alert everyone about a scam</button></div>
 </section>
 
 <!-- ============ SENTINEL AI ============ -->
