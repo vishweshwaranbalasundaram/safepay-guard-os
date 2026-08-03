@@ -39,6 +39,11 @@ async function fbSignIn(email, password) {
 }
 function fbLogout() { return auth ? auth.signOut() : Promise.resolve(); }
 
+async function fbReset(email) {
+  // Sends Firebase's password-reset email to a registered account.
+  return auth.sendPasswordResetEmail(email);
+}
+
 async function fbReportScam(data) {
   await db.collection("reports").add({
     type: (data && data.type) || "unknown",
@@ -53,6 +58,6 @@ function fbListenReportCount(cb) { if (db) db.collection("reports").onSnapshot(s
 
 window.SafePayBackend = {
   ready: () => fbReady,
-  signUp: fbSignUp, signIn: fbSignIn, logout: fbLogout,
+  signUp: fbSignUp, signIn: fbSignIn, logout: fbLogout, reset: fbReset,
   reportScam: fbReportScam, listenReportCount: fbListenReportCount
 };
