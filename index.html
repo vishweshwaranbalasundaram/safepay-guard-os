@@ -394,7 +394,14 @@
   <label>Email address</label>
   <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
   <label>Password</label>
-  <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password">
+  <div class="pass-wrap">
+    <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" onkeyup="capsWarn(event)">
+    <button type="button" class="pass-toggle" id="passToggle" aria-label="Show password" aria-pressed="false" onclick="togglePass(this)">
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.68"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+    </button>
+  </div>
+  <div class="caps-warn" id="capsWarn"></div>
   <div id="signupFields" style="display:none">
     <div class="pfp-row">
       <div class="pfp-prev" id="pfpPrev">A</div>
