@@ -840,3 +840,20 @@ const I18N_EXTRA={
 const _setLangOrig=setLang;
 setLang=function(l){ _setLangOrig(l); var E=I18N_EXTRA[l]||I18N_EXTRA.en; var mp={ctaDemoTxt:E.ctaDemo,ctaRadarTxt:E.ctaRadar,fabTxt:E.fab}; for(var k in mp){var e=document.getElementById(k); if(e&&mp[k]!=null)e.textContent=mp[k];} };
 
+
+/* ================= PASSWORD SHOW/HIDE + CAPS LOCK ================= */
+function togglePass(btn){
+  var inp=document.getElementById('authPass');if(!inp)return;
+  var showing=inp.type==='text';
+  inp.type=showing?'password':'text';
+  btn.classList.toggle('on',!showing);
+  btn.setAttribute('aria-pressed',String(!showing));
+  btn.setAttribute('aria-label',showing?'Show password':'Hide password');
+  inp.focus();
+}
+function capsWarn(e){
+  var w=document.getElementById('capsWarn');if(!w)return;
+  var on=e.getModifierState&&e.getModifierState('CapsLock');
+  w.textContent=on?'\u26A0 Caps Lock is on':'';
+  w.classList.toggle('show',!!on);
+}
