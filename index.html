@@ -56,21 +56,15 @@ h1,h2,h3,h4,h5{font-family:var(--font);font-weight:500;letter-spacing:-.03em;lin
 em,.em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
 
 /* ============================================================
-   Cinematic 3D cyber background
+   Animated background
 ============================================================ */
-.bg-aurora{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(40% 55% at 18% 22%,rgba(96,116,156,.16),transparent 60%),
-    radial-gradient(45% 50% at 82% 18%,rgba(72,92,134,.14),transparent 60%),
-    radial-gradient(55% 60% at 66% 88%,rgba(58,74,112,.12),transparent 60%),
-    #05060a;
-  animation:aurora 34s ease-in-out infinite alternate}
-@keyframes aurora{0%{transform:scale(1)}100%{transform:scale(1.09) translate(1%, -1%)}}
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;display:block}
-.bg-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(120% 100% at 50% 32%,transparent 42%,rgba(0,0,0,.55) 100%),rgba(0,0,0,.30)}
-.bg-spotlight{position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;
-  background:radial-gradient(480px circle at var(--sx,50%) var(--sy,28%),rgba(190,205,235,.10),transparent 60%)}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(0,0,0,.35)}
+.bg-orb{position:fixed;border-radius:50%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+.bg-orb.a{width:46vw;height:46vw;top:-8vw;left:-6vw;animation:drift1 26s var(--ease) infinite alternate}
+.bg-orb.b{width:38vw;height:38vw;bottom:-10vw;right:-8vw;opacity:.35;animation:drift2 32s var(--ease) infinite alternate}
+@keyframes drift1{to{transform:translate(8vw,6vw) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-6vw,-5vw) scale(1.1)}}
 .page{position:relative;z-index:10}
 
 /* ============================================================
@@ -457,16 +451,16 @@ footer{margin-top:2rem;padding:3rem 0 0}
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .reveal{opacity:1!important;transform:none!important}
-  .bg-aurora{animation:none!important}
+  .bg-orb{animation:none!important}
 }
 </style>
 </head>
 <body>
 
-<div class="bg-aurora"></div>
 <canvas id="bg-canvas"></canvas>
+<div class="bg-orb a"></div>
+<div class="bg-orb b"></div>
 <div class="bg-overlay"></div>
-<div class="bg-spotlight" id="bg-spotlight"></div>
 
 <div id="preloader">
   <div class="pre-logo liquid-glass-strong"><div class="g"><span></span><span></span></div></div>
@@ -820,7 +814,6 @@ footer{margin-top:2rem;padding:3rem 0 0}
 
 <div class="toast liquid-glass-strong r-full" id="toast"><span class="dot"></span><span id="toast-msg">Antibody generated — nearby users warned.</span></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
@@ -847,169 +840,27 @@ if(!reduceMotion&&typeof Lenis!=='undefined'){
 }
 function scrollTo(t){const el=typeof t==='string'?$(t):t;if(!el)return;if(lenis)lenis.scrollTo(el,{offset:-90,duration:1.2});else el.scrollIntoView({behavior:'smooth'});}
 
-/* ============================================================
-   Cinematic 3D cyber-security background (custom Three.js)
-   Monochrome to match the Liquid Glass grayscale system.
-============================================================ */
-(function cyberBG(){
-  const canvas=$('#bg-canvas'),spot=$('#bg-spotlight');
-  if(!canvas)return;
-
-  /* mouse spotlight (cheap screen-space light wash) */
-  let smx=innerWidth/2,smy=innerHeight*0.28;
-  addEventListener('mousemove',e=>{smx=e.clientX;smy=e.clientY;},{passive:true});
-  (function s(){if(spot){spot.style.setProperty('--sx',smx+'px');spot.style.setProperty('--sy',smy+'px');}requestAnimationFrame(s);})();
-
-  /* capability guards */
-  const lowEnd=((navigator.hardwareConcurrency||4)<=4&&innerWidth<900)||((navigator.deviceMemory||4)<=3);
-  let glok=false;try{glok=!!(canvas.getContext('webgl')||canvas.getContext('experimental-webgl'));}catch(e){}
-  if(typeof THREE==='undefined'||!glok){document.body.classList.add('no-webgl');return;}
-
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!lowEnd,powerPreference:'high-performance'});
-  const DPR=Math.min(devicePixelRatio||1,lowEnd?1:1.75);
-  renderer.setPixelRatio(DPR);
-  const scene=new THREE.Scene();
-  scene.fog=new THREE.FogExp2(0x05060a,0.011);
-  const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,400);
-  camera.position.set(0,6,34);
-  const world=new THREE.Group();scene.add(world);
-
-  /* soft glow sprite */
-  function glowTex(){const cv=document.createElement('canvas');cv.width=cv.height=64;const g=cv.getContext('2d');const r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.35,'rgba(255,255,255,.5)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);const t=new THREE.Texture(cv);t.needsUpdate=true;return t;}
-  const GLOW=glowTex();
-
-  /* ---------- flowing perspective grid floor ---------- */
-  const gridGroup=new THREE.Group();gridGroup.position.y=-9;world.add(gridGroup);
-  (function(){
-    const size=140,div=40,step=size/div,pos=[];
-    for(let i=0;i<=div;i++){const p=-size/2+i*step;pos.push(-size/2,0,p,size/2,0,p,p,0,-size/2,p,0,size/2);}
-    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-    const mat=new THREE.LineBasicMaterial({color:0x33415a,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false,fog:true});
-    const grid=new THREE.LineSegments(geo,mat);grid.userData.step=step;gridGroup.add(grid);gridGroup.userData.grid=grid;
-  })();
-
-  /* ---------- encrypted-data particle field (GPU shader) ---------- */
-  const P=lowEnd?900:(innerWidth<900?1400:2600);
-  (function(){
-    const g=new THREE.BufferGeometry();
-    const pos=new Float32Array(P*3),sc=new Float32Array(P),ph=new Float32Array(P);
-    for(let i=0;i<P;i++){pos[i*3]=(Math.random()-.5)*130;pos[i*3+1]=(Math.random()-.5)*60+12;pos[i*3+2]=-120+Math.random()*130;sc[i]=.5+Math.random()*1.8;ph[i]=Math.random()*6.28;}
-    g.setAttribute('position',new THREE.BufferAttribute(pos,3));
-    g.setAttribute('aScale',new THREE.BufferAttribute(sc,1));
-    g.setAttribute('aPhase',new THREE.BufferAttribute(ph,1));
-    const mat=new THREE.ShaderMaterial({
-      uniforms:{uTime:{value:0},uSize:{value:lowEnd?14:18},uDpr:{value:DPR},uNear:{value:18},uFar:{value:150}},
-      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
-      vertexShader:'uniform float uTime;uniform float uSize;uniform float uDpr;uniform float uNear;uniform float uFar;attribute float aScale;attribute float aPhase;varying float vF;varying float vS;void main(){vec3 p=position;p.y+=sin(uTime*0.35+aPhase)*1.4;p.x+=cos(uTime*0.25+aPhase*1.3)*1.0;vec4 mv=modelViewMatrix*vec4(p,1.0);float dz=-mv.z;vF=smoothstep(uFar,uNear,dz);vS=aScale;gl_PointSize=uSize*aScale*(300.0/max(dz,1.0))*uDpr;gl_Position=projectionMatrix*mv;}',
-      fragmentShader:'precision mediump float;varying float vF;varying float vS;void main(){vec2 c=gl_PointCoord-0.5;float d=length(c);float a=smoothstep(0.5,0.0,d);vec3 col=mix(vec3(0.55,0.62,0.78),vec3(0.85,0.9,1.0),vS*0.5);gl_FragColor=vec4(col,a*0.55*vF);}'
-    });
-    const pts=new THREE.Points(g,mat);pts.frustumCulled=false;world.add(pts);world.userData.particleMat=mat;
-  })();
-
-  /* ---------- node network + edges + travelling packets ---------- */
-  const netGroup=new THREE.Group();world.add(netGroup);
-  const N=lowEnd?70:150;
-  const nodeVecs=[];
-  for(let i=0;i<N;i++)nodeVecs.push(new THREE.Vector3((Math.random()-.5)*80,(Math.random()-.5)*30+10,-70+Math.random()*70));
-  (function(){
-    const np=new Float32Array(N*3);nodeVecs.forEach((v,i)=>{np[i*3]=v.x;np[i*3+1]=v.y;np[i*3+2]=v.z;});
-    const ng=new THREE.BufferGeometry();ng.setAttribute('position',new THREE.BufferAttribute(np,3));
-    const nm=new THREE.PointsMaterial({size:1.5,map:GLOW,color:0xaebbd0,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-    netGroup.add(new THREE.Points(ng,nm));
-  })();
-  const edges=[];
-  for(let i=0;i<N;i++){const near=[];for(let j=0;j<N;j++)if(j!==i){const d=nodeVecs[i].distanceTo(nodeVecs[j]);if(d<24)near.push([d,j]);}near.sort((a,b)=>a[0]-b[0]);for(let k=0;k<Math.min(2,near.length);k++){const j=near[k][1],a=Math.min(i,j),b=Math.max(i,j);if(!edges.some(e=>e[0]===a&&e[1]===b))edges.push([a,b]);}}
-  (function(){
-    const lp=[];edges.forEach(e=>{lp.push(nodeVecs[e[0]].x,nodeVecs[e[0]].y,nodeVecs[e[0]].z,nodeVecs[e[1]].x,nodeVecs[e[1]].y,nodeVecs[e[1]].z);});
-    const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(lp,3));
-    const lm=new THREE.LineBasicMaterial({color:0x3c4a63,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false,fog:true});
-    netGroup.add(new THREE.LineSegments(lg,lm));
-  })();
-  /* packets */
-  const nPk=Math.min(edges.length,lowEnd?24:64);
-  const pkInfo=[],pkPos=new Float32Array(nPk*3);
-  for(let i=0;i<nPk;i++)pkInfo.push({e:edges[(Math.random()*edges.length)|0],t:Math.random(),s:.004+Math.random()*.01});
-  const pkGeo=new THREE.BufferGeometry();pkGeo.setAttribute('position',new THREE.BufferAttribute(pkPos,3));
-  const pkMat=new THREE.PointsMaterial({size:2.2,map:GLOW,color:0xffffff,transparent:true,opacity:.95,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
-  netGroup.add(new THREE.Points(pkGeo,pkMat));
-
-  /* ---------- rotating wireframe globe + network arcs ---------- */
-  const globe=new THREE.Group();globe.position.set(30,12,-34);world.add(globe);
-  (function(){
-    const wire=new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.SphereGeometry(8,18,12)),new THREE.LineBasicMaterial({color:0x2f3c52,transparent:true,opacity:.28,blending:THREE.AdditiveBlending,depthWrite:false,fog:true}));
-    globe.add(wire);
-    const am=new THREE.LineBasicMaterial({color:0x9fb0c8,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false});
-    for(let k=0;k<6;k++){
-      const a=new THREE.Vector3().setFromSphericalCoords(8,Math.random()*Math.PI,Math.random()*6.28);
-      const b=new THREE.Vector3().setFromSphericalCoords(8,Math.random()*Math.PI,Math.random()*6.28);
-      const mid=a.clone().add(b).multiplyScalar(.5).setLength(13+Math.random()*3);
-      const pts=new THREE.QuadraticBezierCurve3(a,mid,b).getPoints(24);
-      globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),am));
-    }
-  })();
-
-  /* ---------- floating holographic symbols (locks / blocks / shields) ---------- */
-  const symbols=[];
-  (function(){
-    const mat=()=>new THREE.LineBasicMaterial({color:0x8fa0ba,transparent:true,opacity:.4,blending:THREE.AdditiveBlending,depthWrite:false,fog:true});
-    const wire=geo=>new THREE.LineSegments(new THREE.EdgesGeometry(geo),mat());
-    function lock(){const g=new THREE.Group();g.add(wire(new THREE.BoxGeometry(2,1.6,.6)));const sh=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.TorusGeometry(.7,.12,6,14,Math.PI)),mat());sh.position.y=1;g.add(sh);return g;}
-    function block(){return wire(new THREE.BoxGeometry(2,2.6,.5));}
-    function shield(){const p=[[0,1.5,0],[1.1,.9,0],[1.1,-.3,0],[0,-1.5,0],[-1.1,-.3,0],[-1.1,.9,0],[0,1.5,0]].map(a=>new THREE.Vector3(a[0],a[1],a[2]));return new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),mat());}
-    const makers=[lock,block,shield];
-    const count=lowEnd?4:9;
-    for(let i=0;i<count;i++){
-      const o=makers[i%3]();o.scale.setScalar(.8+Math.random()*.9);
-      o.position.set((Math.random()-.5)*64,Math.random()*22,-58+Math.random()*50);
-      o.rotation.set(Math.random()*3,Math.random()*3,0);
-      o.userData={ph:Math.random()*6.28,by:o.position.y,rs:.002+Math.random()*.004};
-      symbols.push(o);world.add(o);
-    }
-  })();
-
-  /* ---------- subtle binary code streams ---------- */
-  (function(){
-    const cv=document.createElement('canvas');cv.width=64;cv.height=256;const g=cv.getContext('2d');
-    g.font='16px monospace';g.textAlign='center';
-    for(let y=0;y<16;y++){g.fillStyle='rgba(200,215,240,'+(0.25+Math.random()*0.4)+')';g.fillText(Math.random()<.5?'0':'1',32,y*16+14);}
-    const tex=new THREE.CanvasTexture(cv);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(1,4);
-    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,fog:true,side:THREE.DoubleSide});
-    [[-42,-32],[44,-40]].forEach(p=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(10,40),mat.clone());m.position.set(p[0],8,p[1]);world.add(m);world.userData.code=world.userData.code||[];world.userData.code.push(m);});
-  })();
-
-  /* ---------- interaction + loop ---------- */
-  let mx=0,my=0,scrollP=0;
-  addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;},{passive:true});
-  addEventListener('scroll',()=>{const max=document.body.scrollHeight-innerHeight;scrollP=max>0?scrollY/max:0;},{passive:true});
-  const clock=new THREE.Clock();let raf;
-
+/* animated background — subtle grayscale network */
+(function bg(){
+  const c=$('#bg-canvas');if(!c)return;const x=c.getContext('2d');
+  let w,h,dpr,nodes=[];
+  function size(){dpr=Math.min(devicePixelRatio,2);w=c.width=innerWidth*dpr;h=c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';}
+  function init(){const n=Math.min(64,Math.floor(innerWidth/26));nodes=[];for(let i=0;i<n;i++)nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.16*dpr,vy:(Math.random()-.5)*.16*dpr});}
+  size();init();addEventListener('resize',()=>{size();init();});
+  const CONNECT=140*dpr;
   function frame(){
-    const t=clock.getElapsedTime();
-    if(world.userData.particleMat)world.userData.particleMat.uniforms.uTime.value=t;
-    /* grid flow */
-    const grid=gridGroup.userData.grid;if(grid)grid.position.z=(t*3)%grid.userData.step;
-    /* packets */
-    pkInfo.forEach((pk,i)=>{pk.t+=pk.s;if(pk.t>1){pk.t=0;pk.e=edges[(Math.random()*edges.length)|0];}const a=nodeVecs[pk.e[0]],b=nodeVecs[pk.e[1]];pkPos[i*3]=a.x+(b.x-a.x)*pk.t;pkPos[i*3+1]=a.y+(b.y-a.y)*pk.t;pkPos[i*3+2]=a.z+(b.z-a.z)*pk.t;});
-    pkGeo.attributes.position.needsUpdate=true;
-    netGroup.rotation.y=Math.sin(t*0.05)*0.12;
-    /* symbols float */
-    symbols.forEach(o=>{o.position.y=o.userData.by+Math.sin(t*0.4+o.userData.ph)*1.6;o.rotation.y+=o.userData.rs;o.rotation.x+=o.userData.rs*0.5;});
-    /* globe + code */
-    globe.rotation.y+=0.0016;globe.rotation.x=0.3;
-    if(world.userData.code)world.userData.code.forEach(m=>{m.material.map.offset.y-=0.0022;m.material.map.needsUpdate=false;});
-    /* camera parallax + scroll travel */
-    camera.position.x+=((mx*10)-camera.position.x)*0.03;
-    camera.position.y+=((6-my*5)-camera.position.y)*0.03;
-    world.position.y=scrollP*20;
-    world.position.z=scrollP*10;
-    camera.lookAt(0,4-scrollP*3,0);
-    renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
+    x.clearRect(0,0,w,h);
+    for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>w)n.vx*=-1;if(n.y<0||n.y>h)n.vy*=-1;}
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.hypot(dx,dy);
+        if(d<CONNECT){x.strokeStyle='rgba(255,255,255,'+(0.05*(1-d/CONNECT))+')';x.lineWidth=1;x.beginPath();x.moveTo(nodes[i].x,nodes[i].y);x.lineTo(nodes[j].x,nodes[j].y);x.stroke();}
+      }
+      x.fillStyle='rgba(255,255,255,.28)';x.beginPath();x.arc(nodes[i].x,nodes[i].y,1.3*dpr,0,7);x.fill();
+    }
+    if(!reduceMotion)requestAnimationFrame(frame);
   }
-  function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(world.userData.particleMat)world.userData.particleMat.uniforms.uDpr.value=DPR;}
-  addEventListener('resize',resize);resize();
-  if(reduceMotion){renderer.render(scene,camera);}else{frame();}
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);}else if(!reduceMotion){frame();}});
+  frame();
 })();
 
 /* nav hide on scroll */
