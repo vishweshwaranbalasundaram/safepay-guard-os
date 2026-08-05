@@ -776,14 +776,21 @@ const I18N={
  }
 };
 function tt(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.en[key]||'';}
+/* Full-page translation via Google Translate, driven by the EN/हिं/தமிழ் buttons. */
+function translatePage(l,tries){
+  tries=tries||0;
+  var combo=document.querySelector('select.goog-te-combo');
+  if(!combo){
+    if(tries>25)return; /* widget script still loading - give up after ~10s */
+    setTimeout(function(){translatePage(l,tries+1);},400);
+    return;
+  }
+  if(combo.value!==l){combo.value=l;combo.dispatchEvent(new Event('change'));}
+}
 function setLang(l){
   LANG=l;
-  document.querySelectorAll('#langsw button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
-  const T=I18N[l];if(!T)return;
-  const H=function(id,v){var e=document.getElementById(id);if(e&&v!=null)e.innerHTML=v;};
-  const X=function(id,v){var e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
-  X('k1',T.k1);H('k2',T.k2);X('k3',T.k3);X('k4',T.k4);
-  X('famEyebrow',T.famEyebrow);H('famH2',T.famH2);X('famLead',T.famLead);
+  document.querySelectorAll('#langsw button,.lang button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
+  translatePage(l);
   if(lastScores){var vh=document.getElementById('vhead');if(vh){vh.innerHTML='<span class="ic-sm">'+(lastScam?ICONS.alert:ICONS.check)+'</span>'+(lastScam?tt('scamHead'):tt('safeHead'));}}
 }
 
