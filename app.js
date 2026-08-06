@@ -553,10 +553,10 @@ function closeAuth(){document.getElementById('authwrap').classList.remove('open'
 function setAuthMode(m){
   authMode=m;
   document.getElementById('signupFields').style.display=m==='signup'?'block':'none';
-  document.getElementById('authTitle').textContent=m==='signup'?'Create your account':'Welcome back';
-  document.getElementById('authSub').textContent=m==='signup'?'Join the network and help stop scams before they spread.':'Sign in to protect your account and get real-time alerts.';
-  document.getElementById('authGo').textContent=m==='signup'?'Create account':'Sign in';
-  document.getElementById('authSwitch').innerHTML=m==='signup'?'Already have an account? <a onclick="setAuthMode(\'signin\')">Sign in</a>':'New here? <a onclick="setAuthMode(\'signup\')">Create an account</a>';
+  document.getElementById('authTitle').textContent=m==='signup'?tt('auth_title_signup'):tt('auth_title_signin');
+  document.getElementById('authSub').textContent=m==='signup'?tt('auth_sub_signup'):tt('auth_sub_signin');
+  document.getElementById('authGo').textContent=m==='signup'?tt('auth_go_signup'):tt('auth_go_signin');
+  document.getElementById('authSwitch').innerHTML=m==='signup'?tt('auth_switch_signup'):tt('auth_switch_signin');
   document.getElementById('authErr').textContent='';
 }
 function toggleRobot(){robot=!robot;document.getElementById('robotBox').classList.toggle('checked',robot);document.getElementById('authErr').textContent='';}
@@ -632,17 +632,69 @@ function scamType(s){
   if(s.urgency>=55) return 'Social-engineering (urgency) scam';
   return 'Suspected financial cyber fraud';
 }
+function _gval(id){var e=document.getElementById(id);return e?e.value.trim():'';}
 function openGov(){
-  const date=new Date().toLocaleString('en-IN');
-  document.getElementById('gov-type').textContent=lastType+' · risk '+lastRisk+'/100';
-  const ev=(lastMsg||'').slice(0,180)+((lastMsg||'').length>180?'\u2026':'');
-  document.getElementById('gov-ev').textContent=ev||'(analysed message)';
-  const who=currentUser?('\n\nReported by: '+currentUser):'';
-  const txt='To the Indian Cyber Crime Coordination Centre (I4C),\n\nI wish to report a suspected financial cyber fraud. On '+date+' I received the following message:\n\n"'+(lastMsg||'')+'"\n\nThis appears to be a '+lastType.toLowerCase()+' attempt (automated risk score '+lastRisk+'/100). I request that it be investigated and the sender blocked. I have not shared any OTP or PIN.'+who+'\n\nPrepared via SafePay Guard.';
-  document.getElementById('gov-text').value=txt;
+  // Pre-fill what we can from the last DNA analysis (if any), then open.
+  var typeEl=document.getElementById('gov-type');
+  if(typeEl)typeEl.textContent=lastType?(lastType+' · risk '+lastRisk+'/100'):'Suspected financial cyber fraud';
+  var dEl=document.getElementById('gv-date');
+  if(dEl&&!dEl.value)dEl.value=new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var desc=document.getElementById('gv-desc');
+  if(desc&&!desc.value&&lastMsg)desc.value='I received the following suspicious message and believe it is a '+(lastType?lastType.toLowerCase():'financial fraud')+' attempt:\n"'+lastMsg+'"';
+  buildComplaint(); // draft immediately so there is always a ready-to-file letter
   document.getElementById('govwrap').classList.add('open');
   try{if(window.SafePayBackend&&SafePayBackend.ready())SafePayBackend.reportScam({type:lastType,risk:lastRisk,message:lastMsg,city:'Chennai'});}catch(e){}
   try{toast('<span class="ic-sm">'+ICONS.radio+'</span> Routed to the network','Nearby users warned + complaint ready for cybercrime.gov.in / 1930.');}catch(e){}
+}
+/* Assemble a professional, portal-ready complaint from the form fields (+ any analysis). */
+function buildComplaint(){
+  var amount=_gval('gv-amount'), date=_gval('gv-date'), bank=_gval('gv-bank'),
+      txn=_gval('gv-txn'), phone=_gval('gv-phone'), evidence=_gval('gv-evidence'), desc=_gval('gv-desc');
+  var today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  var nature=lastType?lastType:'Suspected financial cyber fraud';
+  if(lastRisk)nature+=' (automated risk score '+lastRisk+'/100)';
+  var dash='—';
+  var amountLine=amount?('\u20b9'+amount.replace(/^\u20b9\s*/,'')):dash;
+
+  var body=desc;
+  if(!body){
+    body='I have been targeted by a financial cyber fraud'+(amount?(' and lost \u20b9'+amount.replace(/^\u20b9\s*/,'')):'')+'.';
+    if(lastMsg)body+='\nThe suspicious message received was:\n"'+lastMsg+'"';
+  }
+
+  var L=[];
+  L.push('To,');
+  L.push('The Indian Cyber Crime Coordination Centre (I4C),');
+  L.push('National Cyber Crime Reporting Portal (cybercrime.gov.in)');
+  L.push('');
+  L.push('Subject: Complaint regarding a financial cyber fraud');
+  L.push('');
+  L.push('Respected Sir/Madam,');
+  L.push('');
+  L.push('I wish to report a financial cyber fraud that I have been a victim of. The details are as follows:');
+  L.push('');
+  L.push('1. Nature of fraud: '+nature);
+  L.push('2. Date & time of incident: '+(date||dash));
+  L.push('3. Amount involved: '+amountLine);
+  L.push('4. My bank / wallet: '+(bank||dash));
+  L.push('5. Transaction / UPI reference: '+(txn||dash));
+  L.push("6. Fraudster's phone number / sender ID: "+(phone||dash));
+  L.push('7. Evidence available: '+(evidence||'Screenshots of the message and transaction'));
+  L.push('');
+  L.push('Description of what happened:');
+  L.push(body);
+  L.push('');
+  L.push('I have not knowingly shared any OTP, UPI PIN, CVV or password. I request you to kindly investigate this matter, block the fraudster\u2019s number/account, and take urgent action to freeze and recover the defrauded amount at the earliest.');
+  L.push('');
+  L.push('Date of complaint: '+today);
+  L.push('');
+  L.push('Yours faithfully,');
+  L.push(currentUser?currentUser:'(Your full name)');
+  L.push('');
+  L.push('[Prepared with SafePay Guard \u2014 please verify the details above and submit on cybercrime.gov.in, or call 1930.]');
+
+  var out=document.getElementById('gov-text');
+  if(out)out.value=L.join('\n');
 }
 function closeGov(){document.getElementById('govwrap').classList.remove('open');}
 function copyGov(){const t=document.getElementById('gov-text');t.select();try{navigator.clipboard.writeText(t.value);}catch(e){try{document.execCommand('copy');}catch(e2){}}toast('<span class="ic-sm">'+ICONS.check+'</span> Copied','Paste it into the portal complaint box.');}
@@ -742,57 +794,422 @@ try{if(window.SafePayBackend&&SafePayBackend.ready()){SafePayBackend.listenRepor
 let LANG='en';
 const I18N={
  en:{
-  k1:"Live \u00b7 Financial Immune System",
+  brand_tag:"India's Financial Immune System",
+  intro_skip:"Skip intro →",
+  nav_radar:"Radar", nav_dna:"Scam DNA", nav_sim:"Simulator", nav_brief:"Briefing", nav_impact:"Impact", nav_connect:"Connect",
+  signin:"Sign in",
+  k1:"Live · Financial Immune System",
   k2:'Stop the scam<br><span class="grad">before it spreads.</span>',
-  k3:"India loses \u20b922,495 crore a year to UPI fraud. We treat every scam like a virus - one report becomes an antibody that protects thousands nearby, in under a second.",
+  k3:"India loses ₹22,495 crore a year to UPI fraud. We treat every scam like a virus — one report becomes an antibody that immunizes thousands nearby, in under a second.",
   k4:"One report. Millions protected.",
-  famEyebrow:"Family Guardian",
-  famH2:'Protect the people <span class="grad">you love.</span>',
-  famLead:"Add your parents or family. If you spot a scam, alert them in one tap.",
+  ctaDemo:"Run live demo", ctaRadar:"Watch live radar",
+  stat_users:"UPI users covered", stat_cases:"scam cases / year", stat_alert:"alert propagation",
+  scroll:"SCROLL",
+  pulse_live:"Live · right now", pulse_active:"Active scams right now", pulse_waves:"New waves today", pulse_prot:"People protected today",
+  threat_label:"01 — THE THREAT",
+  threat_huge:'A scam never hits <span class="grad">just one person.</span> It moves in <span style="color:var(--danger)">waves.</span>',
+  threat_lead:"One script is blasted to thousands over days. Because half of victims never report, the wave rolls on — unseen, unstopped.",
+  patient_zero:"patient zero",
+  radar_eyebrow:"Live scam radar",
+  radar_big:'A command center<br>for fraud in <span class="grad">real time.</span>',
+  radar_lead:"Every report is a signal. Hotspots pulse where scams spread right now — a public-health dashboard for money.",
+  out_delhi:"KYC / digital-arrest scam", out_mumbai:"Refund / cashback scam", out_bengaluru:"Fake QR collect-request", out_chennai:"Lottery / prize scam",
+  tm_eyebrow:"Digital Scam Time Machine",
+  tm_big:'Watch a scam <span class="grad">travel</span> —<br>and where it strikes <span style="color:var(--gold)">next.</span>',
+  tm_lead:"Scams move city to city like an outbreak. We replay the spread and forecast tomorrow's target before it happens.",
+  tm_day1:"DAY 1", tm_day2:"DAY 2", tm_day3:"DAY 3", tm_day4:"DAY 4", tm_tomorrow:"TOMORROW",
+  tm_rep1:"128 reports", tm_rep2:"96 reports", tm_rep3:"173 reports", tm_rep4:"201 reports", tm_forecast:"forecast", tm_conf:"AI confidence 87%",
+  tm_replay:"Replay outbreak",
+  dna_eyebrow:"Scam DNA engine",
+  dna_big:'Every scam has a <span class="gradb">fingerprint.</span>',
+  dna_lead:"Paste any message — the engine sequences it into fraud traits and returns a verdict in under a second. Real logic, not a mock-up.",
+  dna_chip_kyc:"KYC expiry", dna_chip_lottery:"Lottery prize", dna_chip_refund:"Fake refund QR", dna_chip_safe:"Safe message",
+  dna_input_ph:"…or paste any message to sequence",
+  dna_sequence:"Sequence it", dna_clear:"Clear",
+  v_await:"Awaiting message", v_awaitsub:"Tap “Sequence it” to run the DNA analysis.",
+  badge_anti:"Antibody generated", explain_simply:"Explain simply", listen:"Listen",
+  dna_emotion:"Emotional trigger", dna_urgency:"Urgency pressure", dna_fakeid:"Fake identity", dna_link:"Unknown link", dna_payment:"Payment / PIN request",
+  report_gov:"Auto-report to Cyber Crime", report_family:"Alert family & friends", call1930:"Call 1930",
+  journey_eyebrow:"Enter the scam",
+  journey_big:'Travel <span class="gradb">inside</span> a scam.',
+  journey_lead:"Follow a real scam from the first message to the stolen money — we freeze it at every step and expose the red flag you can now spot.",
+  j_message:"Message", j_link:"Link", j_fakesite:"Fake site", j_qr:"QR code", j_upi:"UPI", j_bank:"Bank", j_scammer:"Scammer", j_trail:"Money trail",
+  j_head0:"It starts with a single message", j_body0:"Tap “Enter the scam” to travel through it, step by step — or click any stage.",
+  sim_eyebrow:"AI Scam Simulator",
+  sim_big:'See a scam <span class="gradb">from the inside.</span>',
+  sim_lead:"Pick a scam and watch it unfold in real time — then we freeze it and expose every trick, so you'll never fall for it. Nothing here is real; it's a safe training drill.",
+  sim_hint:"Choose a scam below to run the simulation.",
+  sim_kyc:"KYC bank scam", sim_lottery:"Lottery prize", sim_arrest:"Digital arrest",
+  sim_break:"Manipulation breakdown", sim_verdict:"Run a simulation to reveal the tactics used against you.",
+  e_fear:"Fear", e_greed:"Greed", e_urgency:"Urgency", e_authority:"Authority", e_curiosity:"Curiosity",
+  immune_eyebrow:"Community immune system",
+  immune_big:'One antibody.<br><span class="grad">A whole city immunized.</span>',
+  immune_lead:"Watch protection spread through the network — the moment one person reports, everyone with the same exposure profile is warned.",
+  golden_eyebrow:"Golden Hour recovery",
+  golden_big:'The first hour<br>decides <span style="color:var(--gold)">everything.</span>',
+  golden_lead:"On UPI, theft is instant — but banks can still freeze funds if you move fast. Golden Hour turns panic into a guided rescue.",
+  gh1h:"Scam detected", gh1p:"Report logged, transaction details captured automatically.",
+  gh2h:"Freeze the payment", gh2p:"Guided steps to block the account and stop further debits.",
+  gh3h:"Call 1930", gh3p:"One tap to the national cyber-crime helpline.",
+  gh4h:"Complaint auto-filed", gh4p:"A pre-filled cybercrime.gov.in report — recovery begins.",
+  helpline_title:"Fraud & emergency helplines",
+  helpline_lead:'Save these. For any financial fraud, call <b style="color:var(--gold)">1930</b> first — the sooner you report, the more likely the money can be frozen.',
+  hl_1930:"Cyber-crime & financial fraud · 24×7", hl_112:"National emergency (police / all-in-one)",
+  hl_report_online:"Report online", hl_portal:"cybercrime.gov.in · National portal",
+  hl_14448:"RBI complaints (banking) · office hours", hl_1909:"Report spam calls & SMS · TRAI",
+  hl_upi:"UPI disputes", hl_upi_nm:"Raise in your bank/UPI app · NPCI portal",
+  hl_1098:"Childline (child in distress)", hl_181:"Women helpline", hl_14567:"Senior citizens · Elderline",
+  fam_eyebrow:"Family Guardian",
+  fam_h2:'Protect the people <span class="grad">you love.</span>',
+  fam_lead:"Add your parents or family. If you spot a scam, alert them in one tap - the people most targeted often need us watching out for them.",
+  fam_name_label:"Family member's name", fam_name_ph:"e.g. Amma", fam_phone_label:"Their mobile number",
+  fam_add:"Add to my family circle", fam_empty:"No family added yet. Add someone above to protect them.", fam_alertall:"Alert everyone about a scam",
+  ai_big:'Intelligence that<br>watches <span class="gradb">for you.</span>',
+  ai_lead:"Not a chatbot in a box — an ambient guardian. Ask in your language, get a plain answer, stay protected.",
+  ai_ask:"ASK", ai_p1:"Is this message fake?", ai_p2:"Can I trust this UPI ID?", ai_p3:"Show scams near me right now", ai_p4:"I was scammed — what do I do?",
+  ai_chat_btn:"Chat with Sentinel AI",
+  brief_eyebrow:"Daily fraud briefing",
+  brief_big:'Know today\'s scams<br><span class="grad">before they know you.</span>',
+  brief_lead:"A fresh brief every day — the latest fraud tactics, data, and advisories, curated so you stay one step ahead.",
+  impact_eyebrow:"Impact dashboard",
+  impact_big:'Every report makes<br>the network <span class="grad">stronger.</span>',
+  imp_people:"People protected today", imp_money:"Money saved today", imp_anti:"Antibodies generated", imp_cities:"Cities covered", imp_waves:"Waves stopped early",
+  arch_eyebrow:"Under the hood",
+  arch_big:'A buildable stack.<br>Data flows in <span class="gradb">seconds.</span>',
+  arch_lead:"No black-box ML. A report enters the DNA engine, gets scored, matched to a location, and pushed back to nearby users — a lightweight, hackathon-ready pipeline.",
+  arch_client_h:"Client", arch_dna_h:"DNA Engine", arch_dna_p:"fingerprint", arch_risk_h:"Risk Engine", arch_risk_p:"rule scoring",
+  arch_geo_h:"Geo Matcher", arch_alert_h:"Alert Engine", arch_users_h:"Nearby users", arch_users_p:"immunized",
+  vision_label:"10 — THE FUTURE",
+  vision_l1:"One campus.", vision_l2:"Then cities.", vision_l3:"Then all of India.",
+  mantra:'One report.<br>One antibody.<br><span class="grad">Millions protected.</span>',
+  vision_lead:"Plugged into NPCI, every reported scam could immunize 46 crore users in seconds — herd immunity for India's payments.",
+  vision_btn:"Run the full demo",
+  connect_eyebrow:"Connect · Reach out",
+  connect_h2:'Built by <span class="grad">Vishweshwaran Balasundaram</span>.',
+  connect_lead:"Questions, feedback, or want to collaborate? Tap a card to reach me — or copy the details.",
+  c_call:"Call", c_open:"Open",
+  foot_brand_p:"India's financial immune system. One report becomes an antibody that protects thousands — report scams, stay immune.",
+  foot_explore:"Explore", foot_connect:"Connect", foot_contact:"Contact", foot_report:"Report fraud · 1930",
+  foot_made:"Made with ❤ by Vishweshwaran Balasundaram", foot_made_html:'Made with <span class="heart">❤</span> by Vishweshwaran Balasundaram', foot_top:"↑ Top",
+  fab:"Ask Sentinel AI", chat_guardian:"on-device fraud guardian",
+  chat_q1:"Check a message", chat_q2:"I was scammed", chat_q3:"Digital arrest?", chat_q4:"UPI ID safe?",
+  chat_input_ph:"Ask anything about a scam…", chat_send:"Send",
+  auth_title_signin:"Welcome back", auth_title_signup:"Create your account",
+  auth_sub_signin:"Sign in to protect your account and get real-time alerts.", auth_sub_signup:"Join the network and help stop scams before they spread.",
+  auth_go_signin:"Sign in", auth_go_signup:"Create account",
+  auth_switch_signin:'New here? <a onclick="setAuthMode(\'signup\')">Create an account</a>',
+  auth_switch_signup:'Already have an account? <a onclick="setAuthMode(\'signin\')">Sign in</a>',
+  auth_email:"Email address", auth_password:"Password", auth_robot:"I'm not a robot", auth_remember:"Remember me", auth_forgot:"Forgot password?",
+  auth_secured:"Secured by Firebase · your password is encrypted",
+  auth_pfp:"Profile picture", auth_upload:"Upload photo", auth_username:"Username", auth_mobile:"Mobile number",
+  perm_title:"Turn on Protection?",
+  perm_body:'Allow SafePay Guard to <b>screen your incoming calls &amp; SMS</b> and automatically block known scam numbers and fake messages, using the community immune network.',
+  perm_no:"Not now", perm_yes:"Allow protection",
+  perm_demo:"Prototype - real-time call/SMS blocking runs in the SafePay Guard mobile app with your device permission.",
+  shield_on:"Protection ON", shield_title:"Protection Shield", shield_sub:"Screening calls & SMS", shield_blocked:"threats blocked today",
+  shield_check_ph:"Check a number or sender ID", shield_report_ph:"Report a scam number to block", shield_check:"Check", shield_report:"Report",
+  shield_demo:"Demo blocklist - grows as the community reports. Real blocking needs the mobile app + OS permission.",
+  gov_title:"File with Cyber Crime",
+  gov_sub:"Fill in what you know — we'll assemble a ready-to-file complaint for the National Cyber Crime Reporting Portal. Nothing is submitted without you.",
+  gov_f_amount:"Amount lost (₹)", gov_f_date:"Date & time of fraud", gov_f_bank:"Your bank / wallet",
+  gov_f_txn:"Transaction / UPI ID", gov_f_phone:"Scammer's phone / sender", gov_f_evidence:"Evidence you have",
+  gov_f_desc:"What happened (short description)", gov_generate:"Generate complaint",
+  gov_label:"COMPLAINT · READY TO FILE (editable)", gov_open:"Open cybercrime.gov.in", gov_copy:"Copy complaint",
+  gov_note:"SafePay Guard only prepares the text and warns nearby users. Final submission happens on the official Government of India portal (login via mobile OTP). Nothing is sent without you.",
+  share_title:"Alert family & friends", share_sub:"Warn the people you care about - one share can stop the next victim.",
+  share_copy:"Copy", share_more:"Share…",
+  gov_ph_amount:"e.g. 25000", gov_ph_date:"e.g. 05 Aug 2026, 3:40 PM", gov_ph_bank:"e.g. SBI",
+  gov_ph_txn:"e.g. 4231…/ scammer@upi", gov_ph_phone:"e.g. +91 98765 43210", gov_ph_evidence:"e.g. 2 screenshots, SMS", gov_ph_desc:"Describe how the fraud happened…",
   scamHead:"Scam detected", safeHead:"Looks safe",
   greeting:"Hi, I'm <b>Sentinel</b>, your fraud guardian. Paste a suspicious message and I'll check it, or ask me anything about UPI, payments, or scams."
  },
  hi:{
-  k1:"\u0932\u093e\u0907\u0935 \u00b7 \u0935\u093f\u0924\u094d\u0924\u0940\u092f \u092a\u094d\u0930\u0924\u093f\u0930\u0915\u094d\u0937\u093e \u0924\u0902\u0924\u094d\u0930",
-  k2:'\u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u0915\u094b \u0930\u094b\u0915\u0947\u0902<br><span class="grad">\u092b\u0948\u0932\u0928\u0947 \u0938\u0947 \u092a\u0939\u0932\u0947\u0964</span>',
-  k3:"\u092d\u093e\u0930\u0924 \u0939\u0930 \u0938\u093e\u0932 UPI \u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u092e\u0947\u0902 \u20b922,495 \u0915\u0930\u094b\u0921\u093c \u0917\u0902\u0935\u093e\u0924\u093e \u0939\u0948\u0964 \u0939\u092e \u0939\u0930 \u0927\u094b\u0916\u0947 \u0915\u094b \u090f\u0915 \u0935\u093e\u092f\u0930\u0938 \u092e\u093e\u0928\u0924\u0947 \u0939\u0948\u0902 - \u090f\u0915 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u090f\u0902\u091f\u0940\u092c\u0949\u0921\u0940 \u092c\u0928 \u091c\u093e\u0924\u0940 \u0939\u0948 \u091c\u094b \u092a\u093e\u0938 \u0915\u0947 \u0939\u091c\u093c\u093e\u0930\u094b\u0902 \u0932\u094b\u0917\u094b\u0902 \u0915\u094b \u090f\u0915 \u0938\u0947\u0915\u0902\u0921 \u092e\u0947\u0902 \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0915\u0930 \u0926\u0947\u0924\u0940 \u0939\u0948\u0964",
-  k4:"\u090f\u0915 \u0930\u093f\u092a\u094b\u0930\u094d\u091f\u0964 \u0932\u093e\u0916\u094b\u0902 \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924\u0964",
-  famEyebrow:"\u092a\u0930\u093f\u0935\u093e\u0930 \u0930\u0915\u094d\u0937\u0915",
-  famH2:'\u0909\u0928\u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0930\u0947\u0902 <span class="grad">\u091c\u093f\u0928\u094d\u0939\u0947\u0902 \u0906\u092a \u092a\u094d\u092f\u093e\u0930 \u0915\u0930\u0924\u0947 \u0939\u0948\u0902\u0964</span>',
-  famLead:"\u0905\u092a\u0928\u0947 \u092e\u093e\u0924\u093e-\u092a\u093f\u0924\u093e \u092f\u093e \u092a\u0930\u093f\u0935\u093e\u0930 \u0915\u094b \u091c\u094b\u0921\u093c\u0947\u0902\u0964 \u0927\u094b\u0916\u093e \u0926\u093f\u0916\u0947 \u0924\u094b \u090f\u0915 \u091f\u0948\u092a \u092e\u0947\u0902 \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u091a\u0947\u0924 \u0915\u0930\u0947\u0902\u0964",
-  scamHead:"\u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u092e\u093f\u0932\u0940", safeHead:"\u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0932\u0917\u0924\u093e \u0939\u0948",
-  greeting:"\u0928\u092e\u0938\u094d\u0924\u0947! \u092e\u0948\u0902 <b>Sentinel</b> \u0939\u0942\u0901\u0964 \u0915\u094b\u0908 \u0938\u0902\u0926\u093f\u0917\u094d\u0927 \u0938\u0902\u0926\u0947\u0936 \u092a\u0947\u0938\u094d\u091f \u0915\u0930\u0947\u0902, \u092f\u093e UPI \u0914\u0930 \u0927\u094b\u0916\u093e\u0927\u0921\u093c\u0940 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u092a\u0942\u091b\u0947\u0902\u0964"
+  brand_tag:"भारत का वित्तीय प्रतिरक्षा तंत्र",
+  intro_skip:"इंट्रो छोड़ें →",
+  nav_radar:"रडार", nav_dna:"स्कैम DNA", nav_sim:"सिम्युलेटर", nav_brief:"ब्रीफिंग", nav_impact:"प्रभाव", nav_connect:"संपर्क",
+  signin:"साइन इन",
+  k1:"लाइव · वित्तीय प्रतिरक्षा तंत्र",
+  k2:'धोखाधड़ी रोकें<br><span class="grad">फैलने से पहले।</span>',
+  k3:"भारत हर साल UPI धोखाधड़ी में ₹22,495 करोड़ गँवाता है। हम हर धोखे को एक वायरस मानते हैं — एक रिपोर्ट एंटीबॉडी बन जाती है जो पास के हज़ारों लोगों को एक सेकंड में सुरक्षित कर देती है।",
+  k4:"एक रिपोर्ट। लाखों सुरक्षित।",
+  ctaDemo:"लाइव डेमो चलाएँ", ctaRadar:"लाइव रडार देखें",
+  stat_users:"कवर किए गए UPI उपयोगकर्ता", stat_cases:"स्कैम मामले / वर्ष", stat_alert:"अलर्ट प्रसार",
+  scroll:"स्क्रॉल",
+  pulse_live:"लाइव · अभी", pulse_active:"अभी सक्रिय स्कैम", pulse_waves:"आज नई लहरें", pulse_prot:"आज सुरक्षित लोग",
+  threat_label:"01 — खतरा",
+  threat_huge:'धोखाधड़ी कभी <span class="grad">सिर्फ़ एक व्यक्ति</span> को नहीं मारती। यह <span style="color:var(--danger)">लहरों</span> में फैलती है।',
+  threat_lead:"एक ही स्क्रिप्ट कई दिनों में हज़ारों को भेजी जाती है। चूँकि आधे पीड़ित कभी रिपोर्ट नहीं करते, लहर बिना रुके, बिना दिखे चलती रहती है।",
+  patient_zero:"रोगी शून्य",
+  radar_eyebrow:"लाइव स्कैम रडार",
+  radar_big:'धोखाधड़ी के लिए<br>एक <span class="grad">रियल-टाइम</span> कमांड सेंटर।',
+  radar_lead:"हर रिपोर्ट एक संकेत है। जहाँ अभी स्कैम फैल रहे हैं वहाँ हॉटस्पॉट धड़कते हैं — पैसे के लिए एक जन-स्वास्थ्य डैशबोर्ड।",
+  out_delhi:"KYC / डिजिटल-अरेस्ट स्कैम", out_mumbai:"रिफंड / कैशबैक स्कैम", out_bengaluru:"नकली QR कलेक्ट-रिक्वेस्ट", out_chennai:"लॉटरी / इनाम स्कैम",
+  tm_eyebrow:"डिजिटल स्कैम टाइम मशीन",
+  tm_big:'देखें एक स्कैम कैसे <span class="grad">यात्रा</span> करता है —<br>और अगला <span style="color:var(--gold)">हमला</span> कहाँ होगा।',
+  tm_lead:"स्कैम एक प्रकोप की तरह शहर-दर-शहर फैलते हैं। हम इस प्रसार को दोहराते हैं और कल के लक्ष्य का पूर्वानुमान पहले ही लगा देते हैं।",
+  tm_day1:"दिन 1", tm_day2:"दिन 2", tm_day3:"दिन 3", tm_day4:"दिन 4", tm_tomorrow:"कल",
+  tm_rep1:"128 रिपोर्ट", tm_rep2:"96 रिपोर्ट", tm_rep3:"173 रिपोर्ट", tm_rep4:"201 रिपोर्ट", tm_forecast:"पूर्वानुमान", tm_conf:"AI विश्वास 87%",
+  tm_replay:"प्रकोप फिर से चलाएँ",
+  dna_eyebrow:"स्कैम DNA इंजन",
+  dna_big:'हर स्कैम की एक <span class="gradb">फ़िंगरप्रिंट</span> होती है।',
+  dna_lead:"कोई भी संदेश पेस्ट करें — इंजन उसे धोखाधड़ी के लक्षणों में विभाजित करता है और एक सेकंड में फ़ैसला देता है। असली लॉजिक, कोई दिखावा नहीं।",
+  dna_chip_kyc:"KYC समाप्ति", dna_chip_lottery:"लॉटरी इनाम", dna_chip_refund:"नकली रिफंड QR", dna_chip_safe:"सुरक्षित संदेश",
+  dna_input_ph:"…या सीक्वेंस करने के लिए कोई संदेश पेस्ट करें",
+  dna_sequence:"सीक्वेंस करें", dna_clear:"साफ़ करें",
+  v_await:"संदेश की प्रतीक्षा", v_awaitsub:"DNA विश्लेषण चलाने के लिए “सीक्वेंस करें” पर टैप करें।",
+  badge_anti:"एंटीबॉडी बनी", explain_simply:"आसान भाषा में", listen:"सुनें",
+  dna_emotion:"भावनात्मक ट्रिगर", dna_urgency:"तात्कालिकता का दबाव", dna_fakeid:"नकली पहचान", dna_link:"अज्ञात लिंक", dna_payment:"भुगतान / PIN अनुरोध",
+  report_gov:"साइबर क्राइम को ऑटो-रिपोर्ट", report_family:"परिवार और दोस्तों को सचेत करें", call1930:"1930 पर कॉल करें",
+  journey_eyebrow:"स्कैम में प्रवेश करें",
+  journey_big:'एक स्कैम के <span class="gradb">अंदर</span> यात्रा करें।',
+  journey_lead:"पहले संदेश से लेकर चोरी हुए पैसे तक एक असली स्कैम को देखें — हम हर कदम पर उसे रोकते हैं और वह लाल झंडा दिखाते हैं जिसे अब आप पहचान सकते हैं।",
+  j_message:"संदेश", j_link:"लिंक", j_fakesite:"नकली साइट", j_qr:"QR कोड", j_upi:"UPI", j_bank:"बैंक", j_scammer:"धोखेबाज़", j_trail:"पैसे का निशान",
+  j_head0:"यह एक संदेश से शुरू होता है", j_body0:"चरण-दर-चरण इसमें यात्रा करने के लिए “स्कैम में प्रवेश करें” पर टैप करें — या किसी भी चरण पर क्लिक करें।",
+  sim_eyebrow:"AI स्कैम सिम्युलेटर",
+  sim_big:'एक स्कैम को <span class="gradb">अंदर से</span> देखें।',
+  sim_lead:"एक स्कैम चुनें और उसे रियल-टाइम में देखें — फिर हम उसे रोककर हर चाल उजागर करते हैं, ताकि आप कभी न फँसें। यहाँ कुछ भी असली नहीं है; यह एक सुरक्षित प्रशिक्षण अभ्यास है।",
+  sim_hint:"सिम्युलेशन चलाने के लिए नीचे एक स्कैम चुनें।",
+  sim_kyc:"KYC बैंक स्कैम", sim_lottery:"लॉटरी इनाम", sim_arrest:"डिजिटल अरेस्ट",
+  sim_break:"हेरफेर का विश्लेषण", sim_verdict:"आपके ख़िलाफ़ इस्तेमाल की गई रणनीति देखने के लिए सिम्युलेशन चलाएँ।",
+  e_fear:"डर", e_greed:"लालच", e_urgency:"तात्कालिकता", e_authority:"अधिकार", e_curiosity:"जिज्ञासा",
+  immune_eyebrow:"सामुदायिक प्रतिरक्षा तंत्र",
+  immune_big:'एक एंटीबॉडी।<br><span class="grad">पूरा शहर सुरक्षित।</span>',
+  immune_lead:"नेटवर्क में सुरक्षा को फैलते देखें — जैसे ही एक व्यक्ति रिपोर्ट करता है, उसी जोखिम वाले सभी लोग सचेत हो जाते हैं।",
+  golden_eyebrow:"गोल्डन आवर रिकवरी",
+  golden_big:'पहला घंटा<br><span style="color:var(--gold)">सब कुछ</span> तय करता है।',
+  golden_lead:"UPI पर चोरी तुरंत होती है — लेकिन अगर आप तेज़ी से काम करें तो बैंक फिर भी पैसे फ़्रीज़ कर सकते हैं। गोल्डन आवर घबराहट को एक निर्देशित बचाव में बदल देता है।",
+  gh1h:"स्कैम का पता चला", gh1p:"रिपोर्ट दर्ज, लेन-देन विवरण स्वतः कैप्चर।",
+  gh2h:"भुगतान फ़्रीज़ करें", gh2p:"खाता ब्लॉक करने और आगे की निकासी रोकने के निर्देशित कदम।",
+  gh3h:"1930 पर कॉल करें", gh3p:"राष्ट्रीय साइबर-अपराध हेल्पलाइन पर एक टैप।",
+  gh4h:"शिकायत स्वतः दर्ज", gh4p:"पहले से भरी cybercrime.gov.in रिपोर्ट — रिकवरी शुरू।",
+  helpline_title:"धोखाधड़ी और आपातकालीन हेल्पलाइन",
+  helpline_lead:'इन्हें सहेजें। किसी भी वित्तीय धोखाधड़ी के लिए पहले <b style="color:var(--gold)">1930</b> पर कॉल करें — जितनी जल्दी रिपोर्ट, पैसे फ़्रीज़ होने की संभावना उतनी अधिक।',
+  hl_1930:"साइबर-अपराध और वित्तीय धोखाधड़ी · 24×7", hl_112:"राष्ट्रीय आपातकाल (पुलिस / सर्व-सुविधा)",
+  hl_report_online:"ऑनलाइन रिपोर्ट करें", hl_portal:"cybercrime.gov.in · राष्ट्रीय पोर्टल",
+  hl_14448:"RBI शिकायतें (बैंकिंग) · कार्यालय समय", hl_1909:"स्पैम कॉल और SMS रिपोर्ट करें · TRAI",
+  hl_upi:"UPI विवाद", hl_upi_nm:"अपने बैंक/UPI ऐप में उठाएँ · NPCI पोर्टल",
+  hl_1098:"चाइल्डलाइन (संकट में बच्चा)", hl_181:"महिला हेल्पलाइन", hl_14567:"वरिष्ठ नागरिक · एल्डरलाइन",
+  fam_eyebrow:"परिवार रक्षक",
+  fam_h2:'उनकी रक्षा करें <span class="grad">जिन्हें आप प्यार करते हैं।</span>',
+  fam_lead:"अपने माता-पिता या परिवार को जोड़ें। धोखा दिखे तो एक टैप में उन्हें सचेत करें - जो सबसे अधिक निशाने पर होते हैं उन्हें अक्सर हमारी निगरानी की ज़रूरत होती है।",
+  fam_name_label:"परिवार के सदस्य का नाम", fam_name_ph:"जैसे अम्मा", fam_phone_label:"उनका मोबाइल नंबर",
+  fam_add:"मेरे परिवार में जोड़ें", fam_empty:"अभी तक कोई परिवार नहीं जोड़ा। सुरक्षा के लिए ऊपर किसी को जोड़ें।", fam_alertall:"सभी को स्कैम के बारे में सचेत करें",
+  ai_big:'एक बुद्धिमत्ता जो<br>आपके लिए <span class="gradb">निगरानी करती है।</span>',
+  ai_lead:"डिब्बे में बंद चैटबॉट नहीं — एक सर्वव्यापी रक्षक। अपनी भाषा में पूछें, सरल जवाब पाएँ, सुरक्षित रहें।",
+  ai_ask:"पूछें", ai_p1:"क्या यह संदेश नकली है?", ai_p2:"क्या मैं इस UPI ID पर भरोसा कर सकता हूँ?", ai_p3:"मेरे पास अभी के स्कैम दिखाएँ", ai_p4:"मेरे साथ धोखा हुआ — मैं क्या करूँ?",
+  ai_chat_btn:"Sentinel AI से चैट करें",
+  brief_eyebrow:"दैनिक धोखाधड़ी ब्रीफिंग",
+  brief_big:'आज के स्कैम जानें<br><span class="grad">इससे पहले कि वे आपको जानें।</span>',
+  brief_lead:"हर दिन एक नई ब्रीफ — नवीनतम धोखाधड़ी रणनीति, डेटा और सलाह, ताकि आप एक कदम आगे रहें।",
+  impact_eyebrow:"प्रभाव डैशबोर्ड",
+  impact_big:'हर रिपोर्ट नेटवर्क को<br><span class="grad">और मज़बूत</span> बनाती है।',
+  imp_people:"आज सुरक्षित लोग", imp_money:"आज बचाया गया पैसा", imp_anti:"बनी एंटीबॉडी", imp_cities:"कवर किए गए शहर", imp_waves:"जल्दी रुकी लहरें",
+  arch_eyebrow:"परदे के पीछे",
+  arch_big:'एक बनाने योग्य स्टैक।<br>डेटा <span class="gradb">सेकंडों</span> में बहता है।',
+  arch_lead:"कोई ब्लैक-बॉक्स ML नहीं। एक रिपोर्ट DNA इंजन में आती है, स्कोर होती है, स्थान से मिलान होता है, और पास के उपयोगकर्ताओं तक पहुँचती है — एक हल्की, हैकाथॉन-तैयार पाइपलाइन।",
+  arch_client_h:"क्लाइंट", arch_dna_h:"DNA इंजन", arch_dna_p:"फ़िंगरप्रिंट", arch_risk_h:"रिस्क इंजन", arch_risk_p:"नियम स्कोरिंग",
+  arch_geo_h:"जियो मैचर", arch_alert_h:"अलर्ट इंजन", arch_users_h:"पास के उपयोगकर्ता", arch_users_p:"सुरक्षित",
+  vision_label:"10 — भविष्य",
+  vision_l1:"एक कैंपस।", vision_l2:"फिर शहर।", vision_l3:"फिर पूरा भारत।",
+  mantra:'एक रिपोर्ट।<br>एक एंटीबॉडी।<br><span class="grad">लाखों सुरक्षित।</span>',
+  vision_lead:"NPCI से जुड़कर, हर रिपोर्ट किया गया स्कैम सेकंडों में 46 करोड़ उपयोगकर्ताओं को सुरक्षित कर सकता है — भारत के भुगतान के लिए हर्ड इम्युनिटी।",
+  vision_btn:"पूरा डेमो चलाएँ",
+  connect_eyebrow:"संपर्क · संपर्क करें",
+  connect_h2:'<span class="grad">विश्वेश्वरन बालसुंदरम</span> द्वारा निर्मित।',
+  connect_lead:"प्रश्न, प्रतिक्रिया, या सहयोग करना चाहते हैं? मुझ तक पहुँचने के लिए कार्ड पर टैप करें — या विवरण कॉपी करें।",
+  c_call:"कॉल", c_open:"खोलें",
+  foot_brand_p:"भारत का वित्तीय प्रतिरक्षा तंत्र। एक रिपोर्ट एंटीबॉडी बन जाती है जो हज़ारों की रक्षा करती है — स्कैम रिपोर्ट करें, सुरक्षित रहें।",
+  foot_explore:"एक्सप्लोर करें", foot_connect:"संपर्क", foot_contact:"संपर्क करें", foot_report:"धोखाधड़ी रिपोर्ट करें · 1930",
+  foot_made:"❤ के साथ विश्वेश्वरन बालसुंदरम द्वारा निर्मित", foot_made_html:'<span class="heart">❤</span> के साथ विश्वेश्वरन बालसुंदरम द्वारा निर्मित', foot_top:"↑ ऊपर",
+  fab:"Sentinel AI से पूछें", chat_guardian:"ऑन-डिवाइस धोखाधड़ी रक्षक",
+  chat_q1:"संदेश जाँचें", chat_q2:"मेरे साथ धोखा हुआ", chat_q3:"डिजिटल अरेस्ट?", chat_q4:"UPI ID सुरक्षित?",
+  chat_input_ph:"स्कैम के बारे में कुछ भी पूछें…", chat_send:"भेजें",
+  auth_title_signin:"वापसी पर स्वागत है", auth_title_signup:"अपना खाता बनाएँ",
+  auth_sub_signin:"अपने खाते की सुरक्षा और रियल-टाइम अलर्ट के लिए साइन इन करें।", auth_sub_signup:"नेटवर्क से जुड़ें और स्कैम को फैलने से पहले रोकने में मदद करें।",
+  auth_go_signin:"साइन इन", auth_go_signup:"खाता बनाएँ",
+  auth_switch_signin:'नए हैं? <a onclick="setAuthMode(\'signup\')">खाता बनाएँ</a>',
+  auth_switch_signup:'पहले से खाता है? <a onclick="setAuthMode(\'signin\')">साइन इन</a>',
+  auth_email:"ईमेल पता", auth_password:"पासवर्ड", auth_robot:"मैं रोबोट नहीं हूँ", auth_remember:"मुझे याद रखें", auth_forgot:"पासवर्ड भूल गए?",
+  auth_secured:"Firebase द्वारा सुरक्षित · आपका पासवर्ड एन्क्रिप्टेड है",
+  auth_pfp:"प्रोफ़ाइल चित्र", auth_upload:"फ़ोटो अपलोड करें", auth_username:"उपयोगकर्ता नाम", auth_mobile:"मोबाइल नंबर",
+  perm_title:"सुरक्षा चालू करें?",
+  perm_body:'SafePay Guard को <b>आपकी इनकमिंग कॉल और SMS स्क्रीन</b> करने दें और सामुदायिक प्रतिरक्षा नेटवर्क का उपयोग करके ज्ञात स्कैम नंबरों और नकली संदेशों को स्वतः ब्लॉक करने दें।',
+  perm_no:"अभी नहीं", perm_yes:"सुरक्षा की अनुमति दें",
+  perm_demo:"प्रोटोटाइप - रियल-टाइम कॉल/SMS ब्लॉकिंग SafePay Guard मोबाइल ऐप में आपकी डिवाइस अनुमति के साथ चलती है।",
+  shield_on:"सुरक्षा चालू", shield_title:"सुरक्षा शील्ड", shield_sub:"कॉल और SMS स्क्रीनिंग", shield_blocked:"आज ब्लॉक किए गए खतरे",
+  shield_check_ph:"नंबर या सेंडर ID जाँचें", shield_report_ph:"ब्लॉक करने के लिए स्कैम नंबर रिपोर्ट करें", shield_check:"जाँचें", shield_report:"रिपोर्ट",
+  shield_demo:"डेमो ब्लॉकलिस्ट - समुदाय की रिपोर्ट से बढ़ती है। असली ब्लॉकिंग के लिए मोबाइल ऐप + OS अनुमति चाहिए।",
+  gov_title:"साइबर क्राइम में शिकायत दर्ज करें",
+  gov_sub:"जो आप जानते हैं वह भरें — हम राष्ट्रीय साइबर अपराध रिपोर्टिंग पोर्टल के लिए एक तैयार शिकायत बना देंगे। आपकी अनुमति के बिना कुछ भी सबमिट नहीं होता।",
+  gov_f_amount:"गँवाई गई राशि (₹)", gov_f_date:"धोखाधड़ी की तारीख़ और समय", gov_f_bank:"आपका बैंक / वॉलेट",
+  gov_f_txn:"ट्रांज़ैक्शन / UPI ID", gov_f_phone:"धोखेबाज़ का फ़ोन / सेंडर", gov_f_evidence:"आपके पास सबूत",
+  gov_f_desc:"क्या हुआ (संक्षिप्त विवरण)", gov_generate:"शिकायत बनाएँ",
+  gov_label:"शिकायत · दर्ज करने के लिए तैयार (संपादन योग्य)", gov_open:"cybercrime.gov.in खोलें", gov_copy:"शिकायत कॉपी करें",
+  gov_note:"SafePay Guard केवल टेक्स्ट तैयार करता है और पास के उपयोगकर्ताओं को सचेत करता है। अंतिम सबमिशन आधिकारिक भारत सरकार पोर्टल पर होता है (मोबाइल OTP से लॉगिन)। आपकी अनुमति के बिना कुछ नहीं भेजा जाता।",
+  share_title:"परिवार और दोस्तों को सचेत करें", share_sub:"जिनकी आप परवाह करते हैं उन्हें चेतावनी दें - एक शेयर अगले पीड़ित को बचा सकता है।",
+  share_copy:"कॉपी", share_more:"शेयर…",
+  gov_ph_amount:"जैसे 25000", gov_ph_date:"जैसे 05 अग 2026, 3:40 PM", gov_ph_bank:"जैसे SBI",
+  gov_ph_txn:"जैसे 4231…/ scammer@upi", gov_ph_phone:"जैसे +91 98765 43210", gov_ph_evidence:"जैसे 2 स्क्रीनशॉट, SMS", gov_ph_desc:"बताएँ कि धोखाधड़ी कैसे हुई…",
+  scamHead:"धोखाधड़ी मिली", safeHead:"सुरक्षित लगता है",
+  greeting:"नमस्ते! मैं <b>Sentinel</b> हूँ। कोई संदिग्ध संदेश पेस्ट करें, या UPI और धोखाधड़ी के बारे में पूछें।"
  },
  ta:{
-  k1:"\u0ba8\u0bc7\u0bb0\u0bb2\u0bc8 \u00b7 \u0ba8\u0bbf\u0ba4\u0bbf \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bc1 \u0b85\u0bae\u0bc8\u0baa\u0bcd\u0baa\u0bc1",
-  k2:'\u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bc8 \u0ba4\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd<br><span class="grad">\u0baa\u0bb0\u0bb5\u0bc1\u0bb5\u0ba4\u0bb1\u0bcd\u0b95\u0bc1 \u0bae\u0bc1\u0ba9\u0bcd.</span>',
-  k3:"\u0b87\u0ba8\u0bcd\u0ba4\u0bbf\u0baf\u0bbe \u0b86\u0ba3\u0bcd\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u20b922,495 \u0b95\u0bcb\u0b9f\u0bbf\u0baf\u0bc8 UPI \u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bbf\u0bb2\u0bcd \u0b87\u0bb4\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b92\u0bb5\u0bcd\u0bb5\u0bca\u0bb0\u0bc1 \u0bae\u0bcb\u0b9a\u0b9f\u0bbf\u0baf\u0bc8\u0baf\u0bc1\u0bae\u0bcd \u0bb5\u0bc8\u0bb0\u0bb8\u0bbe\u0b95 \u0b95\u0bb0\u0bc1\u0ba4\u0bc1\u0b95\u0bbf\u0bb1\u0bcb\u0bae\u0bcd - \u0b92\u0bb0\u0bc1 \u0baa\u0bc1\u0b95\u0bbe\u0bb0\u0bcd \u0b85\u0bb0\u0bc1\u0b95\u0bbf\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3 \u0b86\u0baf\u0bbf\u0bb0\u0b95\u0bcd\u0b95\u0ba3\u0b95\u0bcd\u0b95\u0bbe\u0ba9\u0bcb\u0bb0\u0bc8 \u0b92\u0bb0\u0bc1 \u0ba8\u0bca\u0b9f\u0bbf\u0baf\u0bbf\u0bb2\u0bcd \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0b95\u0bcd\u0b95\u0bc1\u0bae\u0bcd.",
-  k4:"\u0b92\u0bb0\u0bc1 \u0baa\u0bc1\u0b95\u0bbe\u0bb0\u0bcd. \u0bb2\u0b9f\u0bcd\u0b9a\u0b95\u0bcd\u0b95\u0ba3\u0b95\u0bcd\u0b95\u0bbe\u0ba9\u0bcb\u0bb0\u0bcd \u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bc1.",
-  famEyebrow:"\u0b95\u0bc1\u0b9f\u0bc1\u0bae\u0bcd\u0baa \u0b95\u0bbe\u0bb5\u0bb2\u0bb0\u0bcd",
-  famH2:'\u0ba8\u0bc0\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0ba8\u0bc7\u0b9a\u0bbf\u0baa\u0bcd\u0baa\u0bb5\u0bb0\u0bcd\u0b95\u0bb3\u0bc8 <span class="grad">\u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0b95\u0bcd\u0b95\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd.</span>',
-  famLead:"\u0b89\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0baa\u0bc6\u0bb1\u0bcd\u0bb1\u0bcb\u0bb0\u0bcd \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 \u0b95\u0bc1\u0b9f\u0bc1\u0bae\u0bcd\u0baa\u0ba4\u0bcd\u0ba4\u0bc8 \u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd. \u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0ba4\u0bc6\u0bb0\u0bbf\u0ba8\u0bcd\u0ba4\u0bbe\u0bb2\u0bcd \u0b92\u0bb0\u0bc7 \u0ba4\u0b9f\u0bcd\u0b9f\u0bbf\u0bb2\u0bcd \u0b8e\u0b9a\u0bcd\u0b9a\u0bb0\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",
-  scamHead:"\u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0b95\u0b23\u0bcd\u0b9f\u0bb1\u0bbf\u0baf\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1", safeHead:"\u0baa\u0bbe\u0ba4\u0bc1\u0b95\u0bbe\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0ba4\u0bc6\u0bb0\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1",
-  greeting:"\u0bb5\u0ba3\u0b95\u0bcd\u0b95\u0bae\u0bcd! \u0ba8\u0bbe\u0ba9\u0bcd <b>Sentinel</b>. \u0b9a\u0ba8\u0bcd\u0ba4\u0bc7\u0b95\u0bae\u0bbe\u0ba9 \u0b9a\u0bc6\u0baf\u0dca\u0ba4\u0bbf\u0baf\u0bc8 \u0b92\u0b9f\u0bcd\u0b9f\u0bb5\u0bc1\u0bae\u0bcd, \u0b85\u0bb2\u0bcd\u0bb2\u0ba4\u0bc1 UPI \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0bae\u0bcb\u0b9a\u0b9f\u0bbf \u0baa\u0bb1\u0bcd\u0bb1\u0bbf \u0b95\u0bc7\u0b9f\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd."
+  brand_tag:"இந்தியாவின் நிதி நோய் எதிர்ப்பு அமைப்பு",
+  intro_skip:"அறிமுகத்தைத் தவிர் →",
+  nav_radar:"ரேடார்", nav_dna:"மோசடி DNA", nav_sim:"சிமுலேட்டர்", nav_brief:"அறிக்கை", nav_impact:"தாக்கம்", nav_connect:"தொடர்பு",
+  signin:"உள்நுழை",
+  k1:"நேரலை · நிதி நோய் எதிர்ப்பு அமைப்பு",
+  k2:'மோசடியை தடுக்குங்கள்<br><span class="grad">பரவுவதற்கு முன்.</span>',
+  k3:"இந்தியா ஆண்டுக்கு ₹22,495 கோடியை UPI மோசடியில் இழக்கிறது. ஒவ்வொரு மோசடியையும் வைரஸாகக் கருதுகிறோம் — ஒரு புகார் ஒரு நொடியில் அருகிலுள்ள ஆயிரக்கணக்கானோரைப் பாதுகாக்கும் ஆன்டிபாடியாக மாறுகிறது.",
+  k4:"ஒரு புகார். லட்சக்கணக்கானோர் பாதுகாப்பு.",
+  ctaDemo:"நேரலை டெமோவை இயக்கு", ctaRadar:"நேரலை ரேடாரைப் பார்",
+  stat_users:"பாதுகாக்கப்படும் UPI பயனர்கள்", stat_cases:"மோசடி வழக்குகள் / ஆண்டு", stat_alert:"எச்சரிக்கை பரவல்",
+  scroll:"ஸ்க்ரோல்",
+  pulse_live:"நேரலை · இப்போது", pulse_active:"இப்போது செயலில் உள்ள மோசடிகள்", pulse_waves:"இன்று புதிய அலைகள்", pulse_prot:"இன்று பாதுகாக்கப்பட்டோர்",
+  threat_label:"01 — அச்சுறுத்தல்",
+  threat_huge:'மோசடி <span class="grad">ஒருவரை மட்டும்</span> தாக்குவதில்லை. அது <span style="color:var(--danger)">அலைகளாக</span> பரவுகிறது.',
+  threat_lead:"ஒரே ஸ்கிரிப்ட் பல நாட்களில் ஆயிரக்கணக்கானோருக்கு அனுப்பப்படுகிறது. பாதிப் பாதிக்கப்பட்டோர் புகார் அளிப்பதில்லை என்பதால், அலை தடையின்றி, தெரியாமல் தொடர்கிறது.",
+  patient_zero:"நோயாளி பூஜ்ஜியம்",
+  radar_eyebrow:"நேரலை மோசடி ரேடார்",
+  radar_big:'மோசடிக்கான<br>ஒரு <span class="grad">நேரடி</span> கட்டளை மையம்.',
+  radar_lead:"ஒவ்வொரு புகாரும் ஒரு சமிக்ஞை. மோசடிகள் இப்போது பரவும் இடங்களில் ஹாட்ஸ்பாட்டுகள் துடிக்கின்றன — பணத்திற்கான ஒரு பொது சுகாதார டாஷ்போர்டு.",
+  out_delhi:"KYC / டிஜிட்டல் கைது மோசடி", out_mumbai:"பணத்திரும்பம் / கேஷ்பேக் மோசடி", out_bengaluru:"போலி QR வசூல் கோரிக்கை", out_chennai:"லாட்டரி / பரிசு மோசடி",
+  tm_eyebrow:"டிஜிட்டல் மோசடி நேர இயந்திரம்",
+  tm_big:'ஒரு மோசடி எப்படி <span class="grad">பயணிக்கிறது</span> —<br>அடுத்து எங்கே <span style="color:var(--gold)">தாக்கும்</span> என்று பாருங்கள்.',
+  tm_lead:"மோசடிகள் ஒரு தொற்றுநோய் போல் நகரம் நகரமாக நகர்கின்றன. இந்தப் பரவலை மீண்டும் இயக்கி, நாளைய இலக்கை முன்கூட்டியே கணிக்கிறோம்.",
+  tm_day1:"நாள் 1", tm_day2:"நாள் 2", tm_day3:"நாள் 3", tm_day4:"நாள் 4", tm_tomorrow:"நாளை",
+  tm_rep1:"128 புகார்கள்", tm_rep2:"96 புகார்கள்", tm_rep3:"173 புகார்கள்", tm_rep4:"201 புகார்கள்", tm_forecast:"முன்னறிவிப்பு", tm_conf:"AI நம்பிக்கை 87%",
+  tm_replay:"பரவலை மீண்டும் இயக்கு",
+  dna_eyebrow:"மோசடி DNA இயந்திரம்",
+  dna_big:'ஒவ்வொரு மோசடிக்கும் ஒரு <span class="gradb">கைரேகை</span> உண்டு.',
+  dna_lead:"எந்த செய்தியையும் ஒட்டுங்கள் — இயந்திரம் அதை மோசடி அம்சங்களாகப் பிரித்து ஒரு நொடியில் தீர்ப்பு தரும். உண்மையான தர்க்கம், போலி அல்ல.",
+  dna_chip_kyc:"KYC காலாவதி", dna_chip_lottery:"லாட்டரி பரிசு", dna_chip_refund:"போலி பணத்திரும்ப QR", dna_chip_safe:"பாதுகாப்பான செய்தி",
+  dna_input_ph:"…அல்லது வரிசைப்படுத்த ஏதேனும் செய்தியை ஒட்டுங்கள்",
+  dna_sequence:"வரிசைப்படுத்து", dna_clear:"அழி",
+  v_await:"செய்திக்காக காத்திருக்கிறது", v_awaitsub:"DNA பகுப்பாய்வை இயக்க “வரிசைப்படுத்து” என்பதைத் தட்டவும்.",
+  badge_anti:"ஆன்டிபாடி உருவாக்கப்பட்டது", explain_simply:"எளிமையாக விளக்கு", listen:"கேள்",
+  dna_emotion:"உணர்ச்சித் தூண்டல்", dna_urgency:"அவசர அழுத்தம்", dna_fakeid:"போலி அடையாளம்", dna_link:"அறியாத இணைப்பு", dna_payment:"பணம் / PIN கோரிக்கை",
+  report_gov:"சைபர் கிரைமுக்கு தானாக புகார்", report_family:"குடும்பம் & நண்பர்களை எச்சரி", call1930:"1930 ஐ அழை",
+  journey_eyebrow:"மோசடிக்குள் நுழை",
+  journey_big:'ஒரு மோசடிக்கு <span class="gradb">உள்ளே</span> பயணியுங்கள்.',
+  journey_lead:"முதல் செய்தியிலிருந்து திருடப்பட்ட பணம் வரை ஒரு உண்மையான மோசடியைப் பின்தொடருங்கள் — ஒவ்வொரு படியிலும் அதை நிறுத்தி, இப்போது நீங்கள் கண்டறியக்கூடிய அபாய அறிகுறியைக் காட்டுகிறோம்.",
+  j_message:"செய்தி", j_link:"இணைப்பு", j_fakesite:"போலி தளம்", j_qr:"QR குறியீடு", j_upi:"UPI", j_bank:"வங்கி", j_scammer:"மோசடிக்காரர்", j_trail:"பண தடம்",
+  j_head0:"இது ஒரே செய்தியுடன் தொடங்குகிறது", j_body0:"படிப்படியாக பயணிக்க “மோசடிக்குள் நுழை” என்பதைத் தட்டவும் — அல்லது எந்த நிலையையும் கிளிக் செய்யவும்.",
+  sim_eyebrow:"AI மோசடி சிமுலேட்டர்",
+  sim_big:'ஒரு மோசடியை <span class="gradb">உள்ளிருந்து</span> பாருங்கள்.',
+  sim_lead:"ஒரு மோசடியைத் தேர்ந்தெடுத்து அதை நேரலையில் பாருங்கள் — பிறகு அதை நிறுத்தி ஒவ்வொரு தந்திரத்தையும் வெளிப்படுத்துகிறோம், நீங்கள் ஒருபோதும் ஏமாற மாட்டீர்கள். இங்கு எதுவும் உண்மையல்ல; இது ஒரு பாதுகாப்பான பயிற்சி.",
+  sim_hint:"சிமுலேஷனை இயக்க கீழே ஒரு மோசடியைத் தேர்ந்தெடுக்கவும்.",
+  sim_kyc:"KYC வங்கி மோசடி", sim_lottery:"லாட்டரி பரிசு", sim_arrest:"டிஜிட்டல் கைது",
+  sim_break:"கையாளுதல் பகுப்பாய்வு", sim_verdict:"உங்களுக்கு எதிராகப் பயன்படுத்தப்பட்ட தந்திரங்களை வெளிப்படுத்த சிமுலேஷனை இயக்கவும்.",
+  e_fear:"பயம்", e_greed:"பேராசை", e_urgency:"அவசரம்", e_authority:"அதிகாரம்", e_curiosity:"ஆர்வம்",
+  immune_eyebrow:"சமூக நோய் எதிர்ப்பு அமைப்பு",
+  immune_big:'ஒரு ஆன்டிபாடி.<br><span class="grad">முழு நகரமும் பாதுகாப்பு.</span>',
+  immune_lead:"பாதுகாப்பு நெட்வொர்க் முழுவதும் பரவுவதைப் பாருங்கள் — ஒருவர் புகார் அளித்த நொடியில், அதே ஆபத்துள்ள அனைவரும் எச்சரிக்கப்படுகிறார்கள்.",
+  golden_eyebrow:"கோல்டன் ஹவர் மீட்பு",
+  golden_big:'முதல் மணி நேரம்<br><span style="color:var(--gold)">அனைத்தையும்</span> தீர்மானிக்கிறது.',
+  golden_lead:"UPI-யில் திருட்டு உடனடி — ஆனால் நீங்கள் வேகமாகச் செயல்பட்டால் வங்கிகள் பணத்தை முடக்க முடியும். கோல்டன் ஹவர் பதற்றத்தை வழிகாட்டப்பட்ட மீட்பாக மாற்றுகிறது.",
+  gh1h:"மோசடி கண்டறியப்பட்டது", gh1p:"புகார் பதிவு, பரிவர்த்தனை விவரங்கள் தானாக பதிவு.",
+  gh2h:"பணத்தை முடக்கு", gh2p:"கணக்கைத் தடுத்து மேலும் பணப் பறிமாற்றத்தை நிறுத்த வழிகாட்டப்பட்ட படிகள்.",
+  gh3h:"1930 ஐ அழை", gh3p:"தேசிய சைபர்-கிரைம் உதவி எண்ணுக்கு ஒரு தட்டு.",
+  gh4h:"புகார் தானாக பதிவு", gh4p:"முன்கூட்டியே நிரப்பப்பட்ட cybercrime.gov.in புகார் — மீட்பு தொடங்குகிறது.",
+  helpline_title:"மோசடி & அவசர உதவி எண்கள்",
+  helpline_lead:'இவற்றைச் சேமியுங்கள். எந்த நிதி மோசடிக்கும் முதலில் <b style="color:var(--gold)">1930</b> ஐ அழையுங்கள் — விரைவில் புகார் அளித்தால், பணத்தை முடக்கும் வாய்ப்பு அதிகம்.',
+  hl_1930:"சைபர்-கிரைம் & நிதி மோசடி · 24×7", hl_112:"தேசிய அவசரநிலை (காவல் / அனைத்தும்)",
+  hl_report_online:"ஆன்லைனில் புகார்", hl_portal:"cybercrime.gov.in · தேசிய போர்டல்",
+  hl_14448:"RBI புகார்கள் (வங்கி) · அலுவலக நேரம்", hl_1909:"ஸ்பேம் அழைப்பு & SMS புகார் · TRAI",
+  hl_upi:"UPI தகராறுகள்", hl_upi_nm:"உங்கள் வங்கி/UPI ஆப்பில் எழுப்புங்கள் · NPCI போர்டல்",
+  hl_1098:"சைல்ட்லைன் (துன்பத்தில் உள்ள குழந்தை)", hl_181:"பெண்கள் உதவி எண்", hl_14567:"மூத்த குடிமக்கள் · எல்டர்லைன்",
+  fam_eyebrow:"குடும்ப காவலர்",
+  fam_h2:'நீங்கள் <span class="grad">நேசிப்பவர்களை</span> பாதுகாருங்கள்.',
+  fam_lead:"உங்கள் பெற்றோர் அல்லது குடும்பத்தைச் சேர்க்கவும். மோசடியைக் கண்டால் ஒரே தட்டில் அவர்களை எச்சரிக்கவும் - அதிகம் இலக்கு வைக்கப்படுபவர்களுக்கு நமது கவனிப்பு தேவை.",
+  fam_name_label:"குடும்ப உறுப்பினரின் பெயர்", fam_name_ph:"எ.கா. அம்மா", fam_phone_label:"அவர்களின் மொபைல் எண்",
+  fam_add:"என் குடும்ப வட்டத்தில் சேர்", fam_empty:"இன்னும் யாரும் சேர்க்கப்படவில்லை. பாதுகாக்க மேலே சேர்க்கவும்.", fam_alertall:"அனைவரையும் மோசடி பற்றி எச்சரி",
+  ai_big:'உங்களுக்காக<br><span class="gradb">கண்காணிக்கும்</span> நுண்ணறிவு.',
+  ai_lead:"பெட்டியில் அடைந்த சாட்பாட் அல்ல — ஒரு சூழல் காவலர். உங்கள் மொழியில் கேளுங்கள், எளிய பதில் பெறுங்கள், பாதுகாப்பாக இருங்கள்.",
+  ai_ask:"கேள்", ai_p1:"இந்த செய்தி போலியா?", ai_p2:"இந்த UPI ID-ஐ நம்பலாமா?", ai_p3:"என் அருகில் இப்போதுள்ள மோசடிகளைக் காட்டு", ai_p4:"நான் ஏமாற்றப்பட்டேன் — என்ன செய்வது?",
+  ai_chat_btn:"Sentinel AI உடன் அரட்டை",
+  brief_eyebrow:"தினசரி மோசடி அறிக்கை",
+  brief_big:'இன்றைய மோசடிகளை அறியுங்கள்<br><span class="grad">அவை உங்களை அறிவதற்கு முன்.</span>',
+  brief_lead:"ஒவ்வொரு நாளும் புதிய அறிக்கை — சமீபத்திய மோசடி தந்திரங்கள், தரவு மற்றும் அறிவுரைகள், நீங்கள் ஒரு படி முன்னே இருக்க.",
+  impact_eyebrow:"தாக்க டாஷ்போர்டு",
+  impact_big:'ஒவ்வொரு புகாரும் நெட்வொர்க்கை<br><span class="grad">வலிமையாக்குகிறது.</span>',
+  imp_people:"இன்று பாதுகாக்கப்பட்டோர்", imp_money:"இன்று சேமிக்கப்பட்ட பணம்", imp_anti:"உருவாக்கப்பட்ட ஆன்டிபாடிகள்", imp_cities:"பாதுகாக்கப்பட்ட நகரங்கள்", imp_waves:"முன்கூட்டியே தடுக்கப்பட்ட அலைகள்",
+  arch_eyebrow:"திரைக்குப் பின்னால்",
+  arch_big:'உருவாக்கக்கூடிய ஸ்டேக்.<br>தரவு <span class="gradb">நொடிகளில்</span> பாய்கிறது.',
+  arch_lead:"பிளாக்-பாக்ஸ் ML இல்லை. ஒரு புகார் DNA இயந்திரத்தில் நுழைந்து, மதிப்பெண் பெற்று, இடத்துடன் பொருந்தி, அருகிலுள்ள பயனர்களுக்கு அனுப்பப்படுகிறது — ஒரு லேசான, ஹேக்கத்தான்-தயார் பைப்லைன்.",
+  arch_client_h:"கிளையன்ட்", arch_dna_h:"DNA இயந்திரம்", arch_dna_p:"கைரேகை", arch_risk_h:"ஆபத்து இயந்திரம்", arch_risk_p:"விதி மதிப்பீடு",
+  arch_geo_h:"ஜியோ மேட்சர்", arch_alert_h:"எச்சரிக்கை இயந்திரம்", arch_users_h:"அருகிலுள்ள பயனர்கள்", arch_users_p:"பாதுகாக்கப்பட்டோர்",
+  vision_label:"10 — எதிர்காலம்",
+  vision_l1:"ஒரு வளாகம்.", vision_l2:"பிறகு நகரங்கள்.", vision_l3:"பிறகு முழு இந்தியா.",
+  mantra:'ஒரு புகார்.<br>ஒரு ஆன்டிபாடி.<br><span class="grad">லட்சக்கணக்கானோர் பாதுகாப்பு.</span>',
+  vision_lead:"NPCI உடன் இணைந்தால், புகாரளிக்கப்பட்ட ஒவ்வொரு மோசடியும் நொடிகளில் 46 கோடி பயனர்களைப் பாதுகாக்கலாம் — இந்தியாவின் பணப் பரிமாற்றத்திற்கு கூட்டு நோய் எதிர்ப்பு.",
+  vision_btn:"முழு டெமோவை இயக்கு",
+  connect_eyebrow:"தொடர்பு · அணுகுங்கள்",
+  connect_h2:'<span class="grad">விஸ்வேஸ்வரன் பாலசுந்தரம்</span> உருவாக்கியது.',
+  connect_lead:"கேள்விகள், கருத்துகள், அல்லது ஒத்துழைக்க விரும்புகிறீர்களா? என்னை அணுக ஒரு கார்டைத் தட்டுங்கள் — அல்லது விவரங்களை நகலெடுக்கவும்.",
+  c_call:"அழை", c_open:"திற",
+  foot_brand_p:"இந்தியாவின் நிதி நோய் எதிர்ப்பு அமைப்பு. ஒரு புகார் ஆயிரக்கணக்கானோரைப் பாதுகாக்கும் ஆன்டிபாடியாக மாறுகிறது — மோசடிகளைப் புகாரளியுங்கள், பாதுகாப்பாக இருங்கள்.",
+  foot_explore:"ஆராயுங்கள்", foot_connect:"தொடர்பு", foot_contact:"தொடர்பு கொள்ளுங்கள்", foot_report:"மோசடியைப் புகாரளி · 1930",
+  foot_made:"❤ உடன் விஸ்வேஸ்வரன் பாலசுந்தரம் உருவாக்கியது", foot_made_html:'<span class="heart">❤</span> உடன் விஸ்வேஸ்வரன் பாலசுந்தரம் உருவாக்கியது', foot_top:"↑ மேலே",
+  fab:"Sentinel AI-யிடம் கேள்", chat_guardian:"சாதனத்தில் மோசடி காவலர்",
+  chat_q1:"செய்தியைச் சரிபார்", chat_q2:"நான் ஏமாற்றப்பட்டேன்", chat_q3:"டிஜிட்டல் கைதா?", chat_q4:"UPI ID பாதுகாப்பா?",
+  chat_input_ph:"மோசடி பற்றி எதையும் கேளுங்கள்…", chat_send:"அனுப்பு",
+  auth_title_signin:"மீண்டும் வரவேற்கிறோம்", auth_title_signup:"உங்கள் கணக்கை உருவாக்குங்கள்",
+  auth_sub_signin:"உங்கள் கணக்கைப் பாதுகாக்கவும் நேரலை எச்சரிக்கைகளைப் பெறவும் உள்நுழையவும்.", auth_sub_signup:"நெட்வொர்க்கில் இணைந்து மோசடிகள் பரவுவதற்கு முன் தடுக்க உதவுங்கள்.",
+  auth_go_signin:"உள்நுழை", auth_go_signup:"கணக்கை உருவாக்கு",
+  auth_switch_signin:'புதியவரா? <a onclick="setAuthMode(\'signup\')">கணக்கை உருவாக்கு</a>',
+  auth_switch_signup:'ஏற்கனவே கணக்கு உள்ளதா? <a onclick="setAuthMode(\'signin\')">உள்நுழை</a>',
+  auth_email:"மின்னஞ்சல் முகவரி", auth_password:"கடவுச்சொல்", auth_robot:"நான் ரோபோ இல்லை", auth_remember:"என்னை நினைவில் கொள்", auth_forgot:"கடவுச்சொல் மறந்துவிட்டதா?",
+  auth_secured:"Firebase மூலம் பாதுகாக்கப்பட்டது · உங்கள் கடவுச்சொல் குறியாக்கம்",
+  auth_pfp:"சுயவிவரப் படம்", auth_upload:"புகைப்படத்தைப் பதிவேற்று", auth_username:"பயனர்பெயர்", auth_mobile:"மொபைல் எண்",
+  perm_title:"பாதுகாப்பை இயக்கவா?",
+  perm_body:'SafePay Guard உங்கள் <b>உள்வரும் அழைப்புகள் & SMS-ஐ ஸ்கிரீன்</b> செய்து, சமூக நோய் எதிர்ப்பு நெட்வொர்க்கைப் பயன்படுத்தி அறியப்பட்ட மோசடி எண்கள் மற்றும் போலி செய்திகளைத் தானாக தடுக்க அனுமதிக்கவும்.',
+  perm_no:"இப்போது வேண்டாம்", perm_yes:"பாதுகாப்பை அனுமதி",
+  perm_demo:"முன்மாதிரி - நேரலை அழைப்பு/SMS தடுப்பு SafePay Guard மொபைல் ஆப்பில் உங்கள் சாதன அனுமதியுடன் இயங்குகிறது.",
+  shield_on:"பாதுகாப்பு இயக்கம்", shield_title:"பாதுகாப்பு கவசம்", shield_sub:"அழைப்பு & SMS ஸ்கிரீனிங்", shield_blocked:"இன்று தடுக்கப்பட்ட அச்சுறுத்தல்கள்",
+  shield_check_ph:"எண் அல்லது அனுப்புநர் ID-ஐ சரிபார்", shield_report_ph:"தடுக்க மோசடி எண்ணைப் புகாரளி", shield_check:"சரிபார்", shield_report:"புகார்",
+  shield_demo:"டெமோ தடுப்புப்பட்டியல் - சமூகப் புகார்களால் வளர்கிறது. உண்மையான தடுப்புக்கு மொபைல் ஆப் + OS அனுமதி தேவை.",
+  gov_title:"சைபர் கிரைமில் புகார் அளி",
+  gov_sub:"உங்களுக்குத் தெரிந்ததை நிரப்புங்கள் — தேசிய சைபர் கிரைம் புகார் போர்டலுக்கு தயார் புகாரை நாங்கள் உருவாக்குவோம். உங்கள் அனுமதியின்றி எதுவும் சமர்ப்பிக்கப்படாது.",
+  gov_f_amount:"இழந்த தொகை (₹)", gov_f_date:"மோசடியின் தேதி & நேரம்", gov_f_bank:"உங்கள் வங்கி / வாலட்",
+  gov_f_txn:"பரிவர்த்தனை / UPI ID", gov_f_phone:"மோசடிக்காரரின் ஃபோன் / அனுப்புநர்", gov_f_evidence:"உங்களிடம் உள்ள ஆதாரம்",
+  gov_f_desc:"என்ன நடந்தது (சுருக்கமான விளக்கம்)", gov_generate:"புகாரை உருவாக்கு",
+  gov_label:"புகார் · அளிக்கத் தயார் (திருத்தக்கூடியது)", gov_open:"cybercrime.gov.in திற", gov_copy:"புகாரை நகலெடு",
+  gov_note:"SafePay Guard உரையை மட்டுமே தயாரித்து அருகிலுள்ள பயனர்களை எச்சரிக்கிறது. இறுதி சமர்ப்பிப்பு அதிகாரப்பூர்வ இந்திய அரசு போர்டலில் நடக்கும் (மொபைல் OTP மூலம் உள்நுழைவு). உங்கள் அனுமதியின்றி எதுவும் அனுப்பப்படாது.",
+  share_title:"குடும்பம் & நண்பர்களை எச்சரி", share_sub:"நீங்கள் அக்கறை கொள்பவர்களை எச்சரியுங்கள் - ஒரு பகிர்வு அடுத்த பாதிப்பைத் தடுக்கலாம்.",
+  share_copy:"நகலெடு", share_more:"பகிர்…",
+  gov_ph_amount:"எ.கா. 25000", gov_ph_date:"எ.கா. 05 ஆக 2026, 3:40 PM", gov_ph_bank:"எ.கா. SBI",
+  gov_ph_txn:"எ.கா. 4231…/ scammer@upi", gov_ph_phone:"எ.கா. +91 98765 43210", gov_ph_evidence:"எ.கா. 2 ஸ்கிரீன்ஷாட், SMS", gov_ph_desc:"மோசடி எப்படி நடந்தது என்பதை விவரி…",
+  scamHead:"மோசடி கண்டறியப்பட்டது", safeHead:"பாதுகாப்பாக தெரிகிறது",
+  greeting:"வணக்கம்! நான் <b>Sentinel</b>. சந்தேகமான செய்தியை ஒட்டவும், அல்லது UPI மற்றும் மோசடி பற்றி கேட்கவும்."
  }
 };
 function tt(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.en[key]||'';}
-/* Full-page translation via Google Translate, driven by the EN/हिं/தமிழ் buttons. */
-function translatePage(l,tries){
-  tries=tries||0;
-  var combo=document.querySelector('select.goog-te-combo');
-  if(!combo){
-    if(tries>25)return; /* widget script still loading - give up after ~10s */
-    setTimeout(function(){translatePage(l,tries+1);},400);
-    return;
-  }
-  if(combo.value!==l){combo.value=l;combo.dispatchEvent(new Event('change'));}
+/* Custom i18n: translate every element carrying data-i18n / data-i18n-html / data-i18n-ph */
+function applyI18n(){
+  var d=I18N[LANG]||I18N.en, en=I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');var v=(d[k]!=null?d[k]:en[k]);if(v!=null)el.textContent=v;});
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');var v=(d[k]!=null?d[k]:en[k]);if(v!=null)el.innerHTML=v;});
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){var k=el.getAttribute('data-i18n-ph');var v=(d[k]!=null?d[k]:en[k]);if(v!=null)el.setAttribute('placeholder',v);});
 }
 function setLang(l){
+  if(!I18N[l])l='en';
   LANG=l;
-  document.querySelectorAll('#langsw button,.lang button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
-  translatePage(l);
-  if(lastScores){var vh=document.getElementById('vhead');if(vh){vh.innerHTML='<span class="ic-sm">'+(lastScam?ICONS.alert:ICONS.check)+'</span>'+(lastScam?tt('scamHead'):tt('safeHead'));}}
+  try{localStorage.setItem('spg_lang',l);}catch(e){}
+  try{document.documentElement.lang=l;}catch(e){}
+  document.querySelectorAll('#langsw button,.langsw button,.lang button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
+  applyI18n();
+  /* keep dynamic auth-modal copy in the active language */
+  try{if(typeof authMode!=='undefined'&&typeof setAuthMode==='function')setAuthMode(authMode);}catch(e){}
+  /* refresh the live verdict header if an analysis is on screen */
+  if(typeof lastScores!=='undefined'&&lastScores){var vh=document.getElementById('vhead');if(vh){vh.innerHTML='<span class="ic-sm">'+(lastScam?ICONS.alert:ICONS.check)+'</span>'+(lastScam?tt('scamHead'):tt('safeHead'));}}
 }
+/* restore the saved language as soon as the DOM is ready */
+(function initLang(){
+  var saved='en';try{saved=localStorage.getItem('spg_lang')||'en';}catch(e){}
+  function go(){setLang(saved);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
+})();
 
 /* ---- voice / read aloud ---- */
 function speakText(t){try{if(!('speechSynthesis' in window)){toast('Voice not supported','Try Chrome or Edge.');return;}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=(LANG==='hi'?'hi-IN':LANG==='ta'?'ta-IN':'en-IN');u.rate=0.95;speechSynthesis.speak(u);}catch(e){}}
@@ -838,14 +1255,7 @@ function forgotPassword(){
 }
 
 
-/* ---- extra translations (buttons) applied on top of setLang ---- */
-const I18N_EXTRA={
- en:{ctaDemo:"Run live demo",ctaRadar:"Watch live radar",fab:"Ask Sentinel AI"},
- hi:{ctaDemo:"लाइव डेमो चलाएँ",ctaRadar:"लाइव रडार देखें",fab:"Sentinel AI से पूछें"},
- ta:{ctaDemo:"நேரலை டெமோவை இயக்கவும்",ctaRadar:"நேரலை ரேடாரைப் பார்க்கவும்",fab:"Sentinel AI-யிடம் கேளுங்கள்"}
-};
-const _setLangOrig=setLang;
-setLang=function(l){ _setLangOrig(l); var E=I18N_EXTRA[l]||I18N_EXTRA.en; var mp={ctaDemoTxt:E.ctaDemo,ctaRadarTxt:E.ctaRadar,fabTxt:E.fab}; for(var k in mp){var e=document.getElementById(k); if(e&&mp[k]!=null)e.textContent=mp[k];} };
+/* language buttons now handled by the data-i18n engine above */
 
 
 /* ================= PASSWORD SHOW/HIDE + CAPS LOCK ================= */
