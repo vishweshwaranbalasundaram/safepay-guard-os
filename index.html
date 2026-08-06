@@ -1,996 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0D0D0D" />
-<title>SafePay Guard OS — Digital Trust, Protected</title>
-<meta name="description" content="AI-powered cybersecurity platform that detects phishing, malicious URLs, QR fraud, financial scams, fake websites, suspicious messages, and social engineering in real time." />
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Source+Serif+4:ital,opsz,wght@1,8..60,400;1,8..60,500&display=swap" rel="stylesheet" />
-
-<style>
-/* ============================================================
-   SafePay Guard OS — Liquid Glass (VisionOS) · strict grayscale
-============================================================ */
-:root{
-  --background:0 0% 5%;
-  --foreground:0 0% 100%;
-  --card:0 0% 8%;
-  --muted:0 0% 65%;
-  --radius:1rem;
-
-  --font:'Poppins',system-ui,sans-serif;
-  --serif:'Source Serif 4',Georgia,serif;
-  --ease:cubic-bezier(.22,1,.36,1);
-  --pad:clamp(1.15rem,4.5vw,6rem);
-
-  --w90:rgba(255,255,255,.9);
-  --w80:rgba(255,255,255,.8);
-  --w60:rgba(255,255,255,.6);
-  --w50:rgba(255,255,255,.5);
-  --w40:rgba(255,255,255,.4);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-body{
-  font-family:var(--font);
-  background:hsl(var(--background));
-  color:var(--w80);
-  line-height:1.6;
-  overflow-x:hidden;
-  letter-spacing:-.005em;
-}
-::selection{background:rgba(255,255,255,.85);color:#000}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer}
-img{max-width:100%;display:block}
-::-webkit-scrollbar{width:9px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:5px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
-
-h1,h2,h3,h4,h5{font-family:var(--font);font-weight:500;letter-spacing:-.03em;line-height:1.05;color:#fff}
-em,.em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
-
-/* ============================================================
-   Animated background
-============================================================ */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-.bg-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(0,0,0,.35)}
-.bg-orb{position:fixed;border-radius:50%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
-.bg-orb.a{width:46vw;height:46vw;top:-8vw;left:-6vw;animation:drift1 26s var(--ease) infinite alternate}
-.bg-orb.b{width:38vw;height:38vw;bottom:-10vw;right:-8vw;opacity:.35;animation:drift2 32s var(--ease) infinite alternate}
-@keyframes drift1{to{transform:translate(8vw,6vw) scale(1.15)}}
-@keyframes drift2{to{transform:translate(-6vw,-5vw) scale(1.1)}}
-.page{position:relative;z-index:10}
-
-/* ============================================================
-   Liquid glass system
-============================================================ */
-.liquid-glass{
-  background:rgba(255,255,255,.01);
-  background-blend-mode:luminosity;
-  -webkit-backdrop-filter:blur(4px);
-  backdrop-filter:blur(4px);
-  position:relative;overflow:hidden;
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.1);
-  border-radius:var(--radius);
-}
-.liquid-glass::before{
-  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.15) 20%,transparent 40%,transparent 60%,rgba(255,255,255,.15) 80%,rgba(255,255,255,.45) 100%);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-          mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-}
-.liquid-glass-strong{
-  background:rgba(255,255,255,.02);
-  background-blend-mode:luminosity;
-  -webkit-backdrop-filter:blur(50px) saturate(1.1);
-  backdrop-filter:blur(50px) saturate(1.1);
-  position:relative;overflow:hidden;
-  box-shadow:4px 4px 4px rgba(0,0,0,.05),inset 0 1px 1px rgba(255,255,255,.15);
-  border-radius:var(--radius);
-}
-.liquid-glass-strong::before{
-  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.2) 20%,transparent 40%,transparent 60%,rgba(255,255,255,.2) 80%,rgba(255,255,255,.5) 100%);
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-          mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-}
-
-/* radii + motion helpers */
-.r-card{border-radius:1.6rem}
-.r-panel{border-radius:2.5rem}
-.r-full{border-radius:999px}
-.hoverable{transition:transform .3s var(--ease),background .3s,backdrop-filter .3s}
-.hoverable:hover{transform:scale(1.05)}
-.hoverable:active{transform:scale(.95)}
-.lift{transition:transform .35s var(--ease),box-shadow .35s}
-.lift:hover{transform:translateY(-4px)}
-:focus-visible{outline:none}
-a:focus-visible,button:focus-visible,textarea:focus-visible,input:focus-visible{box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 0 0 4px rgba(255,255,255,.12)}
-
-/* ============================================================
-   Layout
-============================================================ */
-.wrap{max-width:1240px;margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
-.eyebrow{font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--w50);font-weight:500;display:inline-flex;align-items:center;gap:.6rem}
-.eyebrow::before{content:"";width:24px;height:1px;background:rgba(255,255,255,.35)}
-.h-sec{font-size:clamp(1.9rem,4.6vw,3.4rem);margin:1.1rem 0;font-weight:500}
-.lead{font-size:clamp(1rem,1.35vw,1.15rem);color:var(--w60);max-width:48ch;line-height:1.65}
-.pad-y{padding-top:clamp(4.5rem,10vh,7.5rem);padding-bottom:clamp(4.5rem,10vh,7.5rem)}
-.pad-sm{padding-top:clamp(3rem,6vh,4.5rem);padding-bottom:clamp(3rem,6vh,4.5rem)}
-.sec-head{max-width:60ch}
-.reveal{opacity:0;transform:translateY(22px) scale(.99)}
-
-/* ============================================================
-   Preloader
-============================================================ */
-#preloader{position:fixed;inset:0;z-index:200;background:hsl(var(--background));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
-.pre-logo{width:60px;height:60px;display:grid;place-items:center;border-radius:1.2rem}
-.pre-logo .g{width:22px;height:22px;position:relative}
-.pre-logo .g span{position:absolute;inset:0;border-radius:6px;background:rgba(255,255,255,.9)}
-.pre-logo .g span:nth-child(2){inset:5px;background:hsl(var(--background));border-radius:3px;transform:rotate(45deg)}
-.pre-word{font-weight:500;font-size:1.15rem;color:#fff;letter-spacing:-.02em}
-.pre-bar{width:min(220px,55vw);height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
-.pre-fill{height:100%;width:0;background:rgba(255,255,255,.85);border-radius:2px}
-
-/* ============================================================
-   Floating glass nav
-============================================================ */
-header.nav{position:fixed;top:1rem;left:0;right:0;z-index:100;display:flex;justify-content:center;padding:0 1rem;transition:transform .5s var(--ease)}
-header.nav.hide{transform:translateY(-160%)}
-.nav-inner{width:min(1180px,100%);display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:.6rem .7rem .6rem 1.2rem}
-.brand{display:flex;align-items:center;gap:.6rem;font-weight:600;font-size:1rem;color:#fff;letter-spacing:-.02em}
-.brand .mark{width:24px;height:24px;position:relative;flex:none}
-.brand .mark span{position:absolute;inset:0;border-radius:7px;background:rgba(255,255,255,.9)}
-.brand .mark span:nth-child(2){inset:5px;background:hsl(var(--background));border-radius:4px;transform:rotate(45deg)}
-.nav-links{display:flex;gap:.1rem;align-items:center}
-.nav-links a{font-size:.85rem;color:var(--w60);padding:.5rem .85rem;border-radius:999px;transition:color .25s,background .25s}
-.nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}
-.nav-right{display:flex;align-items:center;gap:.6rem}
-.lang{display:flex;padding:.2rem;gap:.1rem}
-.lang button{padding:.35rem .6rem;font-size:.72rem;color:var(--w50);border-radius:999px;transition:.25s}
-.lang button.on{background:rgba(255,255,255,.12);color:#fff}
-.icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;color:var(--w80);transition:transform .3s var(--ease),background .3s}
-.icon-btn:hover{transform:scale(1.05);color:#fff}
-.icon-btn:active{transform:scale(.95)}
-.btn-report{padding:.6rem 1.1rem;border-radius:999px;font-size:.82rem;font-weight:500;color:#fff}
-.nav-burger{display:none;flex-direction:column;gap:5px;width:38px;height:38px;align-items:center;justify-content:center;border-radius:999px}
-.nav-burger span{width:18px;height:2px;background:#fff;border-radius:2px;transition:.3s}
-@media(max-width:960px){.nav-links,.lang{display:none}.nav-burger{display:flex}}
-
-.m-menu{position:fixed;inset:0;z-index:98;display:flex;flex-direction:column;justify-content:center;gap:.4rem;padding:0 var(--pad);opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}
-.m-menu-bg{position:absolute;inset:0;background:rgba(10,10,10,.6);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px)}
-.m-menu.open{opacity:1;pointer-events:auto}
-.m-menu a{position:relative;font-weight:500;font-size:1.8rem;color:#fff;padding:.6rem 0;display:flex;align-items:baseline;gap:1rem;transform:translateY(14px);opacity:0;transition:transform .5s var(--ease),opacity .5s var(--ease);border-bottom:1px solid rgba(255,255,255,.08)}
-.m-menu.open a{transform:none;opacity:1}
-.m-menu a .mn{font-size:.8rem;color:var(--w40)}
-.m-menu a:nth-child(2){transition-delay:.05s}.m-menu a:nth-child(3){transition-delay:.1s}.m-menu a:nth-child(4){transition-delay:.15s}.m-menu a:nth-child(5){transition-delay:.2s}.m-menu a:nth-child(6){transition-delay:.25s}.m-menu a:nth-child(7){transition-delay:.3s}
-.nav-burger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-.nav-burger.on span:nth-child(2){opacity:0}
-.nav-burger.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-
-/* ============================================================
-   Hero
-============================================================ */
-.hero{min-height:100vh;display:flex;align-items:center;text-align:center;padding:8rem 0 4rem;position:relative}
-.hero-inner{width:100%}
-.hero-badge{display:inline-flex;align-items:center;gap:.55rem;padding:.5rem 1rem;border-radius:999px;font-size:.74rem;letter-spacing:.06em;color:var(--w70,var(--w60))}
-.hero-badge .d{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.7)}
-.hero h1{font-size:clamp(2.6rem,7vw,5.4rem);font-weight:500;letter-spacing:-.05em;margin:1.8rem auto 0;max-width:16ch;line-height:1.02;color:#fff}
-.hero h1 .em{color:#fff}
-.hero-sub{margin:1.8rem auto 0;max-width:62ch;font-size:clamp(1rem,1.4vw,1.18rem);color:var(--w60);line-height:1.65}
-.hero-cta{display:flex;gap:.9rem;margin-top:2.4rem;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:.6rem;padding:.95rem 1.7rem;border-radius:999px;font-size:.92rem;font-weight:500;color:#fff;transition:transform .3s var(--ease),background .3s,backdrop-filter .3s}
-.btn:hover{transform:scale(1.05)}
-.btn:active{transform:scale(.95)}
-.btn svg{transition:transform .3s var(--ease)}
-.btn:hover svg{transform:translateX(3px)}
-.hero-stats{display:flex;gap:clamp(1.5rem,5vw,3.6rem);margin-top:3.4rem;justify-content:center;flex-wrap:wrap}
-.hstat .n{font-size:clamp(1.5rem,2.6vw,2.1rem);font-weight:500;color:#fff;letter-spacing:-.03em}
-.hstat .l{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--w40);margin-top:.4rem}
-
-/* ============================================================
-   Trust strip
-============================================================ */
-.trust{margin:0 auto;width:min(1180px,calc(100% - 2rem))}
-.trust-inner{display:flex;align-items:center;justify-content:space-between;gap:2rem;padding:1.15rem 1.6rem;flex-wrap:wrap}
-.trust-label{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--w40)}
-.trust-logos{display:flex;gap:clamp(1.1rem,3vw,2.4rem);flex-wrap:wrap}
-.trust-logos span{font-weight:500;font-size:.88rem;color:var(--w60)}
-@media(max-width:700px){.trust-label{width:100%}}
-
-/* ============================================================
-   Generic grids
-============================================================ */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,4vw,4rem);align-items:center}
-@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
-.panel{padding:clamp(1.4rem,3vw,2.2rem)}
-
-/* threat band */
-.threat-inner{display:grid;grid-template-columns:auto 1fr;gap:clamp(1.5rem,5vw,4rem);align-items:center;padding:clamp(2rem,5vw,3.2rem)}
-@media(max-width:820px){.threat-inner{grid-template-columns:1fr}}
-.threat-num{font-size:clamp(2.8rem,7.5vw,5.5rem);font-weight:500;color:#fff;letter-spacing:-.04em;line-height:.9;white-space:nowrap}
-.threat-num small{display:block;font-size:.7rem;letter-spacing:.16em;color:var(--w40);text-transform:uppercase;margin-top:.7rem;font-weight:400;font-family:var(--font)}
-.threat-copy h3{font-size:clamp(1.35rem,3vw,2rem);margin-bottom:.7rem}
-.threat-copy p{color:var(--w60);max-width:52ch}
-
-/* ============================================================
-   Radar
-============================================================ */
-.radar-shell{display:grid;grid-template-columns:1.25fr .9fr;gap:1.4rem;margin-top:2.6rem}
-@media(max-width:900px){.radar-shell{grid-template-columns:1fr}}
-.radar-map{position:relative;aspect-ratio:1/1.02;overflow:hidden;padding:1.4rem}
-.radar-map .sweep{position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0deg,rgba(255,255,255,.06) 34deg,transparent 68deg);animation:sweep 7s linear infinite;pointer-events:none}
-@keyframes sweep{to{transform:rotate(360deg)}}
-.radar-rings span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.07);border-radius:50%}
-.hotspot{position:absolute;transform:translate(-50%,-50%);z-index:3}
-.hotspot .ping{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.95);animation:ping 2.6s var(--ease) infinite}
-.hotspot.mid .ping{background:rgba(255,255,255,.6);animation-delay:.4s}
-.hotspot.low .ping{background:rgba(255,255,255,.35);animation-delay:.8s}
-@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,255,255,.28)}70%{box-shadow:0 0 0 16px transparent}100%{box-shadow:0 0 0 0 transparent}}
-.hotspot .tip{position:absolute;bottom:150%;left:50%;transform:translateX(-50%) translateY(6px);padding:.6rem .8rem;border-radius:.9rem;white-space:nowrap;opacity:0;pointer-events:none;transition:.25s;z-index:5}
-.hotspot:hover .tip{opacity:1;transform:translateX(-50%) translateY(0)}
-.hotspot .tip .c{font-weight:500;font-size:.82rem;color:#fff}
-.hotspot .tip .t{font-size:.72rem;color:var(--w50)}
-.hotspot .tip .n{font-size:.72rem;color:var(--w80);margin-top:.2rem}
-.outbreak{padding:1.5rem;height:100%}
-.outbreak h4{font-size:1.05rem;margin-bottom:.3rem}
-.outbreak p{font-size:.82rem;color:var(--w50);margin-bottom:1.1rem}
-.tl-step{display:flex;gap:.9rem;align-items:center;padding:.6rem .5rem;border-radius:.9rem;transition:.3s;opacity:.4}
-.tl-step.active{opacity:1;background:rgba(255,255,255,.05)}
-.tl-dot{width:9px;height:9px;border-radius:50%;background:var(--w40);flex:none;transition:.3s}
-.tl-step.active .tl-dot{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.5)}
-.tl-day{font-size:.62rem;letter-spacing:.1em;color:var(--w40);width:52px;flex:none;text-transform:uppercase}
-.tl-city{font-weight:500;font-size:.92rem;color:#fff}
-.tl-meta{font-size:.72rem;color:var(--w50);margin-left:auto}
-.replay-btn{margin-top:1.1rem;width:100%;padding:.8rem;border-radius:999px;font-weight:500;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:.6rem;color:#fff;transition:transform .3s var(--ease),background .3s}
-.replay-btn:hover{transform:scale(1.03);background:rgba(255,255,255,.04)}
-.replay-btn:active{transform:scale(.97)}
-
-/* ============================================================
-   Analysis engine
-============================================================ */
-.dna-shell{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.6rem}
-@media(max-width:980px){.dna-shell{grid-template-columns:1fr}}
-.dna-input,.dna-out{padding:1.7rem;display:flex;flex-direction:column}
-.dna-phone{display:flex;align-items:center;gap:.7rem;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.08)}
-.dna-phone .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;color:#fff;background:rgba(255,255,255,.06)}
-.dna-phone .who{font-weight:500;font-size:.9rem;color:#fff}
-.dna-phone .no{font-size:.72rem;color:var(--w40)}
-.dna-phone .time{margin-left:auto;font-size:.7rem;color:var(--w40)}
-.samples{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.samples button{padding:.42rem .8rem;border-radius:999px;font-size:.74rem;color:var(--w60);transition:.22s}
-.samples button:hover,.samples button.on{color:#fff;background:rgba(255,255,255,.08)}
-.dna-text{flex:1;min-height:120px;border-radius:1.2rem;padding:1rem;color:#fff;font-family:var(--font);font-size:.94rem;line-height:1.55;resize:vertical;background:rgba(255,255,255,.02)}
-.dna-text::placeholder{color:var(--w40)}
-.dna-text:focus{outline:none;background:rgba(255,255,255,.05)}
-.dna-actions{display:flex;gap:.7rem;margin-top:1rem}
-.dna-run{flex:1;padding:.95rem;border-radius:999px;color:#fff;font-weight:500;font-size:.9rem;transition:transform .3s var(--ease)}
-.dna-run:hover{transform:scale(1.03)}.dna-run:active{transform:scale(.97)}
-.dna-clear{padding:.95rem 1.3rem;border-radius:999px;color:var(--w60);font-size:.9rem;transition:.2s}
-.dna-clear:hover{color:#fff}
-.risk-head{display:flex;align-items:center;gap:1.3rem;margin-bottom:1.3rem}
-.risk-gauge{width:96px;height:96px;position:relative;flex:none}
-.risk-gauge svg{transform:rotate(-90deg)}
-.risk-gauge .g-track{stroke:rgba(255,255,255,.08)}
-.risk-gauge .g-fill{stroke:#fff;stroke-linecap:round;transition:stroke-dashoffset 1s var(--ease),stroke .5s}
-.risk-gauge .g-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.risk-gauge .g-num b{font-size:1.7rem;line-height:1;color:#fff;font-weight:500}
-.risk-gauge .g-num small{font-size:.55rem;letter-spacing:.16em;color:var(--w40)}
-.risk-verdict .badge{display:inline-block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.32rem .7rem;border-radius:999px;color:var(--w60);background:rgba(255,255,255,.06)}
-.risk-verdict h3{font-size:1.45rem;margin:.6rem 0 .3rem}
-.risk-verdict p{font-size:.84rem;color:var(--w50);max-width:30ch}
-.traits{display:flex;flex-direction:column;gap:.85rem;margin:.3rem 0 1.2rem}
-.trait-top{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.35rem}
-.trait-top .lbl{color:var(--w60)}.trait-top .val{color:var(--w40)}
-.trait-bar{height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
-.trait-fill{height:100%;width:0;border-radius:3px;background:rgba(255,255,255,.85);transition:width .9s var(--ease),background .5s}
-.dna-cta{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:auto}
-.dna-cta a,.dna-cta button{flex:1;min-width:130px;text-align:center;padding:.85rem;border-radius:999px;font-size:.82rem;font-weight:500;color:#fff;transition:transform .3s var(--ease),background .3s}
-.dna-cta a:hover,.dna-cta button:hover{transform:scale(1.03);background:rgba(255,255,255,.05)}
-
-/* ============================================================
-   Reports
-============================================================ */
-.reports-top{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;margin-bottom:2.4rem}
-.reports-meta{display:flex;flex-direction:column;gap:.9rem}
-.updated{display:inline-flex;align-items:center;gap:.55rem;font-size:.72rem;letter-spacing:.06em;color:var(--w60);padding:.5rem .9rem;border-radius:999px}
-.updated .ld{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.7);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
-.reports-meta a{font-size:.85rem;color:#fff;display:inline-flex;align-items:center;gap:.4rem;transition:gap .2s;opacity:.8}
-.reports-meta a:hover{gap:.7rem;opacity:1}
-.reports-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
-@media(max-width:980px){.reports-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.reports-grid{grid-template-columns:1fr}}
-.report-card{overflow:hidden;display:flex;flex-direction:column;transition:transform .35s var(--ease)}
-.report-card:hover{transform:translateY(-6px)}
-.report-img{position:relative;aspect-ratio:16/10;overflow:hidden}
-.report-img::after{content:"";position:absolute;left:1.2rem;right:1.2rem;bottom:0;height:1px;background:rgba(255,255,255,.08)}
-.report-img svg{width:100%;height:100%;display:block}
-.report-chip{position:absolute;top:.9rem;left:.9rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .65rem;border-radius:999px;color:#fff}
-.report-sev{position:absolute;top:.9rem;right:.9rem;display:inline-flex;align-items:center;gap:.4rem;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .6rem;border-radius:999px;color:#fff}
-.report-sev .sd{width:7px;height:7px;border-radius:50%}
-.sev-high .sd{background:rgba(255,255,255,.95)}.sev-high{color:#fff}
-.sev-mid .sd{background:rgba(255,255,255,.6)}.sev-mid{color:var(--w80)}
-.sev-low .sd{background:rgba(255,255,255,.35)}.sev-low{color:var(--w60)}
-.report-body{padding:1.4rem;display:flex;flex-direction:column;flex:1}
-.report-date{font-size:.66rem;letter-spacing:.06em;color:var(--w40);margin-bottom:.6rem;text-transform:uppercase}
-.report-body h3{font-size:1.14rem;line-height:1.25;margin-bottom:.55rem;font-weight:500}
-.report-body p{font-size:.84rem;color:var(--w50);line-height:1.55;margin-bottom:1.2rem}
-.report-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08);font-size:.75rem}
-.report-foot .region{color:var(--w50);display:inline-flex;align-items:center;gap:.4rem}
-.report-foot .count{color:var(--w80)}
-
-/* ============================================================
-   Anatomy (condensed)
-============================================================ */
-.anatomy{margin-top:2.4rem;overflow:hidden}
-.step-track{display:flex;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.08)}
-.step-track button{flex:1;min-width:110px;padding:1rem .8rem;font-size:.76rem;color:var(--w40);position:relative;transition:.25s;white-space:nowrap;display:flex;flex-direction:column;gap:.3rem;align-items:flex-start;border-right:1px solid rgba(255,255,255,.06)}
-.step-track button:last-child{border-right:none}
-.step-track button .sn{font-size:.6rem;letter-spacing:.1em;opacity:.7}
-.step-track button.on{color:#fff;background:rgba(255,255,255,.05)}
-.step-track button.on::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:#fff}
-.step-body{padding:clamp(1.4rem,4vw,2.4rem);display:grid;grid-template-columns:1.2fr .8fr;gap:2.2rem;align-items:center;min-height:220px}
-@media(max-width:820px){.step-body{grid-template-columns:1fr}}
-.step-body h3{font-size:clamp(1.3rem,3vw,1.85rem);margin-bottom:.8rem}
-.step-body p{color:var(--w60);max-width:44ch;margin-bottom:1.2rem}
-.redflag{display:inline-flex;align-items:flex-start;gap:.7rem;padding:.9rem 1.1rem;border-radius:1.2rem;background:rgba(255,255,255,.04)}
-.redflag .rf-ic{color:#fff;flex:none;margin-top:.1rem;opacity:.85}
-.redflag .rf-t{font-size:.82rem;color:var(--w70,var(--w60))}
-.redflag .rf-t b{color:#fff;display:block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.2rem;font-weight:500}
-.step-visual{aspect-ratio:1/.72;border-radius:1.4rem;display:grid;place-items:center;position:relative;overflow:hidden;background:rgba(255,255,255,.02)}
-.step-glyph{font-size:clamp(2.6rem,8vw,5rem);filter:grayscale(1) brightness(1.6) contrast(.9);opacity:.9}
-.step-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:scan 3.5s ease-in-out infinite}
-@keyframes scan{0%,100%{top:10%}50%{top:90%}}
-
-/* ============================================================
-   Golden + helplines
-============================================================ */
-.golden-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.6rem}
-@media(max-width:900px){.golden-grid{grid-template-columns:1fr}}
-.gh-timeline{padding:clamp(1.5rem,3vw,2.2rem)}
-.gh-inner{position:relative;padding-left:1.6rem}
-.gh-inner::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:linear-gradient(rgba(255,255,255,.6),rgba(255,255,255,.1))}
-.gh-item{position:relative;padding:0 0 1.5rem 1.4rem}
-.gh-item:last-child{padding-bottom:0}
-.gh-item::before{content:"";position:absolute;left:-1.6rem;top:4px;width:11px;height:11px;border-radius:50%;background:hsl(var(--background));box-shadow:0 0 0 2px rgba(255,255,255,.7),0 0 10px rgba(255,255,255,.4)}
-.gh-time{font-size:.72rem;color:var(--w60);letter-spacing:.08em}
-.gh-item h4{font-size:1.05rem;margin:.3rem 0}
-.gh-item p{font-size:.85rem;color:var(--w50);max-width:38ch}
-.helplines{padding:clamp(1.5rem,3vw,2rem)}
-.helplines h4{font-size:1.12rem;margin-bottom:.4rem}
-.helplines .hnote{font-size:.82rem;color:var(--w50);margin-bottom:1.2rem}
-.helplines .hnote b{color:#fff;font-weight:500}
-.hl-grid{display:flex;flex-direction:column;gap:.55rem}
-.hl{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border-radius:1.1rem;transition:.25s}
-.hl:hover{background:rgba(255,255,255,.05);transform:translateX(4px)}
-.hl .num{font-weight:500;font-size:1.05rem;color:#fff;width:66px;flex:none}
-.hl .d .t{font-size:.85rem;color:var(--w80)}
-.hl .d .s{font-size:.72rem;color:var(--w40)}
-.hl .go{margin-left:auto;color:var(--w40);transition:.2s}
-.hl:hover .go{color:#fff;transform:translateX(3px)}
-
-/* ============================================================
-   Impact + pipeline
-============================================================ */
-.impact-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-top:2.4rem}
-@media(max-width:1050px){.impact-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.impact-grid{grid-template-columns:1fr}}
-.impact-card{padding:1.6rem 1.4rem;transition:transform .35s var(--ease)}
-.impact-card:hover{transform:translateY(-4px)}
-.impact-card .n{font-size:clamp(1.7rem,3vw,2.4rem);font-weight:500;color:#fff;letter-spacing:-.03em}
-.impact-card .n em{font-size:.6em;color:var(--w60)}
-.impact-card .l{font-size:.8rem;color:var(--w50);margin-top:.5rem}
-.pipeline{margin-top:1.4rem;padding:clamp(1.3rem,4vw,2rem);overflow-x:auto}
-.pipe-row{display:flex;align-items:stretch;min-width:720px;gap:.2rem}
-.pipe-node{flex:1;display:flex;flex-direction:column;gap:.35rem;padding:1.1rem;border-radius:1.2rem;background:rgba(255,255,255,.02);transition:.3s}
-.pipe-node:hover{transform:translateY(-4px);background:rgba(255,255,255,.05)}
-.pipe-node .pn{font-size:.6rem;letter-spacing:.1em;color:var(--w50);text-transform:uppercase}
-.pipe-node h5{font-size:.98rem;font-weight:500;color:#fff}
-.pipe-node p{font-size:.72rem;color:var(--w40)}
-.pipe-arrow{display:grid;place-items:center;padding:0 .5rem;color:var(--w40);flex:none}
-
-/* ============================================================
-   Vision + connect + footer
-============================================================ */
-.vision{text-align:center}
-.vision-panel{padding:clamp(2.5rem,6vw,4.5rem) clamp(1.4rem,4vw,3rem)}
-.vision-lines{font-size:clamp(1.7rem,5.2vw,3.8rem);font-weight:500;line-height:1.08;letter-spacing:-.03em;color:#fff}
-.vision-lines .g{color:var(--w40)}
-.vision p{max-width:52ch;margin:1.6rem auto 0;color:var(--w50);font-size:clamp(1rem,1.4vw,1.1rem)}
-.vision .btn{margin-top:2rem}
-.connect-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2.6rem}
-@media(max-width:900px){.connect-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.connect-grid{grid-template-columns:1fr}}
-.cc{padding:1.6rem;transition:transform .35s var(--ease)}
-.cc:hover{transform:translateY(-4px)}
-.cc .k{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--w40)}
-.cc .v{font-weight:500;font-size:1rem;margin:.5rem 0 1rem;color:#fff;word-break:break-word}
-.cc .go{font-size:.8rem;color:var(--w60);display:inline-flex;align-items:center;gap:.4rem}
-.cc:hover .go{color:#fff}
-footer{margin-top:2rem;padding:3rem 0 0}
-.foot-top{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:2.5rem;padding-bottom:2.6rem}
-@media(max-width:820px){.foot-top{grid-template-columns:1fr}}
-.foot-top p{color:var(--w50);font-size:.88rem;max-width:38ch;margin-top:1rem}
-.foot-col h5{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--w40);margin-bottom:1rem;font-weight:500}
-.foot-col a{display:block;color:var(--w50);font-size:.88rem;padding:.35rem 0;transition:color .2s}
-.foot-col a:hover{color:#fff}
-.foot-bot{border-top:1px solid rgba(255,255,255,.08);padding:1.5rem 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.78rem;color:var(--w40)}
-.foot-bot b{color:var(--w80);font-weight:500}
-
-/* ============================================================
-   Modal + toast
-============================================================ */
-.modal-veil{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .35s}
-.modal-veil.open{opacity:1;pointer-events:auto}
-.modal{width:100%;max-width:460px;padding:2rem;position:relative;transform:translateY(20px) scale(.96);transition:transform .4s var(--ease)}
-.modal-veil.open .modal{transform:none}
-.modal h3{font-size:1.45rem;margin-bottom:.5rem}
-.modal>p{color:var(--w50);font-size:.88rem;margin-bottom:1.4rem}
-.modal-close{position:absolute;top:1.2rem;right:1.2rem;width:34px;height:34px;border-radius:999px;color:var(--w60);display:grid;place-items:center;transition:.2s;background:rgba(255,255,255,.05)}
-.modal-close:hover{color:#fff;transform:scale(1.05)}
-.mrow{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
-.mrow label{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--w40)}
-.mrow input,.mrow textarea{border-radius:1rem;padding:.85rem;color:#fff;font-family:var(--font);font-size:.9rem;background:rgba(255,255,255,.03)}
-.mrow input::placeholder,.mrow textarea::placeholder{color:var(--w40)}
-.mrow input:focus,.mrow textarea:focus{outline:none;background:rgba(255,255,255,.06)}
-.modal .btn{width:100%;justify-content:center;margin-top:.4rem}
-.modal-note{font-size:.72rem;color:var(--w40);margin-top:1rem;text-align:center}
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);z-index:160;padding:.95rem 1.4rem;border-radius:999px;display:flex;align-items:center;gap:.7rem;font-size:.86rem;color:#fff;opacity:0;pointer-events:none;transition:.4s var(--ease)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast .dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.7)}
-
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  .reveal{opacity:1!important;transform:none!important}
-  .bg-orb{animation:none!important}
-}
-/* Google Translate cleanup: hide its default UI, stop layout jump, kill highlight boxes */
-.goog-te-banner-frame,.goog-te-gadget-icon,.goog-logo-link,.goog-te-gadget span{display:none!important}
-body{top:0!important;position:static!important}
-.goog-text-highlight{background:none!important;box-shadow:none!important}
-.skiptranslate{display:none!important}
-iframe.goog-te-banner-frame{display:none!important;visibility:hidden!important}
-</style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafePay Guard OS — India's Financial Immune System</title>
+<meta name="description" content="India's Financial Immune System. One report. Millions protected."/>
+<meta name="keywords" content="UPI fraud, scam detection, cybersecurity, financial safety, India, SafePay Guard, phishing, cyber crime 1930"/>
+<meta name="author" content="Vishweshwaran Balasundaram"/>
+<meta name="theme-color" content="#020509"/>
+<link rel="canonical" href="https://vishweshwaranbalasundaram.github.io/safepay-guard-os/"/>
+<!-- Open Graph -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="SafePay Guard OS — India's Financial Immune System"/>
+<meta property="og:description" content="We treat every scam like a virus — one report becomes an antibody that immunizes thousands nearby, in under a second."/>
+<meta property="og:url" content="https://vishweshwaranbalasundaram.github.io/safepay-guard-os/"/>
+<meta property="og:site_name" content="SafePay Guard OS"/>
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="SafePay Guard OS — India's Financial Immune System"/>
+<meta name="twitter:description" content="One report. Millions protected. Stop the scam before it spreads."/>
+<!-- Structured data -->
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SafePay Guard OS","applicationCategory":"SecurityApplication","operatingSystem":"Web","description":"India's Financial Immune System — real-time UPI fraud detection and scam awareness.","author":{"@type":"Person","name":"Vishweshwaran Balasundaram"},"offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=1.6.4">
 </head>
 <body>
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+<canvas id="stars"></canvas>
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="spot"></div>
 
-<canvas id="bg-canvas"></canvas>
-<div class="bg-orb a"></div>
-<div class="bg-orb b"></div>
-<div class="bg-overlay"></div>
-
-<div id="preloader">
-  <div class="pre-logo liquid-glass-strong"><div class="g"><span></span><span></span></div></div>
-  <div class="pre-word">SafePay Guard OS</div>
-  <div class="pre-bar"><div class="pre-fill"></div></div>
+<div id="intro">
+  <canvas id="introCv"></canvas>
+  <div id="introText">
+    <div class="it-logo">SafePay Guard <span class="grad">OS</span></div>
+    <div class="it-tag" data-i18n="brand_tag">India's Financial Immune System</div>
+  </div>
+  <button id="introSkip" onclick="endIntro()" data-i18n="intro_skip">Skip intro →</button>
 </div>
 
-<div class="page">
-
-<header class="nav">
-  <div class="nav-inner liquid-glass-strong r-full">
-    <a href="#top" class="brand"><span class="mark"><span></span><span></span></span>SafePay Guard OS</a>
-    <nav class="nav-links">
-      <a href="#radar">Radar</a>
-      <a href="#dna">Analysis</a>
-      <a href="#reports">Reports</a>
-      <a href="#golden">Golden Hour</a>
-      <a href="#impact">Impact</a>
-      <a href="#connect">Connect</a>
-    </nav>
-    <div class="nav-right">
-      <div class="lang langsw liquid-glass r-full" id="langsw"><button class="on" data-lang="en">EN</button><button data-lang="hi">हिं</button><button data-lang="ta">தமிழ்</button></div>
-      <button class="icon-btn liquid-glass" aria-label="Notifications"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></button>
-      <button class="btn-report liquid-glass-strong" data-open-report>Start Protection</button>
-      <div class="nav-burger liquid-glass" data-burger aria-label="Menu"><span></span><span></span><span></span></div>
-    </div>
+<nav id="nav">
+  <div class="brand">
+    <span class="m"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dcf8ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></span>
+    <span>SafePay Guard <b style="font-weight:700">OS</b><small data-i18n="brand_tag">India's Financial Immune System</small></span>
   </div>
-</header>
-
-<nav class="m-menu" id="m-menu">
-  <div class="m-menu-bg"></div>
-  <a href="#radar"><span class="mn">01</span>Radar</a>
-  <a href="#dna"><span class="mn">02</span>Analysis</a>
-  <a href="#reports"><span class="mn">03</span>Reports</a>
-  <a href="#golden"><span class="mn">04</span>Golden Hour</a>
-  <a href="#impact"><span class="mn">05</span>Impact</a>
-  <a href="#connect"><span class="mn">06</span>Connect</a>
+  <div style="display:flex;align-items:center;gap:24px">
+    <div class="nlinks">
+      <a href="#radar" data-i18n="nav_radar">Radar</a><a href="#dna" data-i18n="nav_dna">Scam DNA</a><a href="#simulator" data-i18n="nav_sim">Simulator</a><a href="#briefing" data-i18n="nav_brief">Briefing</a><a href="#impact" data-i18n="nav_impact">Impact</a><a href="#connect" data-i18n="nav_connect">Connect</a>
+    </div>
+    <div class="langsw" id="langsw"><button data-lang="en" class="on" onclick="setLang('en')">EN</button><button data-lang="hi" onclick="setLang('hi')">हिं</button><button data-lang="ta" onclick="setLang('ta')">தமிழ்</button></div>
+    <div id="authArea"><button class="signin magnetic" onclick="openAuth()" data-i18n="signin">Sign in</button></div>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero" id="top">
-  <div class="wrap hero-inner">
-    <div class="hero-badge liquid-glass r-full reveal"><span class="d"></span>AI-powered cybersecurity operating system</div>
-    <h1 class="reveal">Protecting the Future of <span class="em">Digital Trust</span></h1>
-    <p class="hero-sub reveal">An AI platform that detects phishing attacks, malicious URLs, QR fraud, financial scams, fake websites, suspicious messages, and social engineering — in real time.</p>
-    <div class="hero-cta reveal">
-      <button class="btn liquid-glass-strong" data-open-report>Start Protection<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      <a href="#dna" class="btn liquid-glass" data-scroll-to="#dna">Learn More</a>
+<!-- ============ HERO ============ -->
+<header class="wrap hero" id="top">
+  <div>
+    <span class="eyebrow kick" id="k1" data-i18n="k1">Live · Financial Immune System</span>
+    <h1 class="kick" id="k2" data-i18n-html="k2">Stop the scam<br><span class="grad">before it spreads.</span></h1>
+    <p class="sub kick" id="k3" data-i18n="k3">India loses ₹22,495 crore a year to UPI fraud. We treat every scam like a virus — one report becomes an antibody that immunizes thousands nearby, in under a second.</p>
+    <p class="motto kick" id="k4" data-i18n="k4">One report. Millions protected.</p>
+    <div class="cta-row kick" id="k5">
+      <button class="btn primary magnetic" id="ctaDemo" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> <span id="ctaDemoTxt" data-i18n="ctaDemo">Run live demo</span></button>
+      <a class="btn ghost magnetic" href="#radar"><span id="ctaRadarTxt" data-i18n="ctaRadar">Watch live radar</span></a>
     </div>
-    <div class="hero-stats reveal">
-      <div class="hstat"><div class="n">46 cr</div><div class="l">UPI users coverable</div></div>
-      <div class="hstat"><div class="n">2.81 M</div><div class="l">Scam cases / year</div></div>
-      <div class="hstat"><div class="n">&lt;1 s</div><div class="l">Alert propagation</div></div>
+    <div class="stat-strip kick" id="k6">
+      <div class="s"><b>46 cr</b><span data-i18n="stat_users">UPI users covered</span></div>
+      <div class="s"><b>2.81 M</b><span data-i18n="stat_cases">scam cases / year</span></div>
+      <div class="s"><b>&lt;1 s</b><span data-i18n="stat_alert">alert propagation</span></div>
+    </div>
+  </div>
+  <div class="globe-stage" data-speed="-0.12">
+    <div class="gring gr1"></div><div class="gring gr2"></div>
+    <canvas id="globe"></canvas>
+  </div>
+  <div class="scrollcue"><span data-i18n="scroll">SCROLL</span><span class="line"></span></div>
+</header>
+
+<!-- ============ LIVE SCAM PULSE ============ -->
+<section class="wrap reveal" id="pulse">
+  <span class="eyebrow" data-i18n="pulse_live">Live · right now</span>
+  <div class="pulse-band stagger">
+    <div class="glass pcell red"><div class="n"><span class="dot" style="background:var(--danger)"></span><span id="p-active">187</span></div><div class="l" data-i18n="pulse_active">Active scams right now</div></div>
+    <div class="glass pcell cy"><div class="n"><span id="p-waves">23</span></div><div class="l" data-i18n="pulse_waves">New waves today</div></div>
+    <div class="glass pcell gr"><div class="n"><span id="p-prot">41221</span></div><div class="l" data-i18n="pulse_prot">People protected today</div></div>
+  </div>
+</section>
+
+<!-- ============ STATEMENT / WAVE ============ -->
+<section class="wrap statement reveal" id="wave">
+  <span class="scene-label" data-i18n="threat_label">01 — THE THREAT</span>
+  <div class="huge" style="margin-top:16px" data-i18n-html="threat_huge">A scam never hits <span class="grad">just one person.</span> It moves in <span style="color:var(--danger)">waves.</span></div>
+  <p class="lead" style="margin:22px auto 0" data-i18n="threat_lead">One script is blasted to thousands over days. Because half of victims never report, the wave rolls on — unseen, unstopped.</p>
+  <div class="wave-stage">
+    <svg viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet" id="wavesvg">
+      <g id="wlines"></g><g id="wnodes"></g>
+      <circle class="wpulse" cx="150" cy="150" r="8"/><circle class="wpulse" cx="150" cy="150" r="8" style="animation-delay:1.2s"/>
+      <circle class="wcore" cx="150" cy="150" r="10"/>
+      <text x="150" y="185" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="#93A4C6" data-i18n="patient_zero">patient zero</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ LIVE RADAR ============ -->
+<section class="wrap reveal" id="radar">
+  <span class="eyebrow" data-i18n="radar_eyebrow">Live scam radar</span>
+  <h2 class="big" data-i18n-html="radar_big">A command center<br>for fraud in <span class="grad">real time.</span></h2>
+  <p class="lead" data-i18n="radar_lead">Every report is a signal. Hotspots pulse where scams spread right now — a public-health dashboard for money.</p>
+  <div class="radar">
+    <div class="map-stage" data-speed="0.06">
+      <div class="ring mr1"></div><div class="ring mr2"></div><div class="ring mr3"></div>
+      <div class="sweep"></div>
+      <svg class="india" viewBox="0 0 440 448" id="map">
+        <g class="grid-l">
+          <line x1="0" y1="112" x2="440" y2="112"/><line x1="0" y1="224" x2="440" y2="224"/><line x1="0" y1="336" x2="440" y2="336"/>
+          <line x1="150" y1="0" x2="150" y2="448"/><line x1="300" y1="0" x2="300" y2="448"/>
+        </g>
+        <path class="land" d="M24.0 193.9 L31.5 192.3 L32.3 187.2 L42.7 187.8 L46.0 189.4 L55.2 185.8 L58.3 188.4 L62.7 186.0 L61.7 183.5 L62.7 181.8 L57.4 171.1 L57.4 167.5 L52.2 166.9 L50.0 163.9 L50.6 155.2 L42.0 151.8 L42.4 146.2 L50.6 135.6 L54.1 133.1 L57.1 134.3 L59.4 137.7 L73.8 134.0 L80.1 122.5 L87.7 118.4 L94.1 105.2 L99.8 102.9 L101.5 101.0 L101.1 97.9 L107.0 91.2 L110.9 89.1 L109.4 86.9 L109.9 77.7 L120.2 71.9 L119.0 69.6 L111.6 67.8 L111.3 64.0 L107.2 63.8 L106.5 60.6 L102.5 57.7 L104.4 53.0 L102.1 49.9 L105.8 46.6 L101.1 44.7 L102.0 42.4 L99.7 40.3 L101.9 36.3 L106.4 34.7 L125.4 38.5 L129.8 36.1 L137.3 35.1 L142.7 31.4 L143.4 29.6 L153.5 24.0 L156.7 24.2 L156.3 27.6 L160.6 37.0 L165.2 38.3 L169.2 41.4 L165.9 45.6 L166.9 53.1 L171.4 57.9 L172.6 67.7 L168.5 69.8 L165.6 66.3 L161.4 67.4 L162.8 71.9 L166.0 75.7 L165.5 78.8 L167.0 80.6 L166.2 84.9 L171.0 83.8 L176.2 89.7 L180.3 90.1 L185.1 92.7 L185.6 95.9 L192.2 98.2 L196.6 101.8 L194.4 102.2 L188.4 108.2 L184.0 121.3 L188.7 124.5 L190.9 123.9 L207.9 135.4 L209.8 134.7 L216.0 138.2 L219.0 138.2 L219.8 140.5 L227.3 142.6 L229.4 141.2 L234.5 142.5 L238.0 140.9 L245.0 143.7 L246.0 147.4 L253.5 151.7 L257.9 150.4 L260.9 153.8 L263.8 153.2 L273.1 156.3 L277.3 154.5 L281.0 157.4 L290.5 157.0 L292.7 152.0 L290.3 146.1 L292.4 134.2 L298.3 132.1 L301.4 133.3 L302.0 135.3 L300.6 140.4 L302.5 143.4 L300.5 145.5 L302.1 148.6 L306.0 150.7 L308.5 150.2 L314.3 152.4 L319.1 151.6 L322.1 149.6 L327.4 151.4 L344.3 150.1 L345.3 149.3 L344.2 146.6 L345.4 143.8 L344.2 141.5 L340.9 141.6 L338.9 139.9 L339.4 136.9 L344.0 137.4 L351.7 135.2 L353.5 133.6 L353.7 131.3 L358.2 128.6 L361.1 124.2 L368.0 122.8 L379.6 114.3 L381.5 116.3 L389.9 118.3 L391.6 115.8 L398.5 112.3 L401.2 115.2 L402.8 115.2 L399.7 117.6 L399.9 120.0 L403.9 118.1 L405.9 122.3 L401.8 127.4 L406.2 126.7 L412.5 128.0 L415.8 130.3 L416.0 134.3 L409.8 139.5 L412.9 146.3 L407.9 143.2 L400.6 144.2 L386.3 153.9 L385.3 157.6 L386.4 162.0 L379.0 172.6 L378.6 174.1 L380.7 176.5 L372.9 193.6 L362.1 190.9 L363.3 196.5 L362.7 204.5 L361.9 206.0 L359.9 206.0 L358.8 210.5 L359.8 217.7 L356.5 221.2 L354.0 219.1 L352.0 221.3 L347.6 196.4 L343.4 196.4 L343.5 199.1 L341.0 202.2 L341.0 205.6 L339.2 206.7 L336.7 203.5 L335.1 204.9 L333.1 197.9 L334.0 193.0 L335.8 190.5 L342.7 189.0 L343.7 186.6 L345.7 185.9 L347.4 179.0 L350.3 179.4 L350.6 178.0 L345.0 174.8 L323.3 174.9 L315.2 173.0 L315.0 163.5 L313.0 159.5 L311.4 162.6 L309.0 162.5 L306.5 161.1 L304.2 156.6 L303.0 157.2 L303.6 159.0 L301.7 158.9 L295.5 154.4 L296.5 157.2 L292.6 161.4 L291.7 164.3 L297.3 169.4 L300.9 170.1 L303.3 173.4 L301.5 174.7 L296.7 174.5 L294.8 179.0 L292.6 178.5 L290.9 182.7 L292.5 184.7 L300.3 187.8 L298.2 196.6 L300.5 200.1 L300.3 202.7 L303.0 203.7 L302.0 205.8 L304.7 217.0 L304.4 221.9 L303.3 221.9 L304.7 226.1 L302.7 226.1 L302.1 224.8 L300.6 227.1 L300.5 220.9 L299.2 219.2 L298.4 226.0 L296.5 226.7 L294.4 224.6 L294.0 226.5 L292.2 226.3 L291.3 225.5 L293.2 219.0 L289.8 215.6 L290.0 217.3 L292.7 219.2 L289.9 223.6 L286.2 226.1 L278.5 228.3 L275.2 232.2 L276.8 240.0 L273.8 245.7 L268.7 250.1 L267.0 249.4 L267.9 250.4 L266.6 251.7 L258.0 254.7 L256.9 254.6 L257.8 253.8 L257.0 251.9 L253.6 253.8 L252.7 256.1 L255.2 254.9 L256.2 255.7 L247.2 263.0 L238.2 275.1 L232.2 278.4 L226.0 285.1 L214.8 292.6 L213.4 300.4 L206.7 303.8 L200.3 303.7 L196.2 312.1 L191.7 310.2 L187.0 312.8 L183.8 322.1 L185.4 330.8 L184.5 334.7 L187.2 345.3 L185.1 342.0 L183.9 343.6 L187.6 347.1 L186.1 356.9 L181.1 367.2 L180.3 375.1 L178.9 377.1 L180.3 376.7 L181.0 378.7 L180.9 391.5 L173.8 392.5 L168.8 402.6 L169.9 405.9 L175.1 408.0 L169.3 406.9 L161.8 409.3 L158.8 412.4 L157.0 419.8 L149.7 424.3 L143.6 420.8 L136.7 412.2 L133.7 404.2 L132.5 397.3 L133.9 398.7 L134.3 402.9 L135.5 403.0 L133.9 397.4 L131.9 395.0 L125.6 376.3 L118.5 366.2 L115.1 358.8 L107.5 330.6 L101.7 322.1 L99.7 317.4 L101.5 317.4 L99.3 314.9 L100.2 313.6 L98.1 312.9 L93.5 301.9 L91.1 284.9 L87.3 270.0 L89.0 264.5 L88.6 262.6 L86.8 265.2 L86.3 263.7 L86.4 260.5 L88.8 260.8 L86.1 259.5 L84.5 252.7 L87.5 240.4 L86.5 233.9 L84.8 233.0 L83.9 230.2 L85.4 228.8 L83.8 228.9 L90.5 224.7 L82.8 225.5 L84.9 221.4 L82.6 221.4 L83.0 218.7 L86.4 217.6 L78.0 217.1 L79.7 218.3 L79.2 219.7 L76.0 223.6 L78.4 225.0 L78.9 227.9 L75.7 233.4 L62.4 239.4 L55.2 238.0 L49.1 233.0 L34.8 216.8 L35.9 214.6 L38.9 216.9 L51.0 212.7 L55.6 206.4 L55.2 205.1 L53.2 207.3 L50.2 207.2 L44.2 209.9 L38.4 208.6 L30.4 203.7 L27.4 198.1 L32.2 194.0 L24.9 197.7 L24.0 193.9 Z"/>
+        <g class="city" data-city="delhi" transform="translate(145.5,124.5)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Delhi</text></g>
+        <g class="city" data-city="mumbai" transform="translate(87.2,263.8)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-52" y="3">Mumbai</text></g>
+        <g class="city" data-city="kolkata" transform="translate(295.4,212.7)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-46" y="3">Kolkata</text></g>
+        <g class="city" data-city="hyderabad" transform="translate(162.6,288.5)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Hyderabad</text></g>
+        <g class="city" data-city="bengaluru" transform="translate(150.7,352.9)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="-56" y="3">Bengaluru</text></g>
+        <g class="city" data-city="chennai" transform="translate(186.7,351.2)"><circle class="pulse" r="5"/><circle class="dot" r="4.5"/><text class="clabel" x="8" y="3">Chennai</text></g>
+      </svg>
+    </div>
+    <div>
+      <ul class="outbreak stagger" id="outbreak">
+        <li class="glass"><span class="live"></span><div><div class="loc">Delhi</div><div class="typ" data-i18n="out_delhi">KYC / digital-arrest scam</div></div><span class="cnt" data-c="delhi">201</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Mumbai</div><div class="typ" data-i18n="out_mumbai">Refund / cashback scam</div></div><span class="cnt" data-c="mumbai">142</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Bengaluru</div><div class="typ" data-i18n="out_bengaluru">Fake QR collect-request</div></div><span class="cnt" data-c="bengaluru">89</span></li>
+        <li class="glass"><span class="live"></span><div><div class="loc">Chennai</div><div class="typ" data-i18n="out_chennai">Lottery / prize scam</div></div><span class="cnt" data-c="chennai">67</span></li>
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- TRUST -->
-<div class="trust liquid-glass r-panel reveal">
-  <div class="trust-inner">
-    <span class="trust-label">Aligned with India's fraud-response framework</span>
-    <div class="trust-logos"><span>NPCI · UPI</span><span>Cyber Crime 1930</span><span>cybercrime.gov.in</span><span>RBI Ombudsman</span><span>CERT-In</span></div>
-  </div>
-</div>
-
-<!-- THREAT -->
-<section class="pad-y" id="threat">
-  <div class="wrap">
-    <div class="liquid-glass r-panel threat-inner reveal">
-      <div class="threat-num">₹22,495 Cr<small>lost to UPI fraud every year</small></div>
-      <div class="threat-copy">
-        <span class="eyebrow">The threat</span>
-        <h3 style="margin-top:1rem">A scam never hits just <span class="em">one person</span>.</h3>
-        <p>One script is blasted to thousands over days. Because nearly half of victims never report it, the wave rolls on — unseen, unstopped. SafePay Guard breaks that silence: the first report becomes everyone's warning.</p>
-      </div>
+<!-- ============ TIME MACHINE ============ -->
+<section class="wrap reveal" id="timemachine">
+  <span class="eyebrow" data-i18n="tm_eyebrow">Digital Scam Time Machine</span>
+  <h2 class="big" data-i18n-html="tm_big">Watch a scam <span class="grad">travel</span> —<br>and where it strikes <span style="color:var(--gold)">next.</span></h2>
+  <p class="lead" data-i18n="tm_lead">Scams move city to city like an outbreak. We replay the spread and forecast tomorrow's target before it happens.</p>
+  <div class="tm">
+    <div class="tm-track" id="tmTrack">
+      <div class="glass tm-step" data-i="0"><div class="day" data-i18n="tm_day1">DAY 1</div><div class="city">Chennai</div><div class="rep" data-i18n="tm_rep1">128 reports</div></div>
+      <div class="glass tm-step" data-i="1"><div class="day" data-i18n="tm_day2">DAY 2</div><div class="city">Coimbatore</div><div class="rep" data-i18n="tm_rep2">96 reports</div></div>
+      <div class="glass tm-step" data-i="2"><div class="day" data-i18n="tm_day3">DAY 3</div><div class="city">Bengaluru</div><div class="rep" data-i18n="tm_rep3">173 reports</div></div>
+      <div class="glass tm-step" data-i="3"><div class="day" data-i18n="tm_day4">DAY 4</div><div class="city">Hyderabad</div><div class="rep" data-i18n="tm_rep4">201 reports</div></div>
+      <div class="glass tm-step tm-pred" data-i="4"><div class="day" data-i18n="tm_tomorrow">TOMORROW</div><div class="city">Mumbai</div><div class="rep" data-i18n="tm_forecast">forecast</div><div class="tm-forecast" data-i18n="tm_conf">AI confidence 87%</div></div>
     </div>
+    <div style="margin-top:20px"><button class="mini go magnetic" onclick="playTimeMachine()" data-i18n="tm_replay">Replay outbreak</button></div>
   </div>
 </section>
 
-<!-- RADAR -->
-<section class="pad-y" id="radar">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Live scam radar</span>
-      <h2 class="h-sec reveal">A command center for fraud, <span class="em">in real time</span>.</h2>
-      <p class="lead reveal">Every report is a signal. Hotspots pulse where scams spread right now — a public-health dashboard for money. We replay each outbreak city to city and forecast tomorrow's target.</p>
-    </div>
-    <div class="radar-shell">
-      <div class="radar-map liquid-glass r-panel reveal">
-        <div class="sweep"></div>
-        <div class="radar-rings"><span style="width:32%;height:32%"></span><span style="width:58%;height:58%"></span><span style="width:84%;height:84%"></span></div>
-        <div class="hotspot high" style="left:38%;top:28%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Delhi</div><div class="t">KYC / digital-arrest scam</div><div class="n">201 reports</div></div></div>
-        <div class="hotspot high" style="left:30%;top:52%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Mumbai</div><div class="t">Refund / cashback scam</div><div class="n">142 reports</div></div></div>
-        <div class="hotspot mid" style="left:62%;top:38%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Kolkata</div><div class="t">Fake job offer</div><div class="n">96 reports</div></div></div>
-        <div class="hotspot mid" style="left:44%;top:64%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Hyderabad</div><div class="t">Loan-app extortion</div><div class="n">88 reports</div></div></div>
-        <div class="hotspot low" style="left:42%;top:76%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Bengaluru</div><div class="t">Fake QR collect-request</div><div class="n">89 reports</div></div></div>
-        <div class="hotspot low" style="left:50%;top:84%"><div class="ping"></div><div class="tip liquid-glass-strong r-card"><div class="c">Chennai</div><div class="t">Lottery / prize scam</div><div class="n">67 reports</div></div></div>
+<!-- ============ SCAM DNA ============ -->
+<section class="wrap reveal" id="dna">
+  <span class="eyebrow" data-i18n="dna_eyebrow">Scam DNA engine</span>
+  <h2 class="big" data-i18n-html="dna_big">Every scam has a <span class="gradb">fingerprint.</span></h2>
+  <p class="lead" data-i18n="dna_lead">Paste any message — the engine sequences it into fraud traits and returns a verdict in under a second. Real logic, not a mock-up.</p>
+  <div class="lab">
+    <div class="glass phone tilt">
+      <div class="bar"><div class="notch"></div></div>
+      <div class="sms"><div class="who"><span id="smswho">+91 98••• ••210 · "SBI Bank"</span><span>now</span></div><span id="smsbody">URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz  Enter your UPI PIN to confirm.</span></div>
+      <div class="samples">
+        <span class="chip" onclick="loadSample(0)" data-i18n="dna_chip_kyc">KYC expiry</span>
+        <span class="chip" onclick="loadSample(1)" data-i18n="dna_chip_lottery">Lottery prize</span>
+        <span class="chip" onclick="loadSample(2)" data-i18n="dna_chip_refund">Fake refund QR</span>
+        <span class="chip" onclick="loadSample(3)" data-i18n="dna_chip_safe">Safe message</span>
       </div>
-      <div class="outbreak liquid-glass r-panel reveal">
-        <h4>Digital scam time machine</h4>
-        <p>Watch one outbreak travel — and where the model says it strikes next.</p>
-        <div id="outbreak-tl">
-          <div class="tl-step"><span class="tl-day">Day 1</span><span class="tl-dot"></span><span class="tl-city">Chennai</span><span class="tl-meta">128</span></div>
-          <div class="tl-step"><span class="tl-day">Day 2</span><span class="tl-dot"></span><span class="tl-city">Coimbatore</span><span class="tl-meta">96</span></div>
-          <div class="tl-step"><span class="tl-day">Day 3</span><span class="tl-dot"></span><span class="tl-city">Bengaluru</span><span class="tl-meta">173</span></div>
-          <div class="tl-step"><span class="tl-day">Day 4</span><span class="tl-dot"></span><span class="tl-city">Hyderabad</span><span class="tl-meta">201</span></div>
-          <div class="tl-step"><span class="tl-day">Tmrw</span><span class="tl-dot"></span><span class="tl-city">Mumbai</span><span class="tl-meta">87% conf.</span></div>
-        </div>
-        <button class="replay-btn liquid-glass r-full" id="replay-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9z"/><path d="M10 8l6 4-6 4z" fill="currentColor" stroke="none"/></svg>Replay outbreak</button>
+      <textarea id="input" data-i18n-ph="dna_input_ph" placeholder="…or paste any message to sequence">URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz  Enter your UPI PIN to confirm.</textarea>
+      <div class="actions"><button class="mini go magnetic" onclick="analyze()" data-i18n="dna_sequence">Sequence it</button><button class="mini" onclick="clearAll()" data-i18n="dna_clear">Clear</button></div>
+    </div>
+    <div class="glass analyzer tilt" id="analyzer">
+      <div class="verdict">
+        <div class="gauge" id="gauge" style="--v:0"><b id="riskval">0</b><small>RISK</small></div>
+        <div class="vtext"><h3 id="vhead" data-i18n="v_await">Awaiting message</h3><p id="vsub">Tap “Sequence it” to run the DNA analysis.</p><span class="badge safe" id="badge" style="display:none" data-i18n="badge_anti">Antibody generated</span><span class="simple-toggle" id="grandma" onclick="toggleGrandma()" style="margin-left:8px" data-i18n="explain_simply">Explain simply</span><span class="voicebtn" id="voicebtn" onclick="speakVerdict()"><span class="ic-sm" data-icon="volume"></span> <span data-i18n="listen">Listen</span></span></div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ANALYSIS -->
-<section class="pad-y" id="dna">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Fraud analysis engine</span>
-      <h2 class="h-sec reveal">Every scam has a <span class="em">fingerprint</span>.</h2>
-      <p class="lead reveal">Paste any suspicious message. Our engine sequences it into risk signals and returns a verdict in real time — the same scoring that powers alerts across the network.</p>
-    </div>
-    <div class="dna-shell">
-      <div class="dna-input liquid-glass r-panel reveal">
-        <div class="dna-phone"><div class="av">?</div><div><div class="who">Unknown sender</div><div class="no">+91 98••• ••210</div></div><div class="time">now</div></div>
-        <div class="samples" id="samples">
-          <button data-sample="kyc" class="on liquid-glass r-full">KYC expiry</button>
-          <button data-sample="lottery" class="liquid-glass r-full">Lottery prize</button>
-          <button data-sample="refund" class="liquid-glass r-full">Fake refund QR</button>
-          <button data-sample="safe" class="liquid-glass r-full">Safe message</button>
-        </div>
-        <textarea class="dna-text liquid-glass" id="dna-text" spellcheck="false">URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz Enter your UPI PIN to confirm.</textarea>
-        <div class="dna-actions"><button class="dna-run liquid-glass-strong" id="dna-run">Sequence it</button><button class="dna-clear liquid-glass r-full" id="dna-clear">Clear</button></div>
+      <div class="dna" id="dnabars">
+        <div class="row"><span class="lbl" data-i18n="dna_emotion">Emotional trigger</span><div class="track"><div class="fill" data-k="emotion"></div></div><span class="val" data-v="emotion">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="dna_urgency">Urgency pressure</span><div class="track"><div class="fill" data-k="urgency"></div></div><span class="val" data-v="urgency">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="dna_fakeid">Fake identity</span><div class="track"><div class="fill" data-k="fakeid"></div></div><span class="val" data-v="fakeid">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="dna_link">Unknown link</span><div class="track"><div class="fill" data-k="link"></div></div><span class="val" data-v="link">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="dna_payment">Payment / PIN request</span><div class="track"><div class="fill" data-k="payment"></div></div><span class="val" data-v="payment">0</span></div>
       </div>
-      <div class="dna-out liquid-glass r-panel reveal">
-        <div class="risk-head">
-          <div class="risk-gauge">
-            <svg width="96" height="96" viewBox="0 0 96 96"><circle class="g-track" cx="48" cy="48" r="42" fill="none" stroke-width="5"></circle><circle class="g-fill" id="gauge-fill" cx="48" cy="48" r="42" fill="none" stroke-width="5" stroke-dasharray="263.9" stroke-dashoffset="263.9"></circle></svg>
-            <div class="g-num"><b id="risk-num">0</b><small>RISK</small></div>
-          </div>
-          <div class="risk-verdict"><span class="badge" id="risk-badge">Awaiting</span><h3 id="risk-title">Ready to sequence</h3><p id="risk-desc">Paste a message and tap “Sequence it” to run the analysis.</p></div>
-        </div>
-        <div class="traits" id="traits">
-          <div class="trait" data-trait="urgency"><div class="trait-top"><span class="lbl">Urgency pressure</span><span class="val">0</span></div><div class="trait-bar"><div class="trait-fill"></div></div></div>
-          <div class="trait" data-trait="identity"><div class="trait-top"><span class="lbl">Fake identity</span><span class="val">0</span></div><div class="trait-bar"><div class="trait-fill"></div></div></div>
-          <div class="trait" data-trait="link"><div class="trait-top"><span class="lbl">Suspicious link</span><span class="val">0</span></div><div class="trait-bar"><div class="trait-fill"></div></div></div>
-          <div class="trait" data-trait="payment"><div class="trait-top"><span class="lbl">PIN / payment request</span><span class="val">0</span></div><div class="trait-bar"><div class="trait-fill"></div></div></div>
-          <div class="trait" data-trait="emotion"><div class="trait-top"><span class="lbl">Emotional trigger</span><span class="val">0</span></div><div class="trait-bar"><div class="trait-fill"></div></div></div>
-        </div>
-        <div class="dna-cta"><a href="https://cybercrime.gov.in" target="_blank" rel="noopener" class="file liquid-glass-strong">Auto-file with Cyber Crime</a><a href="tel:1930" class="call liquid-glass r-full">Call 1930</a></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- REPORTS -->
-<section class="pad-y" id="reports">
-  <div class="wrap">
-    <div class="reports-top">
-      <div class="sec-head">
-        <span class="eyebrow reveal">Daily scam reports</span>
-        <h2 class="h-sec reveal">Today's active <span class="em">fraud advisories</span>.</h2>
-        <p class="lead reveal">A verified briefing of the scams circulating across India right now — what they look like, where they're spreading, and how to stay clear. Updated every day.</p>
-      </div>
-      <div class="reports-meta reveal">
-        <span class="updated liquid-glass r-full"><span class="ld"></span>Updated 05 Aug 2026 · 09:00 IST</span>
-        <a href="#" data-open-report>Report a new fraud <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-    </div>
-    <div class="reports-grid">
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">Bank impersonation</div><div class="report-sev sev-high liquid-glass"><span class="sd"></span>High</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri1)"/><circle cx="120" cy="30" r="38" fill="#ffffff" opacity="0.05"/><rect x="54" y="18" width="52" height="74" rx="9" fill="#161616" stroke="#333"/><rect x="60" y="28" width="40" height="15" rx="4" fill="#ffffff" opacity="0.1"/><rect x="64" y="32.5" width="28" height="2.6" rx="1.3" fill="#eee"/><rect x="64" y="37.5" width="19" height="2.6" rx="1.3" fill="#777"/><rect x="60" y="49" width="40" height="9" rx="3" fill="#222"/><rect x="64" y="52.5" width="30" height="2.4" rx="1.2" fill="#666"/><rect x="60" y="62" width="26" height="9" rx="3" fill="#222"/><rect x="64" y="65.5" width="15" height="2.4" rx="1.2" fill="#666"/><circle cx="104" cy="28" r="11.5" fill="#fff"/><path d="M104 23v6M104 32.5h.01" stroke="#111" stroke-width="2.6" stroke-linecap="round"/></svg>
-        </div>
-        <div class="report-body"><div class="report-date">SMS · WhatsApp</div><h3>"Your KYC expires today"</h3><p>Fake bank messages push a lookalike link demanding UPI PIN re-verification within hours. Banks never verify KYC over a link.</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Delhi · Pan-India</span><span class="count">201 reports</span></div></div>
-      </article>
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">UPI collect-request</div><div class="report-sev sev-high liquid-glass"><span class="sd"></span>High</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri2)"/><circle cx="40" cy="72" r="34" fill="#fff" opacity="0.04"/><rect x="34" y="24" width="54" height="54" rx="9" fill="#161616" stroke="#333"/><rect x="41" y="31" width="12" height="12" rx="2" fill="none" stroke="#eee" stroke-width="2.4"/><rect x="69" y="31" width="12" height="12" rx="2" fill="none" stroke="#eee" stroke-width="2.4"/><rect x="41" y="59" width="12" height="12" rx="2" fill="none" stroke="#eee" stroke-width="2.4"/><rect x="59" y="31" width="4" height="4" fill="#888"/><rect x="63" y="37" width="4" height="4" fill="#888"/><rect x="59" y="49" width="4" height="4" fill="#eee"/><rect x="69" y="55" width="4" height="4" fill="#888"/><rect x="75" y="49" width="4" height="4" fill="#eee"/><rect x="69" y="65" width="4" height="4" fill="#888"/><rect x="75" y="61" width="4" height="4" fill="#eee"/><rect x="59" y="61" width="4" height="4" fill="#888"/><path d="M96 52h24" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M114 46l7 6-7 6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="132" cy="52" r="11" fill="#fff"/><text x="132" y="56.5" font-family="Poppins,Arial" font-size="12" font-weight="bold" fill="#111" text-anchor="middle">₹</text></svg>
-        </div>
-        <div class="report-body"><div class="report-date">Payment apps</div><h3>"Scan to receive your refund"</h3><p>Victims are told to scan a QR or approve a collect request to get money back — but scanning only ever sends money out.</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Bengaluru · Mumbai</span><span class="count">142 reports</span></div></div>
-      </article>
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">Digital arrest</div><div class="report-sev sev-mid liquid-glass"><span class="sd"></span>Rising</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri3)"/><circle cx="80" cy="42" r="40" fill="#fff" opacity="0.04"/><rect x="46" y="22" width="68" height="50" rx="7" fill="#161616" stroke="#333"/><circle cx="80" cy="41" r="12" fill="#222" stroke="#555" stroke-width="1.5"/><circle cx="80" cy="37" r="4.5" fill="#999"/><path d="M71 52a9 9 0 0118 0" fill="#999"/><path d="M80 30l3 2v3c0 2-1.5 3.2-3 3.8-1.5-.6-3-1.8-3-3.8v-3z" fill="#eee"/><circle cx="122" cy="30" r="12" fill="#ccc"/><path d="M122 25v6M122 34.5h.01" stroke="#111" stroke-width="2.6" stroke-linecap="round"/><circle cx="53" cy="29" r="3" fill="#fff"/></svg>
-        </div>
-        <div class="report-body"><div class="report-date">Video call · Phone</div><h3>Fake "police" video call</h3><p>Callers posing as police or CBI claim your identity is linked to a crime, then keep you on camera until you transfer "bail".</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Hyderabad · Pune</span><span class="count">88 reports</span></div></div>
-      </article>
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">Loan-app extortion</div><div class="report-sev sev-mid liquid-glass"><span class="sd"></span>Rising</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri4)"/><circle cx="118" cy="70" r="34" fill="#fff" opacity="0.04"/><rect x="40" y="26" width="46" height="46" rx="11" fill="#161616" stroke="#333"/><text x="63" y="57" font-family="Poppins,Arial" font-size="22" font-weight="bold" fill="#eee" text-anchor="middle">₹</text><rect x="96" y="40" width="30" height="24" rx="4" fill="#222" stroke="#555" stroke-width="1.5"/><path d="M102 40v-4a9 9 0 0118 0v4" fill="none" stroke="#eee" stroke-width="2.6"/><circle cx="111" cy="50" r="3.2" fill="#eee"/><rect x="109.5" y="52" width="3" height="6" rx="1.5" fill="#eee"/></svg>
-        </div>
-        <div class="report-body"><div class="report-date">Malicious apps</div><h3>Instant-loan blackmail</h3><p>Rogue lending apps harvest your contacts and photos, then threaten to shame you unless you pay far more than you borrowed.</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Pan-India</span><span class="count">74 reports</span></div></div>
-      </article>
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">Task / job offer</div><div class="report-sev sev-low liquid-glass"><span class="sd"></span>Watch</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri5)"/><circle cx="110" cy="34" r="34" fill="#fff" opacity="0.04"/><rect x="30" y="30" width="58" height="30" rx="8" fill="#161616" stroke="#333"/><path d="M42 60l-4 9 11-6z" fill="#161616" stroke="#333" stroke-width="1"/><rect x="38" y="39" width="30" height="3" rx="1.5" fill="#999"/><rect x="38" y="47" width="20" height="3" rx="1.5" fill="#666"/><rect x="94" y="40" width="34" height="26" rx="4" fill="#222" stroke="#555" stroke-width="1.5"/><path d="M104 40v-4a4 4 0 014-4h6a4 4 0 014 4v4" fill="none" stroke="#ccc" stroke-width="2.4"/><rect x="94" y="50" width="34" height="2.4" fill="#555"/><circle cx="132" cy="60" r="11" fill="#ccc"/><text x="132" y="64.5" font-family="Poppins,Arial" font-size="12" font-weight="bold" fill="#111" text-anchor="middle">₹</text></svg>
-        </div>
-        <div class="report-body"><div class="report-date">Telegram · WhatsApp</div><h3>"Earn ₹5,000/day, part-time"</h3><p>Easy-task offers pay small amounts first to build trust, then demand a deposit for "premium tasks" that never pay out.</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Metro cities</span><span class="count">53 reports</span></div></div>
-      </article>
-      <article class="report-card liquid-glass r-card reveal">
-        <div class="report-img"><div class="report-chip liquid-glass">Utility disconnection</div><div class="report-sev sev-high liquid-glass"><span class="sd"></span>High</div>
-          <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ri6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs><rect width="160" height="100" fill="url(#ri6)"/><circle cx="118" cy="34" r="36" fill="#fff" opacity="0.04"/><rect x="44" y="18" width="50" height="66" rx="6" fill="#161616" stroke="#333"/><rect x="51" y="27" width="28" height="3" rx="1.5" fill="#999"/><rect x="51" y="35" width="36" height="2.6" rx="1.3" fill="#666"/><rect x="51" y="41" width="30" height="2.6" rx="1.3" fill="#666"/><rect x="51" y="53" width="36" height="2.6" rx="1.3" fill="#666"/><rect x="51" y="59" width="22" height="2.6" rx="1.3" fill="#666"/><rect x="51" y="70" width="18" height="6" rx="2" fill="#fff" opacity=".4"/><path d="M108 26l-9 15h7l-2 12 11-17h-8z" fill="#eee"/><circle cx="118" cy="62" r="11.5" fill="#fff"/><path d="M118 57v6M118 66.5h.01" stroke="#111" stroke-width="2.6" stroke-linecap="round"/></svg>
-        </div>
-        <div class="report-body"><div class="report-date">SMS · Automated call</div><h3>"Power cut tonight — pay now"</h3><p>Messages warn of imminent disconnection over an unpaid bill and pressure you to call a number and pay a stranger instantly.</p><div class="report-foot"><span class="region"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.7-7-12a7 7 0 1114 0c0 5.3-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Chennai · Kolkata</span><span class="count">67 reports</span></div></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ANATOMY -->
-<section class="pad-sm" id="anatomy">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Anatomy of a scam</span>
-      <h2 class="h-sec reveal" style="font-size:clamp(1.6rem,4vw,2.6rem)">Travel <span class="em">inside</span> a scam.</h2>
-    </div>
-    <div class="anatomy liquid-glass r-panel reveal">
-      <div class="step-track" id="step-track"></div>
-      <div class="step-body">
-        <div>
-          <h3 id="step-title"></h3>
-          <p id="step-desc"></p>
-          <div class="redflag"><span class="rf-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/></svg></span><div class="rf-t"><b>Red flag</b><span id="step-flag"></span></div></div>
-        </div>
-        <div class="step-visual"><div class="step-scan"></div><div class="step-glyph" id="step-glyph"></div></div>
+      <div class="report-row" id="reportRow" style="display:none">
+        <button class="mini go" onclick="openGov()"><span class="ic-sm" data-icon="alert"></span> <span data-i18n="report_gov">Auto-report to Cyber Crime</span></button>
+        <button class="mini" onclick="openShare()"><span class="ic-sm" data-icon="users"></span> <span data-i18n="report_family">Alert family &amp; friends</span></button>
+        <a class="mini" href="tel:1930" data-i18n="call1930">Call 1930</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- GOLDEN -->
-<section class="pad-y" id="golden">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Golden hour recovery</span>
-      <h2 class="h-sec reveal">The first hour decides <span class="em">everything</span>.</h2>
-      <p class="lead reveal">On UPI, theft is instant — but banks can still freeze funds if you move fast. Golden Hour turns panic into a guided rescue.</p>
+<!-- ============ ENTER THE SCAM ============ -->
+<section class="wrap reveal" id="journey">
+  <span class="eyebrow" data-i18n="journey_eyebrow">Enter the scam</span>
+  <h2 class="big" data-i18n-html="journey_big">Travel <span class="gradb">inside</span> a scam.</h2>
+  <p class="lead" data-i18n="journey_lead">Follow a real scam from the first message to the stolen money — we freeze it at every step and expose the red flag you can now spot.</p>
+  <div class="journey">
+    <div class="jtrack" id="jtrack">
+      <div class="jstage" data-i="0" onclick="jGo(0)"><div class="jic" data-icon="smartphone"></div><div class="jname" data-i18n="j_message">Message</div></div>
+      <div class="jstage" data-i="1" onclick="jGo(1)"><div class="jic" data-icon="link"></div><div class="jname" data-i18n="j_link">Link</div></div>
+      <div class="jstage" data-i="2" onclick="jGo(2)"><div class="jic" data-icon="globe"></div><div class="jname" data-i18n="j_fakesite">Fake site</div></div>
+      <div class="jstage" data-i="3" onclick="jGo(3)"><div class="jic" data-icon="grid"></div><div class="jname" data-i18n="j_qr">QR code</div></div>
+      <div class="jstage" data-i="4" onclick="jGo(4)"><div class="jic" data-icon="wallet"></div><div class="jname" data-i18n="j_upi">UPI</div></div>
+      <div class="jstage" data-i="5" onclick="jGo(5)"><div class="jic" data-icon="building"></div><div class="jname" data-i18n="j_bank">Bank</div></div>
+      <div class="jstage" data-i="6" onclick="jGo(6)"><div class="jic" data-icon="alert"></div><div class="jname" data-i18n="j_scammer">Scammer</div></div>
+      <div class="jstage" data-i="7" onclick="jGo(7)"><div class="jic" data-icon="route"></div><div class="jname" data-i18n="j_trail">Money trail</div></div>
     </div>
-    <div class="golden-grid">
-      <div class="gh-timeline liquid-glass r-panel reveal">
-        <div class="gh-inner">
-          <div class="gh-item"><div class="gh-time">00:00</div><h4>Scam detected</h4><p>Report logged, transaction details captured automatically.</p></div>
-          <div class="gh-item"><div class="gh-time">00:05</div><h4>Freeze the payment</h4><p>Guided steps to block the account and stop further debits.</p></div>
-          <div class="gh-item"><div class="gh-time">00:15</div><h4>Call 1930</h4><p>One tap to the national cyber-crime helpline.</p></div>
-          <div class="gh-item"><div class="gh-time">00:20</div><h4>Complaint auto-filed</h4><p>A pre-filled cybercrime.gov.in report — recovery begins.</p></div>
+    <div class="glass jdetail" id="jdetail">
+      <div class="jlabel" id="jlabel">STEP 1 · MESSAGE</div>
+      <h4 id="jhead" data-i18n="j_head0">It starts with a single message</h4>
+      <p id="jbody" data-i18n="j_body0">Tap “Enter the scam” to travel through it, step by step — or click any stage.</p>
+      <span class="jflag" id="jflag" style="display:none"></span>
+    </div>
+    <div style="margin-top:18px"><button class="btn primary" onclick="jPlay()"><span class="ic-sm" data-icon="play"></span> <span data-i18n="journey_eyebrow">Enter the scam</span></button></div>
+  </div>
+</section>
+
+<!-- ============ AI SCAM SIMULATOR ============ -->
+<section class="wrap reveal" id="simulator">
+  <span class="eyebrow" data-i18n="sim_eyebrow">AI Scam Simulator</span>
+  <h2 class="big" data-i18n-html="sim_big">See a scam <span class="gradb">from the inside.</span></h2>
+  <p class="lead" data-i18n="sim_lead">Pick a scam and watch it unfold in real time — then we freeze it and expose every trick, so you'll never fall for it. Nothing here is real; it's a safe training drill.</p>
+  <div class="sim">
+    <div class="glass sim-chat" id="simChat">
+      <div class="sim-hint" id="simHint" data-i18n="sim_hint">Choose a scam below to run the simulation.</div>
+      <div class="sim-controls" id="simControls">
+        <button class="mini magnetic" onclick="runSim(0)" data-i18n="sim_kyc">KYC bank scam</button>
+        <button class="mini magnetic" onclick="runSim(1)" data-i18n="sim_lottery">Lottery prize</button>
+        <button class="mini magnetic" onclick="runSim(2)" data-i18n="sim_arrest">Digital arrest</button>
+      </div>
+    </div>
+    <div class="glass sim-analysis" id="simAnalysis" style="opacity:.4">
+      <h3 style="font-family:var(--disp);margin:0 0 4px;font-size:21px" data-i18n="sim_break">Manipulation breakdown</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 14px" id="simVerdict" data-i18n="sim_verdict">Run a simulation to reveal the tactics used against you.</p>
+      <div class="emeter" id="emeter">
+        <div class="row"><span class="lbl" data-i18n="e_fear">Fear</span><div class="track"><div class="fill" data-e="fear" style="background:var(--danger)"></div></div><span class="val" data-ev="fear">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="e_greed">Greed</span><div class="track"><div class="fill" data-e="greed" style="background:var(--gold)"></div></div><span class="val" data-ev="greed">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="e_urgency">Urgency</span><div class="track"><div class="fill" data-e="urgency" style="background:var(--cyan)"></div></div><span class="val" data-ev="urgency">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="e_authority">Authority</span><div class="track"><div class="fill" data-e="authority" style="background:var(--blue)"></div></div><span class="val" data-ev="authority">0</span></div>
+        <div class="row"><span class="lbl" data-i18n="e_curiosity">Curiosity</span><div class="track"><div class="fill" data-e="curiosity" style="background:var(--purple)"></div></div><span class="val" data-ev="curiosity">0</span></div>
+      </div>
+      <ul class="trick-list" id="trickList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMMUNE SYSTEM ============ -->
+<section class="wrap reveal" id="immune">
+  <span class="eyebrow" data-i18n="immune_eyebrow">Community immune system</span>
+  <h2 class="big" data-i18n-html="immune_big">One antibody.<br><span class="grad">A whole city immunized.</span></h2>
+  <p class="lead" data-i18n="immune_lead">Watch protection spread through the network — the moment one person reports, everyone with the same exposure profile is warned.</p>
+  <div class="immune-stage"><svg viewBox="0 0 900 400" id="immunesvg"><g id="ilinks"></g><g id="inodes"></g></svg></div>
+</section>
+
+<!-- ============ GOLDEN HOUR ============ -->
+<section class="wrap reveal" id="golden">
+  <span class="eyebrow" data-i18n="golden_eyebrow">Golden Hour recovery</span>
+  <h2 class="big" data-i18n-html="golden_big">The first hour<br>decides <span style="color:var(--gold)">everything.</span></h2>
+  <p class="lead" data-i18n="golden_lead">On UPI, theft is instant — but banks can still freeze funds if you move fast. Golden Hour turns panic into a guided rescue.</p>
+  <div class="timeline stagger">
+    <div class="tl"><div class="t">00:00</div><h4 data-i18n="gh1h">Scam detected</h4><p data-i18n="gh1p">Report logged, transaction details captured automatically.</p></div>
+    <div class="tl"><div class="t">00:05</div><h4 data-i18n="gh2h">Freeze the payment</h4><p data-i18n="gh2p">Guided steps to block the account and stop further debits.</p></div>
+    <div class="tl"><div class="t">00:15</div><h4 data-i18n="gh3h">Call 1930</h4><p data-i18n="gh3p">One tap to the national cyber-crime helpline.</p></div>
+    <div class="tl"><div class="t">00:20</div><h4 data-i18n="gh4h">Complaint auto-filed</h4><p data-i18n="gh4p">A pre-filled cybercrime.gov.in report — recovery begins.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-weight:700;font-size:clamp(20px,2.6vw,28px);margin:52px 0 4px" data-i18n="helpline_title">Fraud &amp; emergency helplines</h3>
+  <p class="lead" style="font-size:15px" data-i18n-html="helpline_lead">Save these. For any financial fraud, call <b style="color:var(--gold)">1930</b> first — the sooner you report, the more likely the money can be frozen.</p>
+  <div class="helplines">
+    <a class="glass hl" href="tel:1930"><div class="num">1930</div><div class="nm" data-i18n="hl_1930">Cyber-crime &amp; financial fraud · 24×7</div></a>
+    <a class="glass hl" href="tel:112"><div class="num">112</div><div class="nm" data-i18n="hl_112">National emergency (police / all-in-one)</div></a>
+    <a class="glass hl" href="https://cybercrime.gov.in" target="_blank" rel="noopener"><div class="num" data-i18n="hl_report_online">Report online</div><div class="nm" data-i18n="hl_portal">cybercrime.gov.in · National portal</div></a>
+    <a class="glass hl" href="tel:14448"><div class="num">14448</div><div class="nm" data-i18n="hl_14448">RBI complaints (banking) · office hours</div></a>
+    <a class="glass hl" href="tel:1909"><div class="num">1909</div><div class="nm" data-i18n="hl_1909">Report spam calls &amp; SMS · TRAI</div></a>
+    <a class="glass hl" href="https://www.npci.org.in/what-we-do/upi/dispute-redressal-mechanism" target="_blank" rel="noopener"><div class="num" data-i18n="hl_upi">UPI disputes</div><div class="nm" data-i18n="hl_upi_nm">Raise in your bank/UPI app · NPCI portal</div></a>
+    <a class="glass hl" href="tel:1098"><div class="num">1098</div><div class="nm" data-i18n="hl_1098">Childline (child in distress)</div></a>
+    <a class="glass hl" href="tel:181"><div class="num">181</div><div class="nm" data-i18n="hl_181">Women helpline</div></a>
+    <a class="glass hl" href="tel:14567"><div class="num">14567</div><div class="nm" data-i18n="hl_14567">Senior citizens · Elderline</div></a>
+  </div>
+</section>
+
+<!-- ============ FAMILY GUARDIAN ============ -->
+<section class="wrap reveal" id="family">
+  <span class="eyebrow" id="famEyebrow" data-i18n="fam_eyebrow">Family Guardian</span>
+  <h2 class="big" id="famH2" data-i18n-html="fam_h2">Protect the people <span class="grad">you love.</span></h2>
+  <p class="lead" id="famLead" data-i18n="fam_lead">Add your parents or family. If you spot a scam, alert them in one tap - the people most targeted often need us watching out for them.</p>
+  <div class="fam-wrap">
+    <div class="glass fam-form">
+      <label data-i18n="fam_name_label">Family member's name</label>
+      <input id="fam-name" data-i18n-ph="fam_name_ph" placeholder="e.g. Amma"/>
+      <label data-i18n="fam_phone_label">Their mobile number</label>
+      <input id="fam-phone" type="tel" placeholder="+91 98765 43210"/>
+      <button class="btn primary" style="width:100%;justify-content:center;margin-top:18px" onclick="addFamily()" data-i18n="fam_add">Add to my family circle</button>
+    </div>
+    <div class="glass fam-list" id="fam-list"><div class="fam-empty" id="fam-empty" data-i18n="fam_empty">No family added yet. Add someone above to protect them.</div></div>
+  </div>
+  <div style="margin-top:16px"><button class="btn ghost" onclick="alertAllFamily()"><span class="ic-sm" data-icon="users"></span> <span data-i18n="fam_alertall">Alert everyone about a scam</span></button></div>
+</section>
+
+<!-- ============ SENTINEL AI ============ -->
+<section class="wrap reveal" id="ai">
+  <span class="eyebrow">Sentinel AI</span>
+  <div class="ai">
+    <div class="orb-stage" data-speed="-0.08"><div class="orb"></div></div>
+    <div>
+      <h2 class="big" style="margin-top:0" data-i18n-html="ai_big">Intelligence that<br>watches <span class="gradb">for you.</span></h2>
+      <p class="lead" data-i18n="ai_lead">Not a chatbot in a box — an ambient guardian. Ask in your language, get a plain answer, stay protected.</p>
+      <div class="ai-prompts stagger">
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Is this message fake?')"><span data-i18n="ai_ask">ASK</span><span data-i18n="ai_p1">Is this message fake?</span></div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Can I trust this UPI ID?')"><span data-i18n="ai_ask">ASK</span><span data-i18n="ai_p2">Can I trust this UPI ID?</span></div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('Show scams near me right now')"><span data-i18n="ai_ask">ASK</span><span data-i18n="ai_p3">Show scams near me right now</span></div>
+        <div class="p glass" style="cursor:pointer" onclick="openChat('I was scammed, what do I do?')"><span data-i18n="ai_ask">ASK</span><span data-i18n="ai_p4">I was scammed — what do I do?</span></div>
+      </div>
+      <div style="margin-top:20px"><button class="btn primary magnetic" onclick="openChat()"><span class="orbmini"></span> <span data-i18n="ai_chat_btn">Chat with Sentinel AI</span></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FRAUD BRIEFING ============ -->
+<section class="wrap reveal" id="briefing">
+  <span class="eyebrow" data-i18n="brief_eyebrow">Daily fraud briefing</span>
+  <h2 class="big" data-i18n-html="brief_big">Know today's scams<br><span class="grad">before they know you.</span></h2>
+  <p class="lead" data-i18n="brief_lead">A fresh brief every day — the latest fraud tactics, data, and advisories, curated so you stay one step ahead.</p>
+  <div class="brief-date" id="briefDate"></div>
+  <a class="glass brief-feature" id="briefFeature" target="_blank" rel="noopener"></a>
+  <div class="brief-row" id="briefRow"></div>
+</section>
+
+<!-- ============ IMPACT ============ -->
+<section class="wrap reveal" id="impact">
+  <span class="eyebrow" data-i18n="impact_eyebrow">Impact dashboard</span>
+  <h2 class="big" data-i18n-html="impact_big">Every report makes<br>the network <span class="grad">stronger.</span></h2>
+  <div class="bento">
+    <div class="glass cell big"><div class="num" data-count="8421" id="c-people">0</div><div class="lbl" data-i18n="imp_people">People protected today</div></div>
+    <div class="glass cell"><div class="num" data-count="32000000" data-money="1" id="c-money">0</div><div class="lbl" data-i18n="imp_money">Money saved today</div></div>
+    <div class="glass cell"><div class="num" data-count="1240" id="c-reports">0</div><div class="lbl" data-i18n="imp_anti">Antibodies generated</div></div>
+    <div class="glass cell"><div class="num" data-count="112">0</div><div class="lbl" data-i18n="imp_cities">Cities covered</div></div>
+    <div class="glass cell"><div class="num" data-count="94" data-suffix="%">0</div><div class="lbl" data-i18n="imp_waves">Waves stopped early</div></div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section class="wrap reveal" id="arch">
+  <span class="eyebrow" data-i18n="arch_eyebrow">Under the hood</span>
+  <h2 class="big" data-i18n-html="arch_big">A buildable stack.<br>Data flows in <span class="gradb">seconds.</span></h2>
+  <p class="lead" data-i18n="arch_lead">No black-box ML. A report enters the DNA engine, gets scored, matched to a location, and pushed back to nearby users — a lightweight, hackathon-ready pipeline.</p>
+  <div class="arch" id="archflow">
+    <div class="node glass"><div class="ic-md" data-icon="smartphone"></div><h4 data-i18n="arch_client_h">Client</h4><p>React PWA</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="dna"></div><h4 data-i18n="arch_dna_h">DNA Engine</h4><p data-i18n="arch_dna_p">fingerprint</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="activity"></div><h4 data-i18n="arch_risk_h">Risk Engine</h4><p data-i18n="arch_risk_p">rule scoring</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="pin"></div><h4 data-i18n="arch_geo_h">Geo Matcher</h4><p>Firestore geo</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="radio"></div><h4 data-i18n="arch_alert_h">Alert Engine</h4><p>FCM push</p></div>
+    <div class="arrow">→</div>
+    <div class="node glass"><div class="ic-md" data-icon="users"></div><h4 data-i18n="arch_users_h">Nearby users</h4><p data-i18n="arch_users_p">immunized</p></div>
+  </div>
+</section>
+
+<!-- ============ VISION ============ -->
+<section class="wrap vision reveal" id="vision">
+  <span class="scene-label" data-i18n="vision_label">10 — THE FUTURE</span>
+  <div style="margin-top:24px">
+    <div class="line" data-i18n="vision_l1">One campus.</div>
+    <div class="line" data-i18n="vision_l2">Then cities.</div>
+    <div class="line" data-i18n-html="vision_l3"><span class="grad">Then all of India.</span></div>
+  </div>
+  <svg class="vision-india" id="visionMap" viewBox="0 0 440 448">
+    <path class="vland" d="M24.0 193.9 L31.5 192.3 L32.3 187.2 L42.7 187.8 L46.0 189.4 L55.2 185.8 L58.3 188.4 L62.7 186.0 L61.7 183.5 L62.7 181.8 L57.4 171.1 L57.4 167.5 L52.2 166.9 L50.0 163.9 L50.6 155.2 L42.0 151.8 L42.4 146.2 L50.6 135.6 L54.1 133.1 L57.1 134.3 L59.4 137.7 L73.8 134.0 L80.1 122.5 L87.7 118.4 L94.1 105.2 L99.8 102.9 L101.5 101.0 L101.1 97.9 L107.0 91.2 L110.9 89.1 L109.4 86.9 L109.9 77.7 L120.2 71.9 L119.0 69.6 L111.6 67.8 L111.3 64.0 L107.2 63.8 L106.5 60.6 L102.5 57.7 L104.4 53.0 L102.1 49.9 L105.8 46.6 L101.1 44.7 L102.0 42.4 L99.7 40.3 L101.9 36.3 L106.4 34.7 L125.4 38.5 L129.8 36.1 L137.3 35.1 L142.7 31.4 L143.4 29.6 L153.5 24.0 L156.7 24.2 L156.3 27.6 L160.6 37.0 L165.2 38.3 L169.2 41.4 L165.9 45.6 L166.9 53.1 L171.4 57.9 L172.6 67.7 L168.5 69.8 L165.6 66.3 L161.4 67.4 L162.8 71.9 L166.0 75.7 L165.5 78.8 L167.0 80.6 L166.2 84.9 L171.0 83.8 L176.2 89.7 L180.3 90.1 L185.1 92.7 L185.6 95.9 L192.2 98.2 L196.6 101.8 L194.4 102.2 L188.4 108.2 L184.0 121.3 L188.7 124.5 L190.9 123.9 L207.9 135.4 L209.8 134.7 L216.0 138.2 L219.0 138.2 L219.8 140.5 L227.3 142.6 L229.4 141.2 L234.5 142.5 L238.0 140.9 L245.0 143.7 L246.0 147.4 L253.5 151.7 L257.9 150.4 L260.9 153.8 L263.8 153.2 L273.1 156.3 L277.3 154.5 L281.0 157.4 L290.5 157.0 L292.7 152.0 L290.3 146.1 L292.4 134.2 L298.3 132.1 L301.4 133.3 L302.0 135.3 L300.6 140.4 L302.5 143.4 L300.5 145.5 L302.1 148.6 L306.0 150.7 L308.5 150.2 L314.3 152.4 L319.1 151.6 L322.1 149.6 L327.4 151.4 L344.3 150.1 L345.3 149.3 L344.2 146.6 L345.4 143.8 L344.2 141.5 L340.9 141.6 L338.9 139.9 L339.4 136.9 L344.0 137.4 L351.7 135.2 L353.5 133.6 L353.7 131.3 L358.2 128.6 L361.1 124.2 L368.0 122.8 L379.6 114.3 L381.5 116.3 L389.9 118.3 L391.6 115.8 L398.5 112.3 L401.2 115.2 L402.8 115.2 L399.7 117.6 L399.9 120.0 L403.9 118.1 L405.9 122.3 L401.8 127.4 L406.2 126.7 L412.5 128.0 L415.8 130.3 L416.0 134.3 L409.8 139.5 L412.9 146.3 L407.9 143.2 L400.6 144.2 L386.3 153.9 L385.3 157.6 L386.4 162.0 L379.0 172.6 L378.6 174.1 L380.7 176.5 L372.9 193.6 L362.1 190.9 L363.3 196.5 L362.7 204.5 L361.9 206.0 L359.9 206.0 L358.8 210.5 L359.8 217.7 L356.5 221.2 L354.0 219.1 L352.0 221.3 L347.6 196.4 L343.4 196.4 L343.5 199.1 L341.0 202.2 L341.0 205.6 L339.2 206.7 L336.7 203.5 L335.1 204.9 L333.1 197.9 L334.0 193.0 L335.8 190.5 L342.7 189.0 L343.7 186.6 L345.7 185.9 L347.4 179.0 L350.3 179.4 L350.6 178.0 L345.0 174.8 L323.3 174.9 L315.2 173.0 L315.0 163.5 L313.0 159.5 L311.4 162.6 L309.0 162.5 L306.5 161.1 L304.2 156.6 L303.0 157.2 L303.6 159.0 L301.7 158.9 L295.5 154.4 L296.5 157.2 L292.6 161.4 L291.7 164.3 L297.3 169.4 L300.9 170.1 L303.3 173.4 L301.5 174.7 L296.7 174.5 L294.8 179.0 L292.6 178.5 L290.9 182.7 L292.5 184.7 L300.3 187.8 L298.2 196.6 L300.5 200.1 L300.3 202.7 L303.0 203.7 L302.0 205.8 L304.7 217.0 L304.4 221.9 L303.3 221.9 L304.7 226.1 L302.7 226.1 L302.1 224.8 L300.6 227.1 L300.5 220.9 L299.2 219.2 L298.4 226.0 L296.5 226.7 L294.4 224.6 L294.0 226.5 L292.2 226.3 L291.3 225.5 L293.2 219.0 L289.8 215.6 L290.0 217.3 L292.7 219.2 L289.9 223.6 L286.2 226.1 L278.5 228.3 L275.2 232.2 L276.8 240.0 L273.8 245.7 L268.7 250.1 L267.0 249.4 L267.9 250.4 L266.6 251.7 L258.0 254.7 L256.9 254.6 L257.8 253.8 L257.0 251.9 L253.6 253.8 L252.7 256.1 L255.2 254.9 L256.2 255.7 L247.2 263.0 L238.2 275.1 L232.2 278.4 L226.0 285.1 L214.8 292.6 L213.4 300.4 L206.7 303.8 L200.3 303.7 L196.2 312.1 L191.7 310.2 L187.0 312.8 L183.8 322.1 L185.4 330.8 L184.5 334.7 L187.2 345.3 L185.1 342.0 L183.9 343.6 L187.6 347.1 L186.1 356.9 L181.1 367.2 L180.3 375.1 L178.9 377.1 L180.3 376.7 L181.0 378.7 L180.9 391.5 L173.8 392.5 L168.8 402.6 L169.9 405.9 L175.1 408.0 L169.3 406.9 L161.8 409.3 L158.8 412.4 L157.0 419.8 L149.7 424.3 L143.6 420.8 L136.7 412.2 L133.7 404.2 L132.5 397.3 L133.9 398.7 L134.3 402.9 L135.5 403.0 L133.9 397.4 L131.9 395.0 L125.6 376.3 L118.5 366.2 L115.1 358.8 L107.5 330.6 L101.7 322.1 L99.7 317.4 L101.5 317.4 L99.3 314.9 L100.2 313.6 L98.1 312.9 L93.5 301.9 L91.1 284.9 L87.3 270.0 L89.0 264.5 L88.6 262.6 L86.8 265.2 L86.3 263.7 L86.4 260.5 L88.8 260.8 L86.1 259.5 L84.5 252.7 L87.5 240.4 L86.5 233.9 L84.8 233.0 L83.9 230.2 L85.4 228.8 L83.8 228.9 L90.5 224.7 L82.8 225.5 L84.9 221.4 L82.6 221.4 L83.0 218.7 L86.4 217.6 L78.0 217.1 L79.7 218.3 L79.2 219.7 L76.0 223.6 L78.4 225.0 L78.9 227.9 L75.7 233.4 L62.4 239.4 L55.2 238.0 L49.1 233.0 L34.8 216.8 L35.9 214.6 L38.9 216.9 L51.0 212.7 L55.6 206.4 L55.2 205.1 L53.2 207.3 L50.2 207.2 L44.2 209.9 L38.4 208.6 L30.4 203.7 L27.4 198.1 L32.2 194.0 L24.9 197.7 L24.0 193.9 Z"/>
+    <circle class="vc" cx="145.5" cy="124.5" r="5"/><circle class="vc" cx="87.2" cy="263.8" r="5"/><circle class="vc" cx="295.4" cy="212.7" r="5"/><circle class="vc" cx="162.6" cy="288.5" r="5"/><circle class="vc" cx="150.7" cy="352.9" r="5"/><circle class="vc" cx="186.7" cy="351.2" r="5"/>
+  </svg>
+  <div class="mantra" id="mantra" data-i18n-html="mantra">One report.<br>One antibody.<br><span class="grad">Millions protected.</span></div>
+  <p class="lead" style="margin:28px auto 0" data-i18n="vision_lead">Plugged into NPCI, every reported scam could immunize 46 crore users in seconds — herd immunity for India's payments.</p>
+  <div style="margin-top:28px"><button class="btn primary magnetic" onclick="runDemo()"><span class="ic-sm" data-icon="play"></span> <span data-i18n="vision_btn">Run the full demo</span></button></div>
+</section>
+
+<!-- ===== CONNECT / CONTACT ===== -->
+<section id="connect" class="wrap connect-sec">
+  <div class="eyebrow" data-i18n="connect_eyebrow">Connect · Reach out</div>
+  <h2 class="big" id="connectH2" data-i18n-html="connect_h2">Built by <span class="grad">Vishweshwaran Balasundaram</span>.</h2>
+  <p class="sec-lead" id="connectLead" data-i18n="connect_lead">Questions, feedback, or want to collaborate? Tap a card to reach me — or copy the details.</p>
+  <div class="connect-grid">
+
+    <div class="c-card">
+      <span class="c-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+      <div class="c-body"><b>Phone</b><span>7339486693</span></div>
+      <div class="c-actions">
+        <a class="c-go" href="tel:7339486693" aria-label="Call phone number" data-i18n="c_call">Call</a>
+        <button class="c-copy" onclick="copyText('7339486693','Phone number copied')" aria-label="Copy phone number"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      </div>
+    </div>
+
+    <div class="c-card">
+      <span class="c-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3s-2.3 1.57-2.3 3.2V21h-4V9Z"/></svg></span>
+      <div class="c-body"><b>LinkedIn</b><span>vishweshwaran-v</span></div>
+      <div class="c-actions">
+        <a class="c-go" href="https://www.linkedin.com/in/vishweshwaran-v-448a393a9/" target="_blank" rel="noopener" aria-label="Open LinkedIn" data-i18n="c_open">Open</a>
+        <button class="c-copy" onclick="copyText('https://www.linkedin.com/in/vishweshwaran-v-448a393a9/','LinkedIn link copied')" aria-label="Copy LinkedIn link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      </div>
+    </div>
+
+    <div class="c-card">
+      <span class="c-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg></span>
+      <div class="c-body"><b>GitHub</b><span>vishweshwaranbalasundaram</span></div>
+      <div class="c-actions">
+        <a class="c-go" href="https://github.com/vishweshwaranbalasundaram" target="_blank" rel="noopener" aria-label="Open GitHub" data-i18n="c_open">Open</a>
+        <button class="c-copy" onclick="copyText('https://github.com/vishweshwaranbalasundaram','GitHub link copied')" aria-label="Copy GitHub link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      </div>
+    </div>
+
+    <div class="c-card">
+      <span class="c-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></span>
+      <div class="c-body"><b>Instagram</b><span>iv1chu.8s</span></div>
+      <div class="c-actions">
+        <a class="c-go" href="https://instagram.com/iv1chu.8s" target="_blank" rel="noopener" aria-label="Open Instagram" data-i18n="c_open">Open</a>
+        <button class="c-copy" onclick="copyText('https://instagram.com/iv1chu.8s','Instagram link copied')" aria-label="Copy Instagram link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== PREMIUM FOOTER ===== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-divider"></div>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="fm">SafePay Guard <span class="grad">OS</span></div>
+        <p data-i18n="foot_brand_p">India's financial immune system. One report becomes an antibody that protects thousands — report scams, stay immune.</p>
+        <div class="foot-social">
+          <a href="https://github.com/vishweshwaranbalasundaram" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg></a>
+          <a href="https://www.linkedin.com/in/vishweshwaran-v-448a393a9/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3s-2.3 1.57-2.3 3.2V21h-4V9Z"/></svg></a>
+          <a href="https://instagram.com/iv1chu.8s" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+          <a href="tel:7339486693" aria-label="Phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></a>
         </div>
       </div>
-      <div class="helplines liquid-glass r-panel reveal">
-        <h4>Fraud &amp; emergency helplines</h4>
-        <p class="hnote">For any financial fraud, call <b>1930</b> first — the sooner you report, the more likely the money can be frozen.</p>
-        <div class="hl-grid">
-          <a href="tel:1930" class="hl"><span class="num">1930</span><span class="d"><span class="t">Cyber-crime &amp; financial fraud</span><span class="s">National · 24×7</span></span><span class="go">→</span></a>
-          <a href="tel:112" class="hl"><span class="num">112</span><span class="d"><span class="t">National emergency</span><span class="s">Police · all-in-one</span></span><span class="go">→</span></a>
-          <a href="https://cybercrime.gov.in" target="_blank" rel="noopener" class="hl"><span class="num" style="font-size:.9rem">Report</span><span class="d"><span class="t">cybercrime.gov.in</span><span class="s">National reporting portal</span></span><span class="go">→</span></a>
-          <a href="tel:14448" class="hl"><span class="num">14448</span><span class="d"><span class="t">RBI complaints</span><span class="s">Banking · office hours</span></span><span class="go">→</span></a>
-          <a href="tel:1909" class="hl"><span class="num">1909</span><span class="d"><span class="t">Report spam calls &amp; SMS</span><span class="s">TRAI</span></span><span class="go">→</span></a>
-          <a href="tel:14567" class="hl"><span class="num">14567</span><span class="d"><span class="t">Senior citizens</span><span class="s">Elderline</span></span><span class="go">→</span></a>
-        </div>
+      <div class="foot-col">
+        <h4 data-i18n="foot_explore">Explore</h4>
+        <a href="#radar" data-i18n="nav_radar">Radar</a>
+        <a href="#dna" data-i18n="nav_dna">Scam DNA</a>
+        <a href="#simulator" data-i18n="nav_sim">Simulator</a>
+        <a href="#briefing" data-i18n="nav_brief">Briefing</a>
+        <a href="#impact" data-i18n="nav_impact">Impact</a>
+      </div>
+      <div class="foot-col">
+        <h4 data-i18n="foot_connect">Connect</h4>
+        <a href="#connect" data-i18n="foot_contact">Contact</a>
+        <a href="https://github.com/vishweshwaranbalasundaram" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/vishweshwaran-v-448a393a9/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://instagram.com/iv1chu.8s" target="_blank" rel="noopener">Instagram</a>
+        <a href="tel:1930" data-i18n="foot_report">Report fraud · 1930</a>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- IMPACT -->
-<section class="pad-y" id="impact">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Impact &amp; architecture</span>
-      <h2 class="h-sec reveal">Every report makes the network <span class="em">stronger</span>.</h2>
-      <p class="lead reveal">No black-box ML. A report flows through a lightweight, buildable pipeline — scored, located, and pushed back to nearby users in seconds.</p>
-    </div>
-    <div class="impact-grid">
-      <div class="impact-card liquid-glass r-card reveal"><div class="n" data-target="41221">0</div><div class="l">People protected today</div></div>
-      <div class="impact-card liquid-glass r-card reveal"><div class="n"><em>₹</em><span data-target="3.4">0</span><em> Cr</em></div><div class="l">Money saved today</div></div>
-      <div class="impact-card liquid-glass r-card reveal"><div class="n" data-target="8940">0</div><div class="l">Antibodies generated</div></div>
-      <div class="impact-card liquid-glass r-card reveal"><div class="n" data-target="128">0</div><div class="l">Cities covered</div></div>
-      <div class="impact-card liquid-glass r-card reveal"><div class="n" data-target="312">0</div><div class="l">Waves stopped early</div></div>
-    </div>
-    <div class="pipeline liquid-glass r-panel reveal">
-      <div class="pipe-row">
-        <div class="pipe-node"><span class="pn">01 · Client</span><h5>React PWA</h5><p>Report captured on device</p></div>
-        <div class="pipe-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-        <div class="pipe-node"><span class="pn">02 · Engine</span><h5>Fingerprint</h5><p>Sequenced into traits</p></div>
-        <div class="pipe-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-        <div class="pipe-node"><span class="pn">03 · Risk</span><h5>Rule scoring</h5><p>Verdict in &lt;1s</p></div>
-        <div class="pipe-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-        <div class="pipe-node"><span class="pn">04 · Geo</span><h5>Firestore geo</h5><p>Matched to a hotspot</p></div>
-        <div class="pipe-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-        <div class="pipe-node"><span class="pn">05 · Alert</span><h5>Push to nearby</h5><p>Everyone exposed, immunized</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- VISION -->
-<section class="pad-sm vision" id="vision">
-  <div class="wrap">
-    <div class="liquid-glass r-panel vision-panel reveal">
-      <span class="eyebrow" style="display:inline-flex;justify-content:center">The future</span>
-      <div class="vision-lines" style="margin-top:1.2rem"><span class="g">One campus. Then cities.</span> Then <span class="em">all of India</span>.</div>
-      <p>Plugged into NPCI, every reported scam could immunize 46 crore users in seconds — herd immunity for India's payments.</p>
-      <button class="btn liquid-glass-strong" data-open-report>Start Protection<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-    </div>
-  </div>
-</section>
-
-<!-- CONNECT -->
-<section class="pad-y" id="connect">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow reveal">Connect</span>
-      <h2 class="h-sec reveal">Built by <span class="em">Vishweshwaran Balasundaram</span>.</h2>
-      <p class="lead reveal">Questions, feedback, or want to collaborate? Reach out on any channel.</p>
-    </div>
-    <div class="connect-grid">
-      <a href="tel:7339486693" class="cc liquid-glass r-card reveal"><div class="k">Phone</div><div class="v">73394 86693</div><div class="go">Call →</div></a>
-      <a href="https://www.linkedin.com/in/vishweshwaran-v-448a393a9/" target="_blank" rel="noopener" class="cc liquid-glass r-card reveal"><div class="k">LinkedIn</div><div class="v">vishweshwaran-v</div><div class="go">Open →</div></a>
-      <a href="https://github.com/vishweshwaranbalasundaram" target="_blank" rel="noopener" class="cc liquid-glass r-card reveal"><div class="k">GitHub</div><div class="v">vishweshwaranbalasundaram</div><div class="go">Open →</div></a>
-      <a href="https://instagram.com/iv1chu.8s" target="_blank" rel="noopener" class="cc liquid-glass r-card reveal"><div class="k">Instagram</div><div class="v">iv1chu.8s</div><div class="go">Open →</div></a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <div class="liquid-glass r-panel panel">
-      <div class="foot-top">
-        <div><a href="#top" class="brand"><span class="mark"><span></span><span></span></span>SafePay Guard OS</a><p>India's financial immune system. One report becomes an antibody that protects thousands — report scams, stay immune.</p></div>
-        <div class="foot-col"><h5>Explore</h5><a href="#radar">Radar</a><a href="#dna">Analysis</a><a href="#reports">Reports</a><a href="#golden">Golden Hour</a><a href="#impact">Impact</a></div>
-        <div class="foot-col"><h5>Connect</h5><a href="#connect">Contact</a><a href="https://github.com/vishweshwaranbalasundaram" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/vishweshwaran-v-448a393a9/" target="_blank" rel="noopener">LinkedIn</a><a href="tel:1930">Report fraud · 1930</a></div>
-      </div>
-      <div class="foot-bot"><span>© 2026 SafePay Guard OS · Crack the Complexity Designathon · FinTech track</span><span>For any financial fraud, call <b>1930</b> first.</span></div>
+    <div class="foot-bottom">
+      <span>© <span id="footYear">2026</span> SafePay Guard OS · Crack the Complexity Designathon · FinTech track</span>
+      <span class="foot-made" data-i18n-html="foot_made_html">Made with <span class="heart">❤</span> by Vishweshwaran Balasundaram</span>
+      <button class="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top" data-i18n="foot_top">↑ Top</button>
     </div>
   </div>
 </footer>
 
-</div><!-- /page -->
-
-<div class="modal-veil" id="report-modal">
-  <div class="modal liquid-glass-strong r-panel">
-    <button class="modal-close" data-close-report aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-    <h3>Report a scam</h3>
-    <p>We'll sequence it, warn nearby users, and prep a cybercrime.gov.in complaint. Nothing is submitted without you.</p>
-    <div class="mrow"><label>Scam message or number</label><textarea class="liquid-glass" rows="3" id="rep-msg" placeholder="Paste the suspicious message or caller ID…"></textarea></div>
-    <div class="mrow"><label>Your city (optional)</label><input class="liquid-glass r-full" id="rep-city" placeholder="e.g. Chennai" /></div>
-    <button class="btn liquid-glass-strong" id="rep-submit">Generate antibody<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-    <div class="modal-note">Final submission happens securely on the official Government of India portal.</div>
+<!-- Sentinel AI chat -->
+<button id="aifab" class="magnetic" onclick="openChat()"><span class="orbmini"></span> <span id="fabTxt" data-i18n="fab">Ask Sentinel AI</span></button>
+<div id="aichat" class="glass">
+  <div class="ac-head"><span class="orbmini"></span><div><b>Sentinel AI</b><small data-i18n="chat_guardian">on-device fraud guardian</small></div><span class="x" onclick="closeChat()">×</span></div>
+  <div class="ac-body" id="acBody"></div>
+  <div class="ac-quick">
+    <span class="q" onclick="acSend('Is this a scam? URGENT KYC verify, share OTP now')" data-i18n="chat_q1">Check a message</span>
+    <span class="q" onclick="acSend('I was scammed')" data-i18n="chat_q2">I was scammed</span>
+    <span class="q" onclick="acSend('What is a digital arrest scam?')" data-i18n="chat_q3">Digital arrest?</span>
+    <span class="q" onclick="acSend('Is this UPI ID safe?')" data-i18n="chat_q4">UPI ID safe?</span>
   </div>
+  <div class="ac-input"><input id="acInput" data-i18n-ph="chat_input_ph" placeholder="Ask anything about a scam…" onkeydown="if(event.key==='Enter')acSend()"><button onclick="acSend()" data-i18n="chat_send">Send</button></div>
 </div>
 
-<div class="toast liquid-glass-strong r-full" id="toast"><span class="dot"></span><span id="toast-msg">Antibody generated — nearby users warned.</span></div>
+<!-- Auth modal -->
+<div id="authwrap"><div class="auth glass" style="position:relative">
+  <span class="x" onclick="closeAuth()">×</span>
+  <h3 id="authTitle">Welcome back</h3>
+  <p class="sub" id="authSub">Sign in to protect your account and get real-time alerts.</p>
+  <label data-i18n="auth_email">Email address</label>
+  <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+  <label data-i18n="auth_password">Password</label>
+  <div class="pass-wrap">
+    <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" onkeyup="capsWarn(event)" oninput="pwStrength()">
+    <button type="button" class="pass-toggle" id="passToggle" aria-label="Show password" aria-pressed="false" onclick="togglePass(this)">
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.68"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+    </button>
+  </div>
+  <div class="caps-warn" id="capsWarn"></div>
+  <div class="pwstrength" id="pwStrength" style="display:none"><div class="pwbar"><i id="pwFill"></i></div><span class="pwlabel" id="pwLabel"></span></div>
+  <div id="signupFields" style="display:none">
+    <div class="pfp-row">
+      <div class="pfp-prev" id="pfpPrev">A</div>
+      <div>
+        <label style="margin:0 0 6px" data-i18n="auth_pfp">Profile picture</label>
+        <label for="pfpInput" class="pfp-btn" data-i18n="auth_upload">Upload photo</label>
+        <input type="file" id="pfpInput" accept="image/*" style="display:none" onchange="loadPfp(event)">
+      </div>
+    </div>
+    <label data-i18n="auth_username">Username</label>
+    <input type="text" id="authName" placeholder="e.g. rahul_k" autocomplete="username" oninput="if(!pfpData)document.getElementById('pfpPrev').textContent=(this.value[0]||'A').toUpperCase()">
+    <label data-i18n="auth_mobile">Mobile number</label>
+    <input type="tel" id="authPhone" placeholder="+91 98765 43210" autocomplete="tel">
+  </div>
+  <div class="captcha">
+    <div class="box" id="robotBox" onclick="toggleRobot()"><svg viewBox="0 0 24 24" fill="none" stroke="#04121a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="t" data-i18n="auth_robot">I'm not a robot</div>
+    <div class="rc">SafePay<br>Guard</div>
+  </div>
+  <div class="err" id="authErr"></div>
+  <div class="auth-row">
+    <label class="remember"><input type="checkbox" id="authRemember" onchange="rememberSync()"> <span data-i18n="auth_remember">Remember me</span></label>
+    <a onclick="forgotPassword()" class="forgot-link" data-i18n="auth_forgot">Forgot password?</a>
+  </div>
+  <button class="btn primary go" onclick="submitAuth()" id="authGo">Sign in</button>
+  <div class="switch" id="authSwitch">New here? <a onclick="setAuthMode('signup')">Create an account</a></div>
+  <div class="demo" data-i18n="auth_secured">Secured by Firebase · your password is encrypted</div>
+</div></div>
 
-<!-- Google Translate: powers the EN / हिं / தமிழ் switcher so the WHOLE page translates -->
-<div id="google_translate_element" style="display:none"></div>
-<script>
-function googleTranslateElementInit(){
-  new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:'en,hi,ta',autoDisplay:false},'google_translate_element');
-}
-</script>
-<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+<!-- Permission prompt -->
+<div id="permwrap"><div class="perm glass">
+  <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+  <h3 data-i18n="perm_title">Turn on Protection?</h3>
+  <p data-i18n-html="perm_body">Allow SafePay Guard to <b>screen your incoming calls &amp; SMS</b> and automatically block known scam numbers and fake messages, using the community immune network.</p>
+  <div class="prow">
+    <button class="btn ghost" onclick="declineProtect()" data-i18n="perm_no">Not now</button>
+    <button class="btn primary" onclick="enableProtect()" data-i18n="perm_yes">Allow protection</button>
+  </div>
+  <div class="demo" data-i18n="perm_demo">Prototype - real-time call/SMS blocking runs in the SafePay Guard mobile app with your device permission.</div>
+</div></div>
 
+<!-- Protection shield -->
+<button id="shieldFab" onclick="toggleShield()"><span class="pdot"></span> <span data-i18n="shield_on">Protection ON</span></button>
+<div id="shieldPanel" class="glass">
+  <div class="sp-head"><span class="orbmini" style="background:radial-gradient(circle at 35% 30%,#fff,#22C55E 40%,#0e7c86)"></span><div><b data-i18n="shield_title">Protection Shield</b><small data-i18n="shield_sub">Screening calls &amp; SMS</small></div><span class="x" onclick="toggleShield()">×</span></div>
+  <div class="sp-stat"><div class="n" id="sp-count">0</div><div class="l" data-i18n="shield_blocked">threats blocked today</div></div>
+  <div class="sp-feed" id="sp-feed"></div>
+  <div class="sp-tools">
+    <div class="sp-row"><input id="sp-check" data-i18n-ph="shield_check_ph" placeholder="Check a number or sender ID"><button class="mini go" onclick="checkNumber()" data-i18n="shield_check">Check</button></div>
+    <div class="sp-verdict" id="sp-verdict"></div>
+    <div class="sp-row"><input id="sp-report" data-i18n-ph="shield_report_ph" placeholder="Report a scam number to block"><button class="mini" onclick="reportNumber()" data-i18n="shield_report">Report</button></div>
+  </div>
+  <div class="sp-demo" data-i18n="shield_demo">Demo blocklist - grows as the community reports. Real blocking needs the mobile app + OS permission.</div>
+</div>
+
+<!-- Auto-report to Government -->
+<div id="govwrap"><div class="gov glass">
+  <span class="x" onclick="closeGov()">×</span>
+  <h3><span class="ic-sm" data-icon="shield"></span> <span data-i18n="gov_title">File with Cyber Crime</span></h3>
+  <p class="sub" data-i18n="gov_sub">Fill in what you know — we'll assemble a ready-to-file complaint for the National Cyber Crime Reporting Portal. Nothing is submitted without you.</p>
+  <div class="gov-form">
+    <div class="gov-grid">
+      <div class="gf"><label data-i18n="gov_f_amount">Amount lost (₹)</label><input id="gv-amount" type="text" inputmode="numeric" data-i18n-ph="gov_ph_amount" placeholder="e.g. 25000" oninput="buildComplaint()"></div>
+      <div class="gf"><label data-i18n="gov_f_date">Date &amp; time of fraud</label><input id="gv-date" type="text" data-i18n-ph="gov_ph_date" placeholder="e.g. 05 Aug 2026, 3:40 PM" oninput="buildComplaint()"></div>
+      <div class="gf"><label data-i18n="gov_f_bank">Your bank / wallet</label><input id="gv-bank" type="text" data-i18n-ph="gov_ph_bank" placeholder="e.g. SBI" oninput="buildComplaint()"></div>
+      <div class="gf"><label data-i18n="gov_f_txn">Transaction / UPI ID</label><input id="gv-txn" type="text" data-i18n-ph="gov_ph_txn" placeholder="e.g. 4231…/ scammer@upi" oninput="buildComplaint()"></div>
+      <div class="gf"><label data-i18n="gov_f_phone">Scammer's phone / sender</label><input id="gv-phone" type="text" data-i18n-ph="gov_ph_phone" placeholder="e.g. +91 98765 43210" oninput="buildComplaint()"></div>
+      <div class="gf"><label data-i18n="gov_f_evidence">Evidence you have</label><input id="gv-evidence" type="text" data-i18n-ph="gov_ph_evidence" placeholder="e.g. 2 screenshots, SMS" oninput="buildComplaint()"></div>
+    </div>
+    <div class="gf"><label data-i18n="gov_f_desc">What happened (short description)</label><textarea id="gv-desc" rows="3" data-i18n-ph="gov_ph_desc" placeholder="Describe how the fraud happened…" oninput="buildComplaint()"></textarea></div>
+    <button class="mini go magnetic" onclick="buildComplaint()" data-i18n="gov_generate">Generate complaint</button>
+  </div>
+  <div class="field"><div class="k">DETECTED</div><div class="v" id="gov-type">—</div></div>
+  <div class="klabel" data-i18n="gov_label">COMPLAINT · READY TO FILE (editable)</div>
+  <textarea id="gov-text"></textarea>
+  <div class="grow">
+    <a class="btn primary" id="gov-portal" href="https://cybercrime.gov.in" target="_blank" rel="noopener" data-i18n="gov_open">Open cybercrime.gov.in</a>
+    <a class="btn ghost" href="tel:1930" data-i18n="call1930">Call 1930</a>
+    <button class="btn ghost" onclick="copyGov()" data-i18n="gov_copy">Copy complaint</button>
+  </div>
+  <div class="note" data-i18n="gov_note">SafePay Guard only prepares the text and warns nearby users. Final submission happens on the official Government of India portal (login via mobile OTP). Nothing is sent without you.</div>
+</div></div>
+
+<!-- Alert family & friends -->
+<div id="sharewrap"><div class="share glass">
+  <span class="x" onclick="closeShare()">×</span>
+  <h3><span class="ic-sm" data-icon="users"></span> <span data-i18n="share_title">Alert family &amp; friends</span></h3>
+  <p class="sub" data-i18n="share_sub">Warn the people you care about - one share can stop the next victim.</p>
+  <textarea id="share-text"></textarea>
+  <div class="share-grid">
+    <button class="sbtn wa" onclick="shareTo('whatsapp')">WhatsApp</button>
+    <button class="sbtn ig" onclick="shareInsta()">Instagram</button>
+    <button class="sbtn tg" onclick="shareTo('telegram')">Telegram</button>
+    <button class="sbtn xx" onclick="shareTo('x')">X</button>
+    <button class="sbtn fb" onclick="shareTo('facebook')">Facebook</button>
+    <button class="sbtn em" onclick="shareTo('email')">Email</button>
+    <button class="sbtn cp" onclick="copyShare()" data-i18n="share_copy">Copy</button>
+    <button class="sbtn more" onclick="nativeShare()" data-i18n="share_more">Share…</button>
+  </div>
+  <div class="note">On phones, “Share…” opens your device share sheet - Instagram, SMS, and every app you have.</div>
+</div></div>
+
+<div id="toasts"></div>
+<div id="cinema"><div class="c glass"><div class="huge" id="cinema-h"></div><p id="cinema-p"></p><button class="btn primary" onclick="closeCinema()">Close</button></div></div>
+
+<!-- progressive-enhancement libs (guarded; site works fully without them) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
-<script>
-const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const $=(s,c=document)=>c.querySelector(s);
-const $$=(s,c=document)=>[...c.querySelectorAll(s)];
-
-/* preloader */
-(function(){
-  const fill=$('.pre-fill'),el=$('#preloader');
-  const dur=reduceMotion?200:900,start=performance.now();
-  (function t(now){const p=Math.min(1,(now-start)/dur);fill.style.width=(p*100)+'%';
-    if(p<1)requestAnimationFrame(t);
-    else{if(window.gsap)gsap.to(el,{opacity:0,duration:.5,onComplete:()=>el.style.display='none'});else el.style.display='none';revealHero();}})(start);
-})();
-
-/* Lenis smooth scroll */
-let lenis;
-if(!reduceMotion&&typeof Lenis!=='undefined'){
-  lenis=new Lenis({duration:1.1,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true});
-  requestAnimationFrame(function raf(t){lenis.raf(t);requestAnimationFrame(raf);});
-  if(window.ScrollTrigger){lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);}
-}
-function scrollTo(t){const el=typeof t==='string'?$(t):t;if(!el)return;if(lenis)lenis.scrollTo(el,{offset:-90,duration:1.2});else el.scrollIntoView({behavior:'smooth'});}
-
-/* animated background — subtle grayscale network */
-(function bg(){
-  const c=$('#bg-canvas');if(!c)return;const x=c.getContext('2d');
-  let w,h,dpr,nodes=[];
-  function size(){dpr=Math.min(devicePixelRatio,2);w=c.width=innerWidth*dpr;h=c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';}
-  function init(){const n=Math.min(64,Math.floor(innerWidth/26));nodes=[];for(let i=0;i<n;i++)nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.16*dpr,vy:(Math.random()-.5)*.16*dpr});}
-  size();init();addEventListener('resize',()=>{size();init();});
-  const CONNECT=140*dpr;
-  function frame(){
-    x.clearRect(0,0,w,h);
-    for(const n of nodes){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>w)n.vx*=-1;if(n.y<0||n.y>h)n.vy*=-1;}
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
-        const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.hypot(dx,dy);
-        if(d<CONNECT){x.strokeStyle='rgba(255,255,255,'+(0.05*(1-d/CONNECT))+')';x.lineWidth=1;x.beginPath();x.moveTo(nodes[i].x,nodes[i].y);x.lineTo(nodes[j].x,nodes[j].y);x.stroke();}
-      }
-      x.fillStyle='rgba(255,255,255,.28)';x.beginPath();x.arc(nodes[i].x,nodes[i].y,1.3*dpr,0,7);x.fill();
-    }
-    if(!reduceMotion)requestAnimationFrame(frame);
-  }
-  frame();
-})();
-
-/* nav hide on scroll */
-(function(){
-  const nav=$('header.nav');let last=0;
-  addEventListener('scroll',()=>{const y=scrollY;if(y>last&&y>600)nav.classList.add('hide');else nav.classList.remove('hide');last=y;},{passive:true});
-  $$('[data-scroll-to]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();scrollTo(b.dataset.scrollTo);}));
-  $$('.nav-links a,.foot-col a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();scrollTo(a.getAttribute('href'));}));
-  $('.brand').addEventListener('click',e=>{e.preventDefault();scrollTo('#top');});
-  $$('.lang button').forEach(b=>b.addEventListener('click',()=>{setLang(b.dataset.lang);}));
-})();
-
-/* reveals */
-function revealHero(){
-  const items=$$('.hero .reveal');
-  if(reduceMotion||!window.gsap){items.forEach(i=>{i.style.opacity=1;i.style.transform='none';});return;}
-  gsap.to(items,{opacity:1,y:0,scale:1,duration:1,ease:'power3.out',stagger:.1,delay:.1});
-}
-if(window.ScrollTrigger&&!reduceMotion){
-  gsap.registerPlugin(ScrollTrigger);
-  $$('.reveal').forEach(el=>{if(el.closest('.hero'))return;gsap.to(el,{opacity:1,y:0,scale:1,duration:.85,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 90%'}});});
-}else{$$('.reveal').forEach(el=>{el.style.opacity=1;el.style.transform='none';});}
-
-/* count up */
-function animCount(el,target,dur=1600,decimals=0){
-  const start=performance.now();
-  (function s(now){const p=Math.min(1,(now-start)/dur),e=1-Math.pow(1-p,3),v=target*e;
-    el.textContent=decimals?v.toFixed(decimals):Math.round(v).toLocaleString('en-IN');
-    if(p<1)requestAnimationFrame(s);})(start);
-}
-if(window.ScrollTrigger){ScrollTrigger.create({trigger:'#impact',start:'top 75%',once:true,onEnter:()=>{$$('.impact-card .n [data-target],.impact-card .n[data-target]').forEach(el=>{const t=parseFloat(el.dataset.target);animCount(el,t,1700,t%1?1:0);});}});}
-
-/* outbreak replay */
-(function(){
-  const steps=$$('#outbreak-tl .tl-step'),btn=$('#replay-btn');let playing=false;
-  function play(){if(playing)return;playing=true;steps.forEach(s=>s.classList.remove('active'));steps.forEach((s,i)=>setTimeout(()=>{s.classList.add('active');if(i===steps.length-1)playing=false;},i*650));}
-  btn.addEventListener('click',play);
-  if(window.ScrollTrigger)ScrollTrigger.create({trigger:'#radar',start:'top 55%',once:true,onEnter:play});
-})();
-
-/* analysis engine */
-(function(){
-  const samples={
-    kyc:'URGENT: Your SBI account KYC expires today. Verify now to avoid suspension → http://sbi-kyc-verify.xyz Enter your UPI PIN to confirm.',
-    lottery:'Congratulations! Your number won ₹25,00,000 in the KBC lottery. To claim your prize, pay ₹4,999 processing fee to this UPI ID and share your OTP now.',
-    refund:'Your Amazon refund of ₹1,299 failed. Scan this QR code and approve the collect request to receive your money back immediately.',
-    safe:'Hi, this is Priya from work. Are we still meeting at 4pm today for the project review? Let me know if the time works.'
-  };
-  const text=$('#dna-text'),gauge=$('#gauge-fill'),CIRC=263.9;
-  const rules={
-    urgency:{words:['urgent','immediately','now','today','expire','expires','suspend','suspension','within 24','act now','last chance','verify now','final notice'],weight:20},
-    identity:{words:['sbi','hdfc','icici','axis','bank','kyc','rbi','income tax','govt','police','cbi','customs','electricity','paytm','amazon','flipkart'],weight:18},
-    link:{regex:/(https?:\/\/|www\.|bit\.ly|tinyurl|\.xyz|\.top|\.info|\.link|[a-z0-9-]+\.(com|in|co)\/[a-z0-9])/i,domainRegex:/\.(xyz|top|info|link|online|click|buzz)/i,weight:22},
-    payment:{words:['upi pin','pin','otp','cvv','password','card number','collect request','pay ₹','pay rs','processing fee','send money','scan','qr'],weight:24},
-    emotion:{words:['won','win','winner','prize','lottery','congratulations','arrest','arrested','legal action','blocked','refund','cashback','free','reward','lucky'],weight:16}
-  };
-  const hits=(m,words)=>{let c=0;words.forEach(w=>{if(m.includes(w))c++;});return Math.min(100,c*34);};
-  function score(msg){const m=msg.toLowerCase();let link=0;if(rules.link.regex.test(msg))link+=60;if(rules.link.domainRegex.test(msg))link+=40;
-    return{urgency:hits(m,rules.urgency.words),identity:hits(m,rules.identity.words),link:Math.min(100,link),payment:hits(m,rules.payment.words),emotion:hits(m,rules.emotion.words)};}
-  function verdict(t){if(t>=66)return{t:'Dangerous scam',b:'High risk',op:1,d:'Multiple fraud markers detected. Do not click, pay, or share any PIN/OTP. Report it now.'};
-    if(t>=34)return{t:'Likely suspicious',b:'Elevated',op:.72,d:'This message shows fraud traits. Verify through official channels before acting.'};
-    return{t:'Looks safe',b:'Low risk',op:.5,d:'No strong fraud markers found — but stay alert and never share your PIN or OTP.'};}
-  function run(){
-    const msg=text.value.trim();if(!msg)return;const s=score(msg);
-    const W=rules.urgency.weight+rules.identity.weight+rules.link.weight+rules.payment.weight+rules.emotion.weight;
-    const total=Math.round((s.urgency*rules.urgency.weight+s.identity*rules.identity.weight+s.link*rules.link.weight+s.payment*rules.payment.weight+s.emotion*rules.emotion.weight)/W);
-    const v=verdict(total);
-    gauge.style.strokeDashoffset=CIRC*(1-total/100);animCount($('#risk-num'),total,900);
-    const badge=$('#risk-badge');badge.textContent=v.b;badge.style.color='rgba(255,255,255,'+v.op+')';
-    $('#risk-title').textContent=v.t;$('#risk-desc').textContent=v.d;
-    $$('#traits .trait').forEach(tr=>{const val=s[tr.dataset.trait]||0;tr.querySelector('.val').textContent=val;const f=tr.querySelector('.trait-fill');f.style.width=val+'%';f.style.background='rgba(255,255,255,'+(0.35+0.6*val/100)+')';});
-  }
-  $('#dna-run').addEventListener('click',run);
-  $('#dna-clear').addEventListener('click',()=>{text.value='';$$('#samples button').forEach(b=>b.classList.remove('on'));gauge.style.strokeDashoffset=CIRC;$('#risk-num').textContent='0';const b=$('#risk-badge');b.textContent='Awaiting';b.style.color='';$('#risk-title').textContent='Ready to sequence';$('#risk-desc').textContent='Paste a message and tap “Sequence it” to run the analysis.';$$('#traits .trait').forEach(tr=>{tr.querySelector('.val').textContent='0';tr.querySelector('.trait-fill').style.width='0';});});
-  $$('#samples button').forEach(b=>b.addEventListener('click',()=>{$$('#samples button').forEach(x=>x.classList.remove('on'));b.classList.add('on');text.value=samples[b.dataset.sample];run();}));
-  if(window.ScrollTrigger)ScrollTrigger.create({trigger:'#dna',start:'top 60%',once:true,onEnter:run});
-})();
-
-/* anatomy */
-(function(){
-  const steps=[
-    {n:'Message',glyph:'💬',title:'It starts with one message',desc:'An SMS or WhatsApp claims your bank KYC has expired. It looks official and feels urgent.',flag:'Real banks never ask you to "verify KYC" over a link. Urgency is the bait.'},
-    {n:'Link',glyph:'🔗',title:'A link you shouldn\'t tap',desc:'The message pushes a lookalike link — sbi-kyc-verify.xyz — that isn\'t the bank\'s real domain.',flag:'Odd domains (.xyz, .top) and misspelled bank names are near-certain fraud.'},
-    {n:'Fake site',glyph:'🪪',title:'A convincing fake login',desc:'A pixel-perfect clone of your bank asks for card number, CVV and net-banking password.',flag:'A real bank page lives on its official domain. Never enter credentials from a message link.'},
-    {n:'QR / UPI',glyph:'📲',title:'The "collect request" trap',desc:'You\'re asked to scan a QR or approve a collect request to "receive" a refund — but it sends money out.',flag:'You never scan a QR to RECEIVE money. Scanning and entering your PIN only pays money out.'},
-    {n:'Bank',glyph:'🏦',title:'Your PIN authorises the theft',desc:'Entering your UPI PIN authorises the transfer. To the bank it looks like you approved it.',flag:'Your UPI PIN is a signature. Anyone asking for it is stealing from you.'},
-    {n:'Money gone',glyph:'💸',title:'Seconds later, it\'s gone',desc:'The money moves through mule accounts in seconds — but the first hour is your window to freeze it.',flag:'Call 1930 immediately. Fast reporting is the biggest factor in recovering funds.'}
-  ];
-  const track=$('#step-track'),title=$('#step-title'),desc=$('#step-desc'),flag=$('#step-flag'),glyph=$('#step-glyph');
-  steps.forEach((s,i)=>{const b=document.createElement('button');b.innerHTML=`<span class="sn">STEP ${String(i+1).padStart(2,'0')}</span>${s.n}`;b.addEventListener('click',()=>select(i));track.appendChild(b);});
-  function select(i){$$('#step-track button').forEach((b,bi)=>b.classList.toggle('on',bi===i));const s=steps[i];
-    if(window.gsap)gsap.fromTo([title,desc,$('.redflag')],{opacity:0,y:12},{opacity:1,y:0,duration:.45,stagger:.06,ease:'power2.out'});
-    title.textContent=s.title;desc.textContent=s.desc;flag.textContent=s.flag;glyph.textContent=s.glyph;}
-  select(0);
-})();
-
-/* modal + toast */
-(function(){
-  const veil=$('#report-modal');
-  const open=()=>{veil.classList.add('open');if(lenis)lenis.stop();};
-  const close=()=>{veil.classList.remove('open');if(lenis)lenis.start();};
-  $$('[data-open-report]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();open();}));
-  $$('[data-close-report]').forEach(b=>b.addEventListener('click',close));
-  veil.addEventListener('click',e=>{if(e.target===veil)close();});
-  addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-  $('#rep-submit').addEventListener('click',()=>{close();const t=$('#toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);});
-})();
-
-/* mobile menu */
-(function(){
-  const b=$('[data-burger]'),menu=$('#m-menu');if(!b||!menu)return;
-  const toggle=f=>{const o=f!==undefined?f:!menu.classList.contains('open');menu.classList.toggle('open',o);b.classList.toggle('on',o);if(lenis)o?lenis.stop():lenis.start();};
-  b.addEventListener('click',()=>toggle());
-  $$('#m-menu a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();toggle(false);setTimeout(()=>scrollTo(a.getAttribute('href')),150);}));
-})();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase.js?v=1.6.4"></script>
+<script src="app.js?v=1.6.4"></script>
 </body>
 </html>
