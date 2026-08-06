@@ -666,3 +666,15 @@ html{overflow-x:hidden}
 .pwstrength .pwbar{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
 .pwstrength .pwbar i{display:block;height:100%;width:0;border-radius:4px;transition:width .3s,background .3s}
 .pwstrength .pwlabel{font-size:11px;font-family:var(--mono);color:var(--muted);min-width:52px;text-align:right}
+
+/* ---- Cyber Crime complaint form (auto-fill) ---- */
+.gov .gov-form{margin-bottom:14px}
+.gov .gov-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gov .gf{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.gov .gov-grid .gf{margin-top:0}
+.gov .gf label{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:1px;text-transform:uppercase}
+.gov .gf input,.gov .gf textarea{width:100%;background:rgba(5,10,26,.6);border:1px solid var(--brd);border-radius:10px;color:var(--ink);font-family:var(--body);font-size:12.5px;padding:9px 11px;line-height:1.4}
+.gov .gf textarea{min-height:60px;resize:vertical;margin-top:0}
+.gov .gf input:focus,.gov .gf textarea:focus{outline:none;border-color:var(--cyan)}
+.gov .gov-form .mini{margin-top:12px}
+@media(max-width:520px){.gov .gov-grid{grid-template-columns:1fr}}
